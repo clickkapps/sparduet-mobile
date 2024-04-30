@@ -74,13 +74,15 @@ mixin FileManagerMixin {
         // For this example the duration is set, e.g. for a social
         // media application where the posts are not allowed to be
         // shorter than 2 seconds.
-        minimumDuration: AppConstants.minimumVideoDuration,
+        // minimumDuration: AppConstants.minimumVideoDuration,
+        minimumDuration: 0,
 
         // By default the editor does not have a maximum duration.
         // For this example the duration is set, e.g. for a social
         // media application where the posts are not allowed to be
         // longer than 5 seconds.
-        maximumDuration: AppConstants.maximumVideoDuration,
+        // maximumDuration: AppConstants.maximumVideoDuration,
+        maximumDuration: 10,
 
         forceMode: ForceTrimMode.always
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:dartz/dartz.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart';
@@ -300,8 +301,8 @@ extension ContextExtension on BuildContext {
 
   /// Method called when user wants to upload new set image images
   /// This will retrain the images
-  void pickFilesFromGallery(
-      {required RequestType requestType, Function(List<File>?)? onSuccess , Function(String)? onError,  int? maxAssets}) async {
+  void pickFileFromGallery(
+      {required FileType fileType, Function(File)? onSuccess , Function(String)? onError}) async {
 
     /// Check if user has granted the permissions to gallery
     await Permission.storage.request();
@@ -345,14 +346,18 @@ extension ContextExtension on BuildContext {
       return;
     }
 
-    final List<AssetEntity>? result = await AssetPicker.pickAssets(
-      this,
-      pickerConfig: AssetPickerConfig(
-        // themeColor: luckyPointBlue,
-        requestType: requestType,
-        maxAssets: maxAssets ?? (requestType == RequestType.video ? 1 : 10),
-
-      ),
+    // final List<AssetEntity>? result = await AssetPicker.pickAssets(
+    //   this,
+    //   pickerConfig: AssetPickerConfig(
+    //     // themeColor: luckyPointBlue,
+    //     requestType: requestType,
+    //     maxAssets: maxAssets ?? (requestType == RequestType.video ? 1 : 10),
+    //
+    //   ),
+    // );
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: fileType,
+      allowCompression: false,
     );
 
     if(result == null) {
@@ -360,53 +365,9 @@ extension ContextExtension on BuildContext {
       return;
     }
 
-    // final files = await result?.map((e) async => await e.file).toList();
-    final List<File> files = [];
-
-    for(int i = 0; i < result.length; i++){
-      final file = await result[i].file;
-      if(file == null) {
-        continue;
-      }
-      files.add(file);
-    }
-
-    if(!mounted || files.isEmpty) {
-      onError?.call("Oops!. Sorry try again");
-      return;
-    }
+    File file = File(result.files.single.path!);
 
     // upload images / videos
-    if(requestType == RequestType.video) {
-      onSuccess?.call(<File>[files.first]);
-    }else {
-      onSuccess?.call(files);
-    }
-
-  }
-
-  void pickFileFromCamera({required RequestType requestType, Function(File)? onSuccess, bool shouldAutoPreview = true, Function(String)? onError}) async {
-
-    final AssetEntity? entity = await CameraPicker.pickFromCamera(this,
-      pickerConfig: CameraPickerConfig(
-        enableRecording: true,
-        enableTapRecording: true,
-        onlyEnableRecording: requestType == RequestType.video,
-        textDelegate: const EnglishCameraPickerTextDelegate(),
-        shouldAutoPreviewVideo: shouldAutoPreview
-        // shouldAutoPreviewVideo: true,
-        // maximumRecordingDuration:  Duration(seconds: AppConstants.maximumVideoDuration.toInt()),
-        // minimumRecordingDuration:  Duration(seconds: AppConstants.minimumVideoDuration.toInt()),
-
-      ),
-    );
-
-    final file = await entity?.file;
-    if(file == null) {
-      onError?.call("Oop! We were unable to capture video");
-      return;
-    }
-
     onSuccess?.call(file);
 
   }
@@ -448,38 +409,6 @@ extension ContextExtension on BuildContext {
                       }, trailing: item.icon != null ? Icon(item.icon, color: theme.colorScheme.onBackground) : null,);
                     })
 
-
-                    // ListTile(title: Text("Select video from gallery", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   context.pop();
-                    //
-                    // }, trailing: Icon(FeatherIcons.image, color: theme.colorScheme.onBackground,),)
-                    // ListTile(title: Text("Asian", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Asian";
-                    //
-                    // },),
-                    // ListTile(title: Text("Black or African American", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Black or African American";
-                    //
-                    // },),
-                    // ListTile(title: Text("Middle Eastern or North African", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Middle Eastern or North African";
-                    //
-                    // },),
-                    // ListTile(title: Text("Native Hawaiian or other Pacific Islander", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Native Hawaiian or other Pacific Islander";
-                    // },),
-                    // ListTile(title: Text("White", style: theme.textTheme.bodyMedium,), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "White";
-                    // },),
-                    // ListTile(title: Text("Some other race", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Some other race";
-                    // },),
                   ],
                 ),
               ),

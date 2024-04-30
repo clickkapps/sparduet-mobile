@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import 'package:separated_column/separated_column.dart';
 import 'package:separated_row/separated_row.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
@@ -18,7 +20,10 @@ import 'package:sparkduet/features/files/presentation/pages/video_trimmer_page.d
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
+import 'package:video_player/video_player.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
+import 'package:flutter_video_info/flutter_video_info.dart';
+
 enum CameraState {initial, recording, paused}
 Future<String?> openFeedCamera(BuildContext context) async {
   final currentTheme = Theme.of(context);
@@ -54,12 +59,13 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   final ValueNotifier<String?> error = ValueNotifier(null);
   final ValueNotifier<bool> flashOn = ValueNotifier(false);
   final ValueNotifier<int> description = ValueNotifier(0);
-  final ValueNotifier<int> duration = ValueNotifier(60);
+  final ValueNotifier<int> duration = ValueNotifier(AppConstants.maximumVideoDuration.toInt());
   final ValueNotifier<int> preRecordingTimerDurationStartValue = ValueNotifier(3);
   final ValueNotifier<bool> isTimerAnimating = ValueNotifier(false);
   final ValueNotifier<bool> isPreTimerAnimating = ValueNotifier(false);
   CameraState cameraState = CameraState.initial;
   RequestType cameraType = RequestType.video;
+  final videoInfo = FlutterVideoInfo();
   Timer? _timer;
   bool timerIsRunning = false;
   late ValueNotifier<int> timeRemaining;
@@ -293,7 +299,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   void stopAndPreviewRecording() async {
     stopVideoRecording(onSuccess: (file) {
       if(mounted) {
-        context.pushScreen(FeedEditorPreviewPage(file: file, requestType: RequestType.video));
+        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video));
       }
     });
   }
@@ -319,7 +325,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
   void takePhotoAndPreview() async {
     capturePhoto(onSuccess: (file) {
-      context.pushScreen(FeedEditorPreviewPage(file: file, requestType: RequestType.image));
+      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image));
     });
 
   }
@@ -353,15 +359,32 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   }
 
   /// When file is selected from the gallery
-  void onFileSelectedFromGalleryHandler(BuildContext context, {required File file, required RequestType requestType}) {
+  void onFileSelectedFromGalleryHandler(BuildContext context, {required File file, required FileType fileType}) async {
+
+
+      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
       /// show preview , option to edit video, option to add post description, or post directly
-      if(requestType == RequestType.video) {
-        // context.pushScreen(VideoTrimmerPage(file: file));
-        context.pushScreen(FeedEditorPreviewPage(file: file, requestType: requestType));
-      }
-      if(requestType == RequestType.image) {
-        context.pushScreen(FeedEditorPreviewPage(file: file, requestType: requestType));
-      }
+      // if(fileType == FileType.video) {
+      //   // VideoPlayerController controller = VideoPlayerController.file(file).initialize();//Your file here
+      //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
+      //   // final vInfo = await videoInfo.getVideoInfo(file.path);
+      //   // if(!context.mounted) {return;}
+      //   // final videoDuration = vInfo?.duration;
+      //   // const maxDuration = AppConstants.maximumVideoDuration * 1000;
+      //   // if(videoDuration != null  && videoDuration.round() > maxDuration) {
+      //   //   final trimmedVideo = await context.pushScreen(VideoTrimmerPage(file: file)) as File?;
+      //   //   if(trimmedVideo != null && context.mounted) {
+      //   //     context.pushScreen(FeedEditorPreviewPage(file: trimmedVideo, fileType: fileType));
+      //   //   }
+      //   // }
+      //   // else {
+      //   //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
+      //   // }
+      //
+      // }
+      // else if(fileType == FileType.image) {
+      //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
+      // }
   }
 
   /// Build camera UI
@@ -547,29 +570,29 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
                                        },child: Text("${const Duration(seconds: 15).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
 
                                        //! 30 seconds
+                                       val == const Duration(seconds: 20).inSeconds ? Chip(label: Text("${const Duration(seconds: 20).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                         backgroundColor: AppColors.darkColorScheme.background,
+                                       ) : GestureDetector(onTap: () {
+                                         duration.value = 20;
+                                         timeRemaining.value = duration.value;
+                                       }, child: Text("${const Duration(seconds: 20).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
+
+                                       //! 45 seconds
+                                       val == const Duration(seconds: 25).inSeconds ? Chip(label: Text("${const Duration(seconds: 25).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                         backgroundColor: AppColors.darkColorScheme.background,
+                                       ) : GestureDetector(onTap: () {
+                                         duration.value = 25;
+                                         timeRemaining.value = duration.value;
+                                       },child: Text("${const Duration(seconds: 25).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
+
+                                       //! 1 min
+                                       //! 10 seconds
                                        val == const Duration(seconds: 30).inSeconds ? Chip(label: Text("${const Duration(seconds: 30).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
                                          backgroundColor: AppColors.darkColorScheme.background,
                                        ) : GestureDetector(onTap: () {
                                          duration.value = 30;
                                          timeRemaining.value = duration.value;
                                        }, child: Text("${const Duration(seconds: 30).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
-
-                                       //! 45 seconds
-                                       val == const Duration(seconds: 45).inSeconds ? Chip(label: Text("${const Duration(seconds: 45).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
-                                         backgroundColor: AppColors.darkColorScheme.background,
-                                       ) : GestureDetector(onTap: () {
-                                         duration.value = 45;
-                                         timeRemaining.value = duration.value;
-                                       },child: Text("${const Duration(seconds: 45).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
-
-                                       //! 1 min
-                                       //! 10 seconds
-                                       val == const Duration(seconds: 60).inSeconds ? Chip(label: Text("${const Duration(seconds: 60).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
-                                         backgroundColor: AppColors.darkColorScheme.background,
-                                       ) : GestureDetector(onTap: () {
-                                         duration.value = 60;
-                                         timeRemaining.value = duration.value;
-                                       }, child: Text("${const Duration(seconds: 60).inSeconds}sec", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
 
 
                                      ],
@@ -591,15 +614,13 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
                                      /// Gallery
                                      Expanded(child:
                                      GestureDetector(
-                                       onTap: () {
-                                         context.pickFilesFromGallery(requestType: RequestType.video, onSuccess: (files) {
-                                           if((files ?? []).isNotEmpty) {
-                                             final file = (files??[]).first;
-                                             onFileSelectedFromGalleryHandler(context, file: file, requestType: RequestType.video);
-                                           }
+                                       onTap: () async {
+                                         context.pickFileFromGallery(fileType: FileType.video, onSuccess: (file) {
+                                           onFileSelectedFromGalleryHandler(context, file: file, fileType: FileType.video);
                                          }, onError: (error) {
                                            // context.showSnackBar(error, appearance: NotificationAppearance.info);
                                          });
+
                                        },
                                        child: Column(
                                          mainAxisSize: MainAxisSize.min,
@@ -885,11 +906,8 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
                                Expanded(child:
                                GestureDetector(
                                  onTap: () {
-                                   context.pickFilesFromGallery(requestType: RequestType.image, onSuccess: (files) {
-                                     if((files ?? []).isNotEmpty) {
-                                       final file = (files??[]).first;
-                                       onFileSelectedFromGalleryHandler(context, file: file, requestType: RequestType.image);
-                                     }
+                                   context.pickFileFromGallery(fileType: FileType.image, onSuccess: (file) {
+                                     onFileSelectedFromGalleryHandler(context, file: file, fileType: FileType.image);
                                    }, onError: (error) {
                                      // context.showSnackBar(error, appearance: NotificationAppearance.info);
                                    });
