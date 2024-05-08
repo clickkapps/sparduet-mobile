@@ -101,9 +101,9 @@ class _AuthorizeSocialPageState extends State<AuthorizeSocialPage> {
         elevation: 0,
         backgroundColor: colorScheme.surface,
         iconTheme: IconThemeData(color: colorScheme.onBackground),
-        bottom: const PreferredSize(
-            preferredSize: Size.fromHeight(2),
-            child: CustomBorderWidget()
+        bottom:  PreferredSize(
+            preferredSize: const Size.fromHeight(2),
+            child: CustomBorderWidget(color: AppColors.lightColorScheme.outline,)
         ),
         actions:  [
           UnconstrainedBox(

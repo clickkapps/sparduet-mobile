@@ -15,12 +15,18 @@ class $AssetsImgGen {
   /// File path: assets/img/app_icon.png
   AssetGenImage get appIcon => const AssetGenImage('assets/img/app_icon.png');
 
+  /// File path: assets/img/avatar.jpg
+  AssetGenImage get avatarJpg => const AssetGenImage('assets/img/avatar.jpg');
+
+  /// File path: assets/img/avatar.png
+  AssetGenImage get avatarPng => const AssetGenImage('assets/img/avatar.png');
+
   /// File path: assets/img/splash_img.png
   AssetGenImage get splashImg =>
       const AssetGenImage('assets/img/splash_img.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [appIcon, splashImg];
+  List<AssetGenImage> get values => [appIcon, avatarJpg, avatarPng, splashImg];
 }
 
 class Assets {

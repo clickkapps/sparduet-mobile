@@ -14,6 +14,7 @@ import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_preview_page.dart';
 import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
 import 'package:sparkduet/features/files/presentation/pages/video_trimmer_page.dart';
@@ -25,14 +26,14 @@ import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:flutter_video_info/flutter_video_info.dart';
 
 enum CameraState {initial, recording, paused}
-Future<String?> openFeedCamera(BuildContext context) async {
+Future<String?> openFeedCamera(BuildContext context, {PostFeedPurpose? purpose}) async {
   final currentTheme = Theme.of(context);
   final List<CameraDescription> cameras = await availableCameras();
   if(cameras.isEmpty) {
     return  "No cameras detected on your device";
   }
   if(context.mounted) {
-    context.push(AppRoutes.camera, extra: cameras).then((value) {
+    return context.push(AppRoutes.camera, extra: {"cameras": cameras, "feedPurpose": purpose}).then((value) {
         if(currentTheme.brightness == Brightness.light) {
           context.read<ThemeCubit>().setSystemUIOverlaysToLight();
         }
@@ -44,7 +45,9 @@ Future<String?> openFeedCamera(BuildContext context) async {
 class FeedEditorCameraPage extends StatefulWidget {
 
   final List<CameraDescription> cameras;
-  const FeedEditorCameraPage({super.key, required this.cameras});
+  final PostFeedPurpose? purpose;
+
+  const FeedEditorCameraPage({super.key, required this.cameras, this.purpose});
 
   @override
   State<FeedEditorCameraPage> createState() => _FeedEditorCameraPageState();
@@ -60,7 +63,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   final ValueNotifier<bool> flashOn = ValueNotifier(false);
   final ValueNotifier<int> description = ValueNotifier(0);
   final ValueNotifier<int> duration = ValueNotifier(AppConstants.maximumVideoDuration.toInt());
-  final ValueNotifier<int> preRecordingTimerDurationStartValue = ValueNotifier(3);
+  final ValueNotifier<int> preRecordingTimerDurationStartValue = ValueNotifier(0);
   final ValueNotifier<bool> isTimerAnimating = ValueNotifier(false);
   final ValueNotifier<bool> isPreTimerAnimating = ValueNotifier(false);
   CameraState cameraState = CameraState.initial;
@@ -69,6 +72,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   Timer? _timer;
   bool timerIsRunning = false;
   late ValueNotifier<int> timeRemaining;
+  late ThemeData appTheme;
 
   Timer? _preRecordingTimer;
   bool preRecordingTimerIsRunning = false;
@@ -98,6 +102,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
       }
     });
     onWidgetBindingComplete(onComplete: () {
+      appTheme = Theme.of(context);
       context.read<ThemeCubit>().setSystemUIOverlaysToDark();
     });
     super.initState();
@@ -299,7 +304,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   void stopAndPreviewRecording() async {
     stopVideoRecording(onSuccess: (file) {
       if(mounted) {
-        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video));
+        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme,));
       }
     });
   }
@@ -325,7 +330,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
   void takePhotoAndPreview() async {
     capturePhoto(onSuccess: (file) {
-      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image));
+      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme,));
     });
 
   }
@@ -361,30 +366,8 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   /// When file is selected from the gallery
   void onFileSelectedFromGalleryHandler(BuildContext context, {required File file, required FileType fileType}) async {
 
+      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType, feedPurpose: widget.purpose, appTheme: appTheme,));
 
-      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
-      /// show preview , option to edit video, option to add post description, or post directly
-      // if(fileType == FileType.video) {
-      //   // VideoPlayerController controller = VideoPlayerController.file(file).initialize();//Your file here
-      //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
-      //   // final vInfo = await videoInfo.getVideoInfo(file.path);
-      //   // if(!context.mounted) {return;}
-      //   // final videoDuration = vInfo?.duration;
-      //   // const maxDuration = AppConstants.maximumVideoDuration * 1000;
-      //   // if(videoDuration != null  && videoDuration.round() > maxDuration) {
-      //   //   final trimmedVideo = await context.pushScreen(VideoTrimmerPage(file: file)) as File?;
-      //   //   if(trimmedVideo != null && context.mounted) {
-      //   //     context.pushScreen(FeedEditorPreviewPage(file: trimmedVideo, fileType: fileType));
-      //   //   }
-      //   // }
-      //   // else {
-      //   //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
-      //   // }
-      //
-      // }
-      // else if(fileType == FileType.image) {
-      //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType));
-      // }
   }
 
   /// Build camera UI

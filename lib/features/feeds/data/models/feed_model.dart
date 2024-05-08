@@ -1,7 +1,10 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sparkduet/features/files/data/store/enums.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
+import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 
 part 'feed_model.g.dart';
 
@@ -19,7 +22,8 @@ class FeedModel extends Equatable{
   @JsonKey(name: "media_path")
   final String? mediaPath;
   @JsonKey(name: "media_type")
-  final String? mediaType;
+  final FileType? mediaType; //video / image
+  final VideoSource videoSource;
   @JsonKey(name: "total_likes")
   final num? totalLikes;
   @JsonKey(name: "has_liked")
@@ -53,6 +57,7 @@ class FeedModel extends Equatable{
     this.totalViews,
     this.hasViewed,
     this.deleteAt,
+    this.videoSource = VideoSource.network
   });
 
   @override

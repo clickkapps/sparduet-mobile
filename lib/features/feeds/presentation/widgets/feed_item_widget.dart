@@ -1,41 +1,55 @@
 import 'package:better_player/better_player.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_actions_widget.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
-class FeedItemWidget extends StatelessWidget {
+class StoryFeedItemWidget extends StatelessWidget {
 
   final Function(BetterPlayerController)? videoBuilder;
-  final String? videoUrl;
-  final bool autoPlay;
+  final FeedModel feed;
   final Function()? onItemTapped;
-  const FeedItemWidget({super.key, this.videoBuilder, this.videoUrl, this.autoPlay = false, this.onItemTapped});
+  const StoryFeedItemWidget({super.key, this.videoBuilder, this.onItemTapped, required this.feed});
 
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     return  Stack(
       children: [
-        GestureDetector(
-          onTap: () => onItemTapped?.call() ,
-          behavior: HitTestBehavior.opaque,
-          child: IgnorePointer(
-            child: CustomVideoPlayer(
-              networkUrl: videoUrl ?? "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/ttm9dhe1x7yr7dvfh2xn.mp4",
-              autoPlay: autoPlay,
-              loop: autoPlay,
-              showDefaultControls: false,
-              // aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
-              hls: false,
-              fit: BoxFit.cover,
-              videoSource: VideoSource.network,
-              builder: videoBuilder,
-            ),
-          ),
+
+        /// Video
+        Builder(
+          builder: (_) {
+            final networkUrl = AppConstants.cloudinary?.video(feed.mediaPath ?? "").toString();
+            return GestureDetector(
+              onTap: () => onItemTapped?.call() ,
+              behavior: HitTestBehavior.opaque,
+              child: IgnorePointer(
+                child: CustomVideoPlayer(
+                  networkUrl: networkUrl,
+                  autoPlay: true,
+                  loop: true,
+                  showDefaultControls: false,
+                  // aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
+                  hls: false,
+                  fit: BoxFit.cover,
+                  videoSource: VideoSource.network,
+                  builder: videoBuilder,
+                ),
+              ),
+            );
+          }
         ),
+
+        /// Image
+
+
+
+
         Align(
           alignment: Alignment.bottomRight,
           child: Padding(
@@ -44,7 +58,7 @@ class FeedItemWidget extends StatelessWidget {
           ),
         ),
         Align(
-          alignment: Alignment.bottomCenter,
+          alignment: Alignment.bottomLeft,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -71,16 +85,16 @@ class FeedItemWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4)
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                  child: Text("Video topic displayed here", style: TextStyle(color: Colors.white, fontSize: 12),),
-                ),
-              ),
+              // Container(
+              //   width: double.maxFinite,
+              //   decoration: BoxDecoration(
+              //     color: Colors.black.withOpacity(0.4)
+              //   ),
+              //   child: const Padding(
+              //     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              //     child: Text("Video topic displayed here", style: TextStyle(color: Colors.white, fontSize: 12),),
+              //   ),
+              // ),
             ],
           ),
         )

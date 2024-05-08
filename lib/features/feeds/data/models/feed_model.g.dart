@@ -21,7 +21,7 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel mediaPath(String? mediaPath);
 
-  FeedModel mediaType(String? mediaType);
+  FeedModel mediaType(FileType? mediaType);
 
   FeedModel totalLikes(num? totalLikes);
 
@@ -39,6 +39,8 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel deleteAt(DateTime? deleteAt);
 
+  FeedModel videoSource(VideoSource videoSource);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -53,7 +55,7 @@ abstract class _$FeedModelCWProxy {
     DateTime? commentsDisabledAt,
     bool? blockedByAdminAt,
     String? mediaPath,
-    String? mediaType,
+    FileType? mediaType,
     num? totalLikes,
     bool? hasLiked,
     num? totalBookmarks,
@@ -62,6 +64,7 @@ abstract class _$FeedModelCWProxy {
     num? totalViews,
     bool? hasViewed,
     DateTime? deleteAt,
+    VideoSource? videoSource,
   });
 }
 
@@ -95,7 +98,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
   FeedModel mediaPath(String? mediaPath) => this(mediaPath: mediaPath);
 
   @override
-  FeedModel mediaType(String? mediaType) => this(mediaType: mediaType);
+  FeedModel mediaType(FileType? mediaType) => this(mediaType: mediaType);
 
   @override
   FeedModel totalLikes(num? totalLikes) => this(totalLikes: totalLikes);
@@ -125,6 +128,10 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
   FeedModel deleteAt(DateTime? deleteAt) => this(deleteAt: deleteAt);
 
   @override
+  FeedModel videoSource(VideoSource videoSource) =>
+      this(videoSource: videoSource);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -149,6 +156,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
     Object? totalViews = const $CopyWithPlaceholder(),
     Object? hasViewed = const $CopyWithPlaceholder(),
     Object? deleteAt = const $CopyWithPlaceholder(),
+    Object? videoSource = const $CopyWithPlaceholder(),
   }) {
     return FeedModel(
       id: id == const $CopyWithPlaceholder()
@@ -182,7 +190,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
       mediaType: mediaType == const $CopyWithPlaceholder()
           ? _value.mediaType
           // ignore: cast_nullable_to_non_nullable
-          : mediaType as String?,
+          : mediaType as FileType?,
       totalLikes: totalLikes == const $CopyWithPlaceholder()
           ? _value.totalLikes
           // ignore: cast_nullable_to_non_nullable
@@ -215,6 +223,11 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
           ? _value.deleteAt
           // ignore: cast_nullable_to_non_nullable
           : deleteAt as DateTime?,
+      videoSource:
+          videoSource == const $CopyWithPlaceholder() || videoSource == null
+              ? _value.videoSource
+              // ignore: cast_nullable_to_non_nullable
+              : videoSource as VideoSource,
     );
   }
 }
@@ -241,7 +254,7 @@ FeedModel _$FeedModelFromJson(Map<String, dynamic> json) => FeedModel(
           : DateTime.parse(json['comments_disabled_at'] as String),
       blockedByAdminAt: json['blocked_by_admin_at'] as bool?,
       mediaPath: json['media_path'] as String?,
-      mediaType: json['media_type'] as String?,
+      mediaType: $enumDecodeNullable(_$FileTypeEnumMap, json['media_type']),
       totalLikes: json['total_likes'] as num?,
       hasLiked: json['has_liked'] as bool?,
       totalBookmarks: json['total_bookmarks'] as num?,
@@ -252,6 +265,9 @@ FeedModel _$FeedModelFromJson(Map<String, dynamic> json) => FeedModel(
       deleteAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
+      videoSource:
+          $enumDecodeNullable(_$VideoSourceEnumMap, json['videoSource']) ??
+              VideoSource.network,
     );
 
 Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
@@ -262,7 +278,8 @@ Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'comments_disabled_at': instance.commentsDisabledAt?.toIso8601String(),
       'blocked_by_admin_at': instance.blockedByAdminAt,
       'media_path': instance.mediaPath,
-      'media_type': instance.mediaType,
+      'media_type': _$FileTypeEnumMap[instance.mediaType],
+      'videoSource': _$VideoSourceEnumMap[instance.videoSource]!,
       'total_likes': instance.totalLikes,
       'has_liked': instance.hasLiked,
       'total_bookmarks': instance.totalBookmarks,
@@ -272,3 +289,18 @@ Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'hasViewed': instance.hasViewed,
       'deleted_at': instance.deleteAt?.toIso8601String(),
     };
+
+const _$FileTypeEnumMap = {
+  FileType.any: 'any',
+  FileType.media: 'media',
+  FileType.image: 'image',
+  FileType.video: 'video',
+  FileType.audio: 'audio',
+  FileType.custom: 'custom',
+};
+
+const _$VideoSourceEnumMap = {
+  VideoSource.file: 'file',
+  VideoSource.network: 'network',
+  VideoSource.asset: 'asset',
+};

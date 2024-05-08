@@ -47,7 +47,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
     _emailController = TextEditingController();
     _themeCubit = context.read<ThemeCubit>();
     onWidgetBindingComplete(onComplete: () {
-      _themeCubit.setLightMode();
+      // _themeCubit.setLightMode();
       _themeCubit.setSystemUIOverlaysToPrimary();
     });
     super.initState();
@@ -87,6 +87,13 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
 
     if(authState.status == AuthStatus.loginSuccessful) {
       // when authentication is successful
+      if(_themeCubit.state.themeData?.brightness == Brightness.dark) {
+        // _themeCubit.setDarkMode();
+        _themeCubit.setSystemUIOverlaysToDark();
+      }else{
+        // _themeCubit.setLightMode();
+        _themeCubit.setSystemUIOverlaysToLight();
+      }
       context.go(AppRoutes.home);
     }
 

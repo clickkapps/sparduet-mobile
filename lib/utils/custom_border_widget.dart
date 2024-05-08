@@ -25,7 +25,7 @@ class CustomBorderWidget extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Container(
-            color: color ?? theme.colorScheme.outlineVariant,
+            color: color ?? (theme.brightness == Brightness.light ? theme.colorScheme.outlineVariant : theme.colorScheme.outline.withOpacity(0.5)),
             height: 1,
           )),
           if(centerText != null) ...{
@@ -34,7 +34,7 @@ class CustomBorderWidget extends StatelessWidget {
             )
           },
           Expanded(child: Container(
-            color: color ?? Theme.of(context).colorScheme.outlineVariant,
+            color: color ?? (theme.brightness == Brightness.light ? theme.colorScheme.outlineVariant : theme.colorScheme.outline.withOpacity(0.5)),
             height: 1,
           ))
         ],

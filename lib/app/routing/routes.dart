@@ -8,8 +8,9 @@ import 'package:sparkduet/features/auth/presentation/pages/auth_profile_page.dar
 import 'package:sparkduet/features/auth/presentation/pages/login_page.dart';
 import 'package:sparkduet/features/chat/presentation/pages/chat_connections_page.dart';
 import 'package:sparkduet/features/chat/presentation/pages/chat_preview_page.dart';
+import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
-import 'package:sparkduet/features/feeds/presentation/pages/feeds_page.dart';
+import 'package:sparkduet/features/feeds/presentation/pages/stories_feeds_page.dart';
 import 'package:sparkduet/features/home/presentation/pages/home_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/preferences_page.dart';
 import 'package:sparkduet/features/users/presentation/pages/user_profile_page.dart';
@@ -47,8 +48,10 @@ final router = GoRouter(
     GoRoute(
       path: AppRoutes.camera,
       builder: (context, state) {
-        final cameras = state.extra as List<CameraDescription>;
-        return FeedEditorCameraPage(cameras: cameras);
+        final map = state.extra as Map<String, dynamic>;
+        final cameras = map['cameras'] as List<CameraDescription>;
+        final feedPurpose = map["feedPurpose"] as PostFeedPurpose?;
+        return FeedEditorCameraPage(cameras: cameras, purpose: feedPurpose,);
       },
     ),
 
@@ -66,7 +69,7 @@ final router = GoRouter(
             // Add this branch routes
             GoRoute(
               path: AppRoutes.home,
-              pageBuilder: (ctx, state) => NoTransitionPage(child: const FeedsPage(), name: state.path,  arguments: state.extra),
+              pageBuilder: (ctx, state) => NoTransitionPage(child: const StoriesFeedsPage(), name: state.path,  arguments: state.extra),
 
             ),
           ],

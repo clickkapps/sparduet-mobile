@@ -1,7 +1,10 @@
+import 'package:cloudinary_flutter/cloudinary_object.dart';
+import 'package:cloudinary_url_gen/cloudinary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:sparkduet/app/app.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'core/app_injector.dart' as di;
 
 void main() async {
@@ -26,6 +29,9 @@ void main() async {
   await di.init();
 
   await dotenv.load(fileName: "assets/.env");
+
+  final cloudName = dotenv.env["CLOUDINARY_ID"] ?? '';
+  AppConstants.cloudinary = CloudinaryObject.fromCloudName(cloudName: cloudName,);
 
   runApp(const App());
 }

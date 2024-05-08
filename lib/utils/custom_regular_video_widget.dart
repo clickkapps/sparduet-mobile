@@ -33,6 +33,7 @@ class CustomVideoPlayer extends StatefulWidget {
   final Function({required bool hidden})? controlsVisibilityChanged;
   final Map<String, String>? headers;
   final Function(BetterPlayerController)? builder;
+  final Color? backgroundColor;
   const CustomVideoPlayer({
     super.key,
     this.autoPlay = true,
@@ -57,7 +58,8 @@ class CustomVideoPlayer extends StatefulWidget {
     this.maxHeight,
     this.controlsVisibilityChanged,
     this.headers,
-    this.builder
+    this.builder,
+    this.backgroundColor
   });
 
   @override
@@ -78,6 +80,7 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     super.initState();
   }
 
+
   void _initializePlayer() async {
 
     late BetterPlayerDataSource betterPlayerDataSource;
@@ -90,7 +93,7 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         videoFormat: widget.hls == true ? BetterPlayerVideoFormat.hls : null,
         headers: widget.headers,
         cacheConfiguration: const BetterPlayerCacheConfiguration(
-          useCache: true,
+          // useCache: true,
         ),
 
       );
@@ -115,7 +118,7 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         BetterPlayerDataSourceType.file,
         file.path,
         cacheConfiguration: const BetterPlayerCacheConfiguration(
-            useCache: true
+            // useCache: true
         ),
       );
     }
@@ -195,8 +198,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     //   ), child:
     // ,);
     return DecoratedBox(
-        decoration: const BoxDecoration(
-          color: AppColors.black,
+        decoration:  BoxDecoration(
+          color: widget.backgroundColor ?? AppColors.darkColorScheme.surface,
         ),
 
         child: Center(

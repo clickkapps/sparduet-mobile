@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 
@@ -23,9 +24,15 @@ class PreferencesPage extends StatelessWidget {
           title: const Text("Preferences"),
         actions: [
           if(theme.brightness == Brightness.dark) ... {
-            IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.moon))
+            IconButton(onPressed: () {
+              context.read<ThemeCubit>().setLightMode();
+              context.read<ThemeCubit>().setSystemUIOverlaysToLight();
+            }, icon: const Icon(FeatherIcons.moon))
           }else ... {
-            IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.sun)),
+            IconButton(onPressed: () {
+              context.read<ThemeCubit>().setDarkMode();
+              context.read<ThemeCubit>().setSystemUIOverlaysToDark();
+            }, icon: const Icon(FeatherIcons.sun)),
           },
           const SizedBox(width: 10,)
         ],

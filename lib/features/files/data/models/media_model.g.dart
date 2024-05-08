@@ -9,7 +9,7 @@ part of 'media_model.dart';
 abstract class _$MediaModelCWProxy {
   MediaModel path(String path);
 
-  MediaModel type(MediaType type);
+  MediaModel type(FileType type);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `MediaModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -19,7 +19,7 @@ abstract class _$MediaModelCWProxy {
   /// ````
   MediaModel call({
     String? path,
-    MediaType? type,
+    FileType? type,
   });
 }
 
@@ -33,7 +33,7 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
   MediaModel path(String path) => this(path: path);
 
   @override
-  MediaModel type(MediaType type) => this(type: type);
+  MediaModel type(FileType type) => this(type: type);
 
   @override
 
@@ -55,7 +55,7 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
       type: type == const $CopyWithPlaceholder() || type == null
           ? _value.type
           // ignore: cast_nullable_to_non_nullable
-          : type as MediaType,
+          : type as FileType,
     );
   }
 }

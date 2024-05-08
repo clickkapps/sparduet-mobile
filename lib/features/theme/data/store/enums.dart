@@ -1,5 +1,5 @@
 enum ThemeStatus {
-  initial
+  initial, themeChangeInProgress, themeChangeCompleted
 }
 
 enum AppFont {

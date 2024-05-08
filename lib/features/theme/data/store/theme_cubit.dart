@@ -13,7 +13,22 @@ class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit({required this.themeRepository}): super(ThemeState(
     themeData: _lightMode.copyWith(textTheme: _quicksandLightTextTheme),
     appFont: AppFont.quicksand
-  ));
+  )) {
+    initializeTheme();
+  }
+
+  void initializeTheme() async {
+    final appFont = await themeRepository.getAppFont();
+    final appTheme = await themeRepository.getThemeMode();
+    emit(state.copyWith(appFont: appFont,));
+    if(appTheme != null && appTheme == Brightness.dark) {
+      setDarkMode();
+      setSystemUIOverlaysToDark();
+    }else{
+      setLightMode();
+      setSystemUIOverlaysToLight();
+    }
+  }
 
   void setDarkMode() {
     final fontType = state.appFont;
@@ -25,7 +40,9 @@ class ThemeCubit extends Cubit<ThemeState> {
     }else  {
       selectedTextTheme = _quicksandDarkTextTheme;
     }
-    emit(state.copyWith(themeData: _darkMode.copyWith(textTheme: selectedTextTheme)));
+    emit(state.copyWith(status: ThemeStatus.themeChangeInProgress));
+    emit(state.copyWith(themeData: _darkMode.copyWith(textTheme: selectedTextTheme,), status: ThemeStatus.themeChangeCompleted));
+    themeRepository.saveThemeMode(brightness: Brightness.dark);
   }
 
   void setLightMode() {
@@ -38,7 +55,9 @@ class ThemeCubit extends Cubit<ThemeState> {
     }else  {
       selectedTextTheme = _quicksandLightTextTheme;
     }
-    emit(state.copyWith(themeData: _lightMode.copyWith(textTheme: selectedTextTheme)));
+    emit(state.copyWith(status: ThemeStatus.themeChangeInProgress));
+    emit(state.copyWith(themeData: _lightMode.copyWith(textTheme: selectedTextTheme,), status: ThemeStatus.themeChangeCompleted));
+    themeRepository.saveThemeMode(brightness: Brightness.light);
   }
 
   //! light mode theme
@@ -97,11 +116,12 @@ class ThemeCubit extends Cubit<ThemeState> {
     }else {
       emit(state.copyWith(themeData: state.themeData?.copyWith(textTheme: inDarkMode ? _quicksandDarkTextTheme : _quicksandLightTextTheme)));
     }
+    themeRepository.saveAppFont(appFont: font);
   }
 
-  void setSystemUIOverlaysToDark({Color? androidSystemNavigationBarColor}) {
+  void setSystemUIOverlaysToDark({Color? androidSystemNavigationBarColor,}) {
     setSystemUIOverlays(
-        androidSystemNavigationBarColor: androidSystemNavigationBarColor ?? AppColors.darkColorScheme.background,
+        androidSystemNavigationBarColor: androidSystemNavigationBarColor ?? AppColors.darkColorScheme.surface,
         androidSystemNavigationBarIconBrightness: Brightness.light,
         androidStatusBarIconBrightness: Brightness.light
     );

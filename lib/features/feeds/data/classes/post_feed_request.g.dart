@@ -7,9 +7,13 @@ part of 'post_feed_request.dart';
 // **************************************************************************
 
 abstract class _$PostFeedRequestCWProxy {
-  PostFeedRequest mediaParts(List<Map<String, dynamic>> mediaParts);
+  PostFeedRequest id(String id);
 
-  PostFeedRequest payloadParts(List<Map<String, dynamic>> payloadParts);
+  PostFeedRequest media(MediaModel media);
+
+  PostFeedRequest purpose(PostFeedPurpose? purpose);
+
+  PostFeedRequest status(PostItemStatus status);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `PostFeedRequest(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -18,8 +22,10 @@ abstract class _$PostFeedRequestCWProxy {
   /// PostFeedRequest(...).copyWith(id: 12, name: "My name")
   /// ````
   PostFeedRequest call({
-    List<Map<String, dynamic>>? mediaParts,
-    List<Map<String, dynamic>>? payloadParts,
+    String? id,
+    MediaModel? media,
+    PostFeedPurpose? purpose,
+    PostItemStatus? status,
   });
 }
 
@@ -30,12 +36,16 @@ class _$PostFeedRequestCWProxyImpl implements _$PostFeedRequestCWProxy {
   final PostFeedRequest _value;
 
   @override
-  PostFeedRequest mediaParts(List<Map<String, dynamic>> mediaParts) =>
-      this(mediaParts: mediaParts);
+  PostFeedRequest id(String id) => this(id: id);
 
   @override
-  PostFeedRequest payloadParts(List<Map<String, dynamic>> payloadParts) =>
-      this(payloadParts: payloadParts);
+  PostFeedRequest media(MediaModel media) => this(media: media);
+
+  @override
+  PostFeedRequest purpose(PostFeedPurpose? purpose) => this(purpose: purpose);
+
+  @override
+  PostFeedRequest status(PostItemStatus status) => this(status: status);
 
   @override
 
@@ -46,20 +56,28 @@ class _$PostFeedRequestCWProxyImpl implements _$PostFeedRequestCWProxy {
   /// PostFeedRequest(...).copyWith(id: 12, name: "My name")
   /// ````
   PostFeedRequest call({
-    Object? mediaParts = const $CopyWithPlaceholder(),
-    Object? payloadParts = const $CopyWithPlaceholder(),
+    Object? id = const $CopyWithPlaceholder(),
+    Object? media = const $CopyWithPlaceholder(),
+    Object? purpose = const $CopyWithPlaceholder(),
+    Object? status = const $CopyWithPlaceholder(),
   }) {
     return PostFeedRequest(
-      mediaParts:
-          mediaParts == const $CopyWithPlaceholder() || mediaParts == null
-              ? _value.mediaParts
-              // ignore: cast_nullable_to_non_nullable
-              : mediaParts as List<Map<String, dynamic>>,
-      payloadParts:
-          payloadParts == const $CopyWithPlaceholder() || payloadParts == null
-              ? _value.payloadParts
-              // ignore: cast_nullable_to_non_nullable
-              : payloadParts as List<Map<String, dynamic>>,
+      id: id == const $CopyWithPlaceholder() || id == null
+          ? _value.id
+          // ignore: cast_nullable_to_non_nullable
+          : id as String,
+      media: media == const $CopyWithPlaceholder() || media == null
+          ? _value.media
+          // ignore: cast_nullable_to_non_nullable
+          : media as MediaModel,
+      purpose: purpose == const $CopyWithPlaceholder()
+          ? _value.purpose
+          // ignore: cast_nullable_to_non_nullable
+          : purpose as PostFeedPurpose?,
+      status: status == const $CopyWithPlaceholder() || status == null
+          ? _value.status
+          // ignore: cast_nullable_to_non_nullable
+          : status as PostItemStatus,
     );
   }
 }

@@ -142,7 +142,7 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
             decoration: InputDecoration(
                 filled: true,
                 errorText: widget.errorText,
-                fillColor:  (widget.disabled != null && widget.disabled!)? theme.colorScheme.outline.withOpacity(0.2) : theme.brightness == Brightness.dark ? const Color(0xff202021) : Colors.transparent,
+                fillColor:  (widget.disabled != null && widget.disabled!)? theme.colorScheme.outline.withOpacity(0.2) : Colors.transparent,
                 hintText: widget.placeHolder,
                 hintStyle: TextStyle(color: widget.placeHolderColor ?? theme.colorScheme.onBackground.withOpacity(0.5)),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

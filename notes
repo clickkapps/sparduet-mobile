@@ -11,3 +11,14 @@ Video categories
 To allow users to add sound with license
 For photo and video editor look into img.ly
 https://img.ly/docs/vesdk/flutter/getting-started/integration/
+
+// https://cloudinary.com/documentation/flutter_media_transformations <-- Transform images/vids with this
+
+
+
+TODO
+- create post
+- fetch posts
+- like post
+- bookmark post
+- mark post as viewed
