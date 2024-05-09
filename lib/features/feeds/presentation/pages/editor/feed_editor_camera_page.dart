@@ -61,7 +61,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   final ValueNotifier<bool> initialized = ValueNotifier(false);
   final ValueNotifier<String?> error = ValueNotifier(null);
   final ValueNotifier<bool> flashOn = ValueNotifier(false);
-  final ValueNotifier<int> description = ValueNotifier(0);
+  late ValueNotifier<int> description;
   final ValueNotifier<int> duration = ValueNotifier(AppConstants.maximumVideoDuration.toInt());
   final ValueNotifier<int> preRecordingTimerDurationStartValue = ValueNotifier(0);
   final ValueNotifier<bool> isTimerAnimating = ValueNotifier(false);
@@ -81,6 +81,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
   @override
   void initState() {
+    description = ValueNotifier(widget.cameras.length >  1 ? 1 : 0); // use the front camera if user has it
     timeRemaining = ValueNotifier(duration.value);
     preRecordingTimerRemaining = ValueNotifier(preRecordingTimerDurationStartValue.value);
     controller = CameraController(widget.cameras[description.value], ResolutionPreset.max);
@@ -304,7 +305,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   void stopAndPreviewRecording() async {
     stopVideoRecording(onSuccess: (file) {
       if(mounted) {
-        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme,));
+        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme, feedPurpose: widget.purpose,));
       }
     });
   }
@@ -330,7 +331,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
   void takePhotoAndPreview() async {
     capturePhoto(onSuccess: (file) {
-      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme,));
+      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme, feedPurpose: widget.purpose,));
     });
 
   }

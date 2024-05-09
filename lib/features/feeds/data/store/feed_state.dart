@@ -1,6 +1,5 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
-import 'package:sparkduet/features/feeds/data/classes/post_feed_request.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/files/data/models/media_model.dart';
@@ -13,13 +12,11 @@ class FeedState extends Equatable {
   final FeedStatus status;
   final String? message;
   final List<FeedModel>  feeds;
-  final List<PostFeedRequest> postRequests;
 
   const FeedState({
     this.status = FeedStatus.initial,
     this.message,
     this.feeds = const  [],
-    this.postRequests = const []
     // this.postFeedRequest = const PostFeedRequest()
   });
 

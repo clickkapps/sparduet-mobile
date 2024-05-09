@@ -35,7 +35,7 @@ class FeedEditorPreviewPage extends StatefulWidget {
 class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with FileManagerMixin {
 
   late File editedFile;
-  final descriptionTextEditingController= TextEditingController();
+  final descriptionTextEditingController = TextEditingController();
   ValueNotifier<bool> enableComments = ValueNotifier(true);
   Trimmer trimmer = Trimmer();
   double? _startVideoDuration;
@@ -46,6 +46,9 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
   @override
   void initState() {
     editedFile = widget.file;
+    if(widget.feedPurpose != null) {
+      descriptionTextEditingController.text = widget.feedPurpose?.description ?? "";
+    }
     super.initState();
   }
 
@@ -112,7 +115,7 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
                                     placeHolder: "eg. I'm the sweetest person ever",
                                   ),
                                   const SizedBox(height: 10,),
-                                  CustomButtonWidget(text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', onPressed: () => postFeedHandler(context), expand: true,)
+                                  CustomButtonWidget(text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', onPressed: () => validateAndPostFeedHandler(context), expand: true,)
                                 ],
                               ),
                             ),
@@ -188,7 +191,7 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
     }
   }
 
-  void postFeedHandler(BuildContext ctx) {
+  void validateAndPostFeedHandler(BuildContext ctx) {
 
     if(!additionalInfoSeen) {
       showVideoInfoHandler(context);
@@ -198,15 +201,23 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
     if(widget.fileType == FileType.video) {
       // get the trimmed video. We always do this cus the user can always change the start and end duration even if the video is less than 30secs
       trimVideoHandler((file) {
-        // context.read<FeedsCubit>().postFeed(file: file, mediaType: FileType.video);
-        if(widget.appTheme.brightness == Brightness.light) {
-          context.read<ThemeCubit>().setSystemUIOverlaysToLight();
-        }
-        context.read<NavCubit>().requestTabChange(NavPosition.profile);//
+        submitFeed(file: file, fileType: FileType.video);
       });
+    }else {
+      // for image, just submit
+      submitFeed(file: editedFile, fileType: FileType.image);
     }
 
 
+  }
+
+  ///! Post / Sumbit Feed
+  submitFeed({required File file, required FileType fileType}) {
+    context.read<FeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key);
+    if(widget.appTheme.brightness == Brightness.light) {
+      context.read<ThemeCubit>().setSystemUIOverlaysToLight();
+    }
+    context.read<NavCubit>().requestTabChange(NavPosition.profile);//
   }
 
   @override
@@ -281,7 +292,7 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
                 children: [
                   Expanded(child: CustomButtonWidget(onPressed: () => showVideoInfoHandler(context), text: "Add info", appearance: ButtonAppearance.secondary, expand: true,)),
                   const SizedBox(width: 10,),
-                  Expanded(child: CustomButtonWidget(onPressed: () => postFeedHandler(context), text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', appearance: ButtonAppearance.primary, expand: true,)),
+                  Expanded(child: CustomButtonWidget(onPressed: () => validateAndPostFeedHandler(context), text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', appearance: ButtonAppearance.primary, expand: true,)),
                 ],
               ),
             ),

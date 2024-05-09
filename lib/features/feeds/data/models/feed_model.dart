@@ -2,7 +2,6 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:sparkduet/features/files/data/store/enums.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 
@@ -12,6 +11,7 @@ part 'feed_model.g.dart';
 @CopyWith()
 class FeedModel extends Equatable{
   final int? id;
+  final String? tempId;
   final UserModel? user;
   final String? description;
   final String? purpose;
@@ -40,6 +40,7 @@ class FeedModel extends Equatable{
   final bool? hasViewed;
   @JsonKey(name: "deleted_at")
   final DateTime? deleteAt;
+  final String? status;
 
   const FeedModel({
     this.id,
@@ -57,11 +58,13 @@ class FeedModel extends Equatable{
     this.totalViews,
     this.hasViewed,
     this.deleteAt,
-    this.videoSource = VideoSource.network
+    this.videoSource = VideoSource.network,
+    this.status,
+    this.tempId
   });
 
   @override
-  List<Object?> get props => [id, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, hasViewed];
+  List<Object?> get props => [id, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, hasViewed, tempId];
 
   factory FeedModel.fromJson(Map<String, dynamic> json) => _$FeedModelFromJson(json);
   Map<String, dynamic> toJson() => _$FeedModelToJson(this);

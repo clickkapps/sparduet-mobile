@@ -24,7 +24,7 @@ class AuthRepository {
 
     try{
 
-      const path = ApiConfig.submitAuthEmail;
+      const path = AppApiRoutes.submitAuthEmail;
 
       var response = await networkProvider.call(
           path: path,
@@ -63,7 +63,7 @@ class AuthRepository {
 
     try {
 
-      const path = ApiConfig.authEmail;
+      const path = AppApiRoutes.authEmail;
 
       final response = await networkProvider.call(
           path: path,
@@ -122,7 +122,7 @@ class AuthRepository {
     try {
 
       // by default it fetches the current loggedIn User Profile
-      final path = ApiConfig.userProfile();
+      final path = AppApiRoutes.userProfile();
 
       final response = await networkProvider.call(
           path: path,

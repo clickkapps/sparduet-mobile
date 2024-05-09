@@ -29,14 +29,11 @@ class FileRepository {
       Response response = await dio.post(cloudinaryUploadUrl, data: formData);
 
       final data = jsonDecode(response.toString());
-      debugPrint("data => $data");
-      final secureUrl = data['secure_url'];
-      final regularUrl = data['url'];
-      // final returnedUrl = data['"playback_url" -> "https://res.cloudinary.com/dhhyl4ygy/video/upload/sp_auto/v1697578636/public/b7ubzolrzgmeczk5js2c.m3u8"'];
-      debugPrint(secureUrl);
-      debugPrint(regularUrl);
 
-      return Right(secureUrl);
+      debugPrint("data => $data");
+      final publicId = data['public_id'] as String;
+      final mediaId = publicId.replaceAll("sparkduet/", "");
+      return Right(mediaId);
 
     } catch (e) {
       debugPrint(e.toString());

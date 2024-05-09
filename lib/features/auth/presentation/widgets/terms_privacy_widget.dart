@@ -46,6 +46,6 @@ class TermsPrivacyWidget extends StatelessWidget with LaunchExternalAppMixin{
 
   /// when read terms and conditions tapped
   void _onReadTermsAndConditionsTapped(BuildContext context){
-    launchBrowser(ApiConfig.aboutUrl, context);
+    launchBrowser(AppApiRoutes.aboutUrl, context);
   }
 }

@@ -108,7 +108,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   }
 
   _fetchData({required int pageKey}) {
-      const path = ApiConfig.feeds;
+      const path = AppApiRoutes.feeds;
       final queryParams = { "page": pageKey};
       storiesFeedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: queryParams);
   }

@@ -22,3 +22,34 @@ TODO
 - like post
 - bookmark post
 - mark post as viewed
+
+
+/////// Terms of use //////
+you should protect urself
+"Your contents" should change to your posts
+
+
+/// Cloudinary payload
+
+{
+"asset_id":"4eb1eb142271efc93fcc8e97d87158e9",
+"public_id":"sparkduet/isjybauxl0rgh9fogdpq",
+"version":1715223760,
+"version_id":"93dd781c7c2d43077bc6f2ae93532688",
+"signature":"2236530f47c1067e8540a1d08d3e2333919802b7",
+"width":720,"height":1280,
+"format":"mp4","resource_type":"video",
+"created_at":"2024-05-09T03:02:40Z","tags":[],
+"pages":0,"bytes":545223,"type":"upload",
+"etag":"4c14f04a2e945f1b890ebbe178184b36",
+"placeholder":false,
+"url":"http://res.cloudinary.com/dhhyl4ygy/video/upload/v1715223760/sparkduet/isjybauxl0rgh9fogdpq.mp4",
+"secure_url":"https://res.cloudinary.com/dhhyl4ygy/video/upload/v1715223760/sparkduet/isjybauxl0rgh9fogdpq.mp4",
+"playback_url":"https://res.cloudinary.com/dhhyl4ygy/video/upload/sp_auto/v1715223760/sparkduet/isjybauxl0rgh9fogdpq.m3u8",
+"folder":"sparkduet",
+"access_mode":"public",
+"audio":{"codec":"aac","bit_rate":"95228","frequency":44100,"channels":1,"channel_layout":"mono"},
+"video":{"pix_format":"yuv420p","codec":"h264","level":31,"profile":"Constrained Baseline","bit_rate":"3554548","time_base":"1/90000"},
+"is_audio":false,"frame_rate":14.25,"bit_rate":3643929,
+"duration":1.191767,"rotation":270,"original_filename":"REC7615865670199502514_trimmed:May9,2024-03:02:20","nb_frames":17}
+}

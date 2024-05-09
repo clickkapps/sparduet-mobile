@@ -1,11 +1,15 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pulsator/pulsator.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:separated_row/separated_row.dart';
 import 'package:sparkduet/app/app.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/feeds/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/users/presentation/widgets/bookmarked_posts_tab_view_widget.dart';
 import 'package:sparkduet/features/users/presentation/widgets/user_posts_tab_view_widget.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
@@ -21,29 +25,48 @@ class AuthProfilePage extends StatefulWidget {
 
 class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderStateMixin {
 
-  late TabController tabController;
+  late PageController tabController;
   late List<Map<String, dynamic>> tabItems;
+  PagingController<int, dynamic>? userPostsPagingController;
+  late AuthCubit authCubit;
+  late FeedsCubit feedsCubit;
+  StreamSubscription? feedCubitSubscription;
+  ValueNotifier<int> activeTab = ValueNotifier(0);
 
   @override
   void initState() {
     super.initState();
-    final authenticatedUser = context.read<AuthCubit>().state.authUser;
+    authCubit = context.read<AuthCubit>();
+    feedsCubit = context.read<FeedsCubit>();
+    feedCubitSubscription = feedsCubit.stream.listen((event) {
+        if(event.status == FeedStatus.postFeedInProgress) {
+            userPostsPagingController?.itemList = event.feeds;
+        }
+        if(event.status == FeedStatus.postFeedFailed) {
+          userPostsPagingController?.itemList = event.feeds;
+        }
+        if(event.status == FeedStatus.postFeedSuccessful) {
+          userPostsPagingController?.itemList = event.feeds;
+        }
+    });
+    final authenticatedUser = authCubit.state.authUser;
     tabItems = [
       {
         "key": "your-posts",
-        "page": UserPostsTabViewWidget(userId: authenticatedUser?.id,)
+        "page": UserPostsTabViewWidget(userId: authenticatedUser?.id, builder: (controller) => userPostsPagingController = controller,)
       },
       {
         "key": "bookmarked-posts",
         "page": BookmarkedPostsTabViewPage(userId: authenticatedUser?.id,)
       },
     ];
-    tabController = TabController(length: tabItems.length, vsync: this);
+    tabController = PageController(initialPage: 0);
   }
 
   @override
   void dispose() {
     tabController.dispose();
+    feedCubitSubscription?.cancel();
     super.dispose();
   }
 
@@ -155,31 +178,41 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                 ),
               ),
             ),
+
             SliverToBoxAdapter(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 15, vertical: 15),
                 scrollDirection: Axis.horizontal,
-                child: SeparatedRow(
-                  separatorBuilder: (BuildContext context, int index) {
-                    return const SizedBox(width: 0,);
-                  },
-                  children: const [
-                    CustomChipWidget(label: "Your posts"),
-                    CustomChipWidget(label: "Bookmarked posts", active: false,),
-                  ],
-                ),
+                child: ValueListenableBuilder<int>(valueListenable: activeTab, builder: (_, val, __) {
+                  return SeparatedRow(
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const SizedBox(width: 0,);
+                    },
+                    children: [
+                      CustomChipWidget(label: "Your posts", active: val == 0, onTap: () {
+                        activeTab.value = 0;
+                        tabController.animateToPage(0, duration: Duration.zero, curve: Curves.linear);
+                      },),
+                      CustomChipWidget(label: "Bookmarked posts", active: val == 1, onTap: () {
+                        activeTab.value = 0;
+                        tabController.animateToPage(1, duration: Duration.zero, curve: Curves.linear);
+                      },),
+                    ],
+                  );
+                }),
               ),
             )
           ];
-        }, body: TabBarView(
+        }, body: PageView.builder(
             controller: tabController,
-            children: [
-              ...tabItems.map((tabItem) {
-                final page = tabItem['page'] as Widget;
-                return page;
-              })
-            ]
+            onPageChanged: (index) => activeTab.value = index,
+            itemCount: tabItems.length,
+            itemBuilder: (BuildContext context, int index) {
+              final tabItem = tabItems[index];
+              final page = tabItem['page'] as Widget;
+              return page;
+            },
         )
     ));
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_emtpy_content_widget.dart';
 import 'package:sparkduet/utils/custom_no_connection_widget.dart';
 
@@ -15,13 +16,17 @@ class CustomInfiniteGridViewWidget<M> extends StatefulWidget {
   final double crossAxisSpacing;
   final double mainAxisSpacing;
   final double? childAspectRatio;
+  final String? emptyTitle;
+  final String? emptySubTitle;
   const CustomInfiniteGridViewWidget({super.key,
     required this.fetchData, this.onRetryTapped, required this.itemBuilder,
     this.builder, this.padding,
     this.crossAxisCount = 2,
     this.mainAxisSpacing = 1,
     this.crossAxisSpacing = 1,
-    this.childAspectRatio
+    this.childAspectRatio,
+    this.emptyTitle,
+    this.emptySubTitle
   });
 
   @override
@@ -92,8 +97,9 @@ class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridView
       ),
       builderDelegate: PagedChildBuilderDelegate<M>(
           itemBuilder: widget.itemBuilder,
-          noItemsFoundIndicatorBuilder: (_) => const CustomEmptyContentWidget(),
+          noItemsFoundIndicatorBuilder: (_) => CustomEmptyContentWidget(title: widget.emptyTitle, subTitle:  widget.emptySubTitle),
           noMoreItemsIndicatorBuilder: (_) => const SizedBox.shrink(),
+          firstPageProgressIndicatorBuilder: (_) => const SizedBox(height: 30, child: Center(child: CustomAdaptiveCircularIndicator(),),),
           firstPageErrorIndicatorBuilder: (_) => CustomNoConnectionWidget(title:
           "Restore connection and retry ...", onRetry: widget.onRetryTapped,
           ),

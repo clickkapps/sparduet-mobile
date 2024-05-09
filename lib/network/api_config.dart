@@ -1,10 +1,10 @@
 
 import 'package:flutter/foundation.dart';
 
-class ApiConfig {
+class AppApiRoutes {
 
   // static const String  websiteUrl = 'https://api.sparkduet.com';
-  static const String  websiteUrl = kDebugMode ? 'https://2514-41-155-39-207.ngrok-free.app' : 'https://api.sparkduet.com';
+  static const String  websiteUrl = kDebugMode ? 'https://2e08-41-155-40-17.ngrok-free.app' : 'https://api.sparkduet.com';
   static const String baseApiUrl = '$websiteUrl/api';
 
   static const String  signUp = '$baseApiUrl/auth/';
@@ -25,6 +25,9 @@ class ApiConfig {
     return url;
   }
 
-  static const String feeds = '$baseApiUrl/stories/feeds';
+  static const String feeds = '$baseApiUrl/posts';
+  static const String createFeed = '$baseApiUrl/posts/create';
+  static String userPosts({int? userId}) => '$baseApiUrl/posts/user/$userId';
+  static String bookmarkedUserPosts({int? userId}) => '$baseApiUrl/posts/bookmarked/user/$userId';
 
 }

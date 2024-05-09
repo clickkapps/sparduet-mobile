@@ -41,6 +41,10 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel videoSource(VideoSource videoSource);
 
+  FeedModel status(String? status);
+
+  FeedModel tempId(String? tempId);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -65,6 +69,8 @@ abstract class _$FeedModelCWProxy {
     bool? hasViewed,
     DateTime? deleteAt,
     VideoSource? videoSource,
+    String? status,
+    String? tempId,
   });
 }
 
@@ -132,6 +138,12 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
       this(videoSource: videoSource);
 
   @override
+  FeedModel status(String? status) => this(status: status);
+
+  @override
+  FeedModel tempId(String? tempId) => this(tempId: tempId);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -157,6 +169,8 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
     Object? hasViewed = const $CopyWithPlaceholder(),
     Object? deleteAt = const $CopyWithPlaceholder(),
     Object? videoSource = const $CopyWithPlaceholder(),
+    Object? status = const $CopyWithPlaceholder(),
+    Object? tempId = const $CopyWithPlaceholder(),
   }) {
     return FeedModel(
       id: id == const $CopyWithPlaceholder()
@@ -228,6 +242,14 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
               ? _value.videoSource
               // ignore: cast_nullable_to_non_nullable
               : videoSource as VideoSource,
+      status: status == const $CopyWithPlaceholder()
+          ? _value.status
+          // ignore: cast_nullable_to_non_nullable
+          : status as String?,
+      tempId: tempId == const $CopyWithPlaceholder()
+          ? _value.tempId
+          // ignore: cast_nullable_to_non_nullable
+          : tempId as String?,
     );
   }
 }
@@ -268,10 +290,13 @@ FeedModel _$FeedModelFromJson(Map<String, dynamic> json) => FeedModel(
       videoSource:
           $enumDecodeNullable(_$VideoSourceEnumMap, json['videoSource']) ??
               VideoSource.network,
+      status: json['status'] as String?,
+      tempId: json['tempId'] as String?,
     );
 
 Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'id': instance.id,
+      'tempId': instance.tempId,
       'user': instance.user,
       'description': instance.description,
       'purpose': instance.purpose,
@@ -288,6 +313,7 @@ Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'total_views': instance.totalViews,
       'hasViewed': instance.hasViewed,
       'deleted_at': instance.deleteAt?.toIso8601String(),
+      'status': instance.status,
     };
 
 const _$FileTypeEnumMap = {

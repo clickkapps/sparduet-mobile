@@ -13,8 +13,6 @@ abstract class _$FeedStateCWProxy {
 
   FeedState feeds(List<FeedModel> feeds);
 
-  FeedState postRequests(List<PostFeedRequest> postRequests);
-
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -25,7 +23,6 @@ abstract class _$FeedStateCWProxy {
     FeedStatus? status,
     String? message,
     List<FeedModel>? feeds,
-    List<PostFeedRequest>? postRequests,
   });
 }
 
@@ -45,10 +42,6 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
   FeedState feeds(List<FeedModel> feeds) => this(feeds: feeds);
 
   @override
-  FeedState postRequests(List<PostFeedRequest> postRequests) =>
-      this(postRequests: postRequests);
-
-  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -60,7 +53,6 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
     Object? status = const $CopyWithPlaceholder(),
     Object? message = const $CopyWithPlaceholder(),
     Object? feeds = const $CopyWithPlaceholder(),
-    Object? postRequests = const $CopyWithPlaceholder(),
   }) {
     return FeedState(
       status: status == const $CopyWithPlaceholder() || status == null
@@ -75,11 +67,6 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
           ? _value.feeds
           // ignore: cast_nullable_to_non_nullable
           : feeds as List<FeedModel>,
-      postRequests:
-          postRequests == const $CopyWithPlaceholder() || postRequests == null
-              ? _value.postRequests
-              // ignore: cast_nullable_to_non_nullable
-              : postRequests as List<PostFeedRequest>,
     );
   }
 }

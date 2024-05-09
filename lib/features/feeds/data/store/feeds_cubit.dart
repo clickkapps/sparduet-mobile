@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
-import 'package:sparkduet/features/feeds/data/classes/post_feed_request.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_broadcast_event.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
@@ -12,7 +11,6 @@ import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/files/data/models/media_model.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
-import 'package:sparkduet/features/files/data/store/enums.dart';
 import 'package:uuid/uuid.dart';
 
 class FeedsCubit extends Cubit<FeedState> {
@@ -69,22 +67,41 @@ class FeedsCubit extends Cubit<FeedState> {
 
 
     // This additional stuff is to ensure that we track the post request
-    const uuid = Uuid();
-    final postId = uuid.v1();
-    final postRequests = <PostFeedRequest>[...state.postRequests];
-    final postReq = PostFeedRequest(id: postId, media: MediaModel(path: file.path, type: mediaType), status: PostItemStatus.loading);
-    postRequests.add(postReq);
-    final postReqIndex = postRequests.length - 1;
-    emit(state.copyWith(status: FeedStatus.postFeedInProgress, postRequests: postRequests));
+    final postId =  const Uuid().v1();
+
+    /// set post as loading
+    void setLoading() {
+      final existingFeeds = <FeedModel>[...state.feeds];
+      final newFeed = FeedModel(tempId: postId, mediaPath: file.path, mediaType: FileType.video, status: "loading", purpose: purpose, description: description);
+      existingFeeds.insert(0, newFeed);
+      emit(state.copyWith(status: FeedStatus.postFeedInProgress, feeds: existingFeeds));
+    }
+
+    ///! function to set post as failed
+    void setError(String error) {
+      final existingFeeds = <FeedModel>[...state.feeds];
+      final postIndex = existingFeeds.indexWhere((element) => element.tempId == postId);
+      existingFeeds[postIndex] = existingFeeds[postIndex].copyWith(status: "failed");
+      emit(state.copyWith(status: FeedStatus.postFeedFailed, message: error, feeds: existingFeeds));
+    }
+
+    ///! set Post as successful
+    void setCompleted(FeedModel feed) {
+      final existingFeeds = <FeedModel>[...state.feeds];
+      final postIndex = existingFeeds.indexWhere((element) => element.tempId == postId);
+      existingFeeds[postIndex] = feed;
+      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds));
+    }
+
+    //! update ui as loading image
+    setLoading();
 
     // start upload
     final uploadResponse = await fileRepository.uploadFileToCloudinary(files: [file]);
 
     if(uploadResponse.isLeft()){
       final l = uploadResponse.asLeft();
-      final postRequests = <PostFeedRequest>[...state.postRequests];
-      postRequests[postReqIndex] = postReq.copyWith(status: PostItemStatus.failed);
-      emit(state.copyWith(status: FeedStatus.postFeedFailed, message: l, postRequests: postRequests));
+      setError(l);
       return;
     }
 
@@ -95,15 +112,12 @@ class FeedsCubit extends Cubit<FeedState> {
     final postResponse = await feedsRepository.postFeed(purpose: purpose, media: media, description: description, commentsDisabled: commentsDisabled);
     if(postResponse.isLeft()) {
       final l = postResponse.asLeft();
-      final postRequests = <PostFeedRequest>[...state.postRequests];
-      postRequests[postReqIndex] = postReq.copyWith(status: PostItemStatus.failed);
-      emit(state.copyWith(status: FeedStatus.postFeedFailed, message: l, postRequests: postRequests));
+      setError(l);
       return;
     }
 
-    final requests = <PostFeedRequest>[...state.postRequests];
-    requests.removeAt(postReqIndex);
-    emit(state.copyWith(status: FeedStatus.postFeedSuccessful,  postRequests: requests));
+    final r = postResponse.asRight();
+    setCompleted(r);
 
   }
 

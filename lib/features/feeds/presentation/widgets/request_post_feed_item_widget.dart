@@ -94,7 +94,7 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
           behavior: HitTestBehavior.opaque,
           child: CustomVideoPlayer(
             videoSource: VideoSource.network,
-            networkUrl: ApiConfig.videoMediaPath(mediaId: AppConstants.requestPostFeedVideoMediaId),
+            networkUrl: AppApiRoutes.videoMediaPath(mediaId: AppConstants.requestPostFeedVideoMediaId),
             builder: (controller) => widget.builder?.call(controller, audioPlayer),
             autoPlay: false,
             backgroundColor: AppColors.darkColorScheme.background,

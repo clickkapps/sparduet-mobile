@@ -10,12 +10,12 @@ class FeedRepository {
   const FeedRepository({required this.networkProvider});
 
   // Create a new story feed
-  Future<Either<String, void>> postFeed({String? purpose, MediaModel? media, String? description, bool commentsDisabled = false}) async {
+  Future<Either<String, FeedModel>> postFeed({String? purpose, MediaModel? media, String? description, bool commentsDisabled = false}) async {
 
       try {
 
         // by default it fetches the current loggedIn User Profile
-        const path = ApiConfig.feeds;
+        const path = AppApiRoutes.createFeed;
         final body = {
             "purpose": purpose,
             "media_path": media?.path,
@@ -36,7 +36,9 @@ class FeedRepository {
             return Left(response.data["message"] as String);
           }
 
-          return const Right(null);
+          final feedJson = response.data["extra"] as Map<String, dynamic>;
+          final feed = FeedModel.fromJson(feedJson);
+          return Right(feed);
 
         } else {
           return Left(response.statusMessage ?? "");

@@ -1,68 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
+import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
+import 'package:sparkduet/features/users/presentation/widgets/completed_user_post_item.dart';
+import 'package:sparkduet/features/users/presentation/widgets/uncompleted_user_post_item.dart';
+import 'package:sparkduet/network/api_config.dart';
 import 'package:sparkduet/utils/custom_infinite_grid_view_widget.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 
-class UserPostsTabViewWidget<C> extends StatefulWidget {
+class UserPostsTabViewWidget<C extends FeedsCubit> extends StatefulWidget {
   final int? userId;
-  const UserPostsTabViewWidget({super.key, this.userId});
+  final Function(PagingController<int, dynamic>)? builder;
+  const UserPostsTabViewWidget({super.key, this.userId, this.builder});
 
   @override
-  State<UserPostsTabViewWidget> createState() => _UserPostsTabViewWidgetState();
+  State<UserPostsTabViewWidget> createState() => _UserPostsTabViewWidgetState<C>();
 }
 
-class _UserPostsTabViewWidgetState extends State<UserPostsTabViewWidget> {
+class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPostsTabViewWidget> with AutomaticKeepAliveClientMixin {
 
   PagingController<int, dynamic>? pagingController;
-
-  Future<(String?, List<FeedModel>?)> fetchData(int pageKey) async {
-      if(pageKey == 2) {
-        return (null, <FeedModel>[]);
-      }
-      return (null, List.generate(3, (index) => FeedModel(id: index)));
-  }
+  late C feedsCubit;
 
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 4), () {
-      // pagingController.
-    });
+    feedsCubit = context.read<C>();
     super.initState();
+  }
+
+  Future<(String?, List<FeedModel>?)> fetchData(int pageKey) async {
+    final path = AppApiRoutes.userPosts(userId: widget.userId);
+    return feedsCubit.fetchFeeds(path: path, pageKey: pageKey);
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return CustomInfiniteGridViewWidget<FeedModel>(fetchData: fetchData, itemBuilder: (_, dynamic item, index) {
-       final post = item as FeedModel;
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Stack(
-            children: [
-                CustomVideoPlayer(
-                  networkUrl: index % 2 == 0 ? "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/hl6is7u3aksdcg2gptgs.mp4" :
-                  "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/poqdyuhljyrrdpfhsgkg.mp4",
-                  autoPlay: false,
-                  loop: false,
-                  fit: BoxFit.cover,
-                  videoSource: VideoSource.network,
-               ),
-               Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("Gist about my preview relationship", maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.darkColorScheme.onBackground,fontSize: 12),),
-               ),
-              )
-            ],
-          ),
-        );
-    }, builder: (controller) => pagingController = controller,
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+        final post = item as FeedModel;
+        if(post.id == null) {
+          return UncompletedUserPostItem(post: post);
+        }else{
+         return CompletedUserPostItem(post: post);
+        }
+    }, builder: (controller) {
+      widget.builder?.call(controller);
+      return pagingController = controller;
+    }, padding: const EdgeInsets.symmetric(horizontal: 15),
       crossAxisSpacing: 3,
       mainAxisSpacing: 3,
       crossAxisCount: 3,
+      emptyTitle: "No posts available yet...",
+      emptySubTitle: "Related posts will be displayed here",
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

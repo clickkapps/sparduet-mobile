@@ -31,7 +31,7 @@ class _AuthorizeSocialPageState extends State<AuthorizeSocialPage> {
 
   @override
   void initState() {
-    url = '${ApiConfig.websiteUrl}/auth/social?provider=${widget.loginType}';
+    url = '${AppApiRoutes.websiteUrl}/auth/social?provider=${widget.loginType}';
     _themeCubit = context.read<ThemeCubit>();
     _themeCubit.setSystemUIOverlaysToLight(androidSystemNavigationBarColor: AppColors.lightColorScheme.surface, androidStatusBarIconBrightness: Brightness.light);
 
