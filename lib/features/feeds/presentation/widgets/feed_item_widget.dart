@@ -1,9 +1,11 @@
 import 'package:better_player/better_player.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_actions_widget.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
@@ -13,7 +15,9 @@ class StoryFeedItemWidget extends StatelessWidget {
   final Function(BetterPlayerController)? videoBuilder;
   final FeedModel feed;
   final Function()? onItemTapped;
-  const StoryFeedItemWidget({super.key, this.videoBuilder, this.onItemTapped, required this.feed});
+  final bool autoPlay;
+  final bool hls;
+  const StoryFeedItemWidget({super.key, this.videoBuilder, this.onItemTapped, required this.feed, this.autoPlay = false, this.hls = false});
 
   @override
   Widget build(BuildContext context) {
@@ -24,18 +28,18 @@ class StoryFeedItemWidget extends StatelessWidget {
         /// Video
         Builder(
           builder: (_) {
-            final networkUrl = AppConstants.cloudinary?.video(feed.mediaPath ?? "").toString();
+            final networkUrl = kDebugMode ? AppConstants.testVideoUrl : AppConstants.videoMediaPath(mediaId: feed.mediaPath);
             return GestureDetector(
               onTap: () => onItemTapped?.call() ,
               behavior: HitTestBehavior.opaque,
               child: IgnorePointer(
                 child: CustomVideoPlayer(
                   networkUrl: networkUrl,
-                  autoPlay: true,
+                  autoPlay: autoPlay,
                   loop: true,
                   showDefaultControls: false,
                   // aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
-                  hls: false,
+                  hls: hls,
                   fit: BoxFit.cover,
                   videoSource: VideoSource.network,
                   builder: videoBuilder,
@@ -46,8 +50,6 @@ class StoryFeedItemWidget extends StatelessWidget {
         ),
 
         /// Image
-
-
 
 
         Align(

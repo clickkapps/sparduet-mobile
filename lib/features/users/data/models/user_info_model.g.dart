@@ -3,6 +3,193 @@
 part of 'user_info_model.dart';
 
 // **************************************************************************
+// CopyWithGenerator
+// **************************************************************************
+
+abstract class _$UserInfoModelCWProxy {
+  UserInfoModel bio(String? bio);
+
+  UserInfoModel dob(DateTime? dob);
+
+  UserInfoModel age(num? age);
+
+  UserInfoModel gender(String? gender);
+
+  UserInfoModel profilePicPath(String? profilePicPath);
+
+  UserInfoModel requestedBasicInfoUpdate(DateTime? requestedBasicInfoUpdate);
+
+  UserInfoModel requestedPreferenceInfoUpdate(
+      DateTime? requestedPreferenceInfoUpdate);
+
+  UserInfoModel preferredGender(String? preferredGender);
+
+  UserInfoModel preferredMinAge(num? preferredMinAge);
+
+  UserInfoModel preferredMaxAge(num? preferredMaxAge);
+
+  UserInfoModel preferredRaces(String? preferredRaces);
+
+  UserInfoModel preferredNationalities(String? preferredNationalities);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserInfoModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// UserInfoModel(...).copyWith(id: 12, name: "My name")
+  /// ````
+  UserInfoModel call({
+    String? bio,
+    DateTime? dob,
+    num? age,
+    String? gender,
+    String? profilePicPath,
+    DateTime? requestedBasicInfoUpdate,
+    DateTime? requestedPreferenceInfoUpdate,
+    String? preferredGender,
+    num? preferredMinAge,
+    num? preferredMaxAge,
+    String? preferredRaces,
+    String? preferredNationalities,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfUserInfoModel.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfUserInfoModel.copyWith.fieldName(...)`
+class _$UserInfoModelCWProxyImpl implements _$UserInfoModelCWProxy {
+  const _$UserInfoModelCWProxyImpl(this._value);
+
+  final UserInfoModel _value;
+
+  @override
+  UserInfoModel bio(String? bio) => this(bio: bio);
+
+  @override
+  UserInfoModel dob(DateTime? dob) => this(dob: dob);
+
+  @override
+  UserInfoModel age(num? age) => this(age: age);
+
+  @override
+  UserInfoModel gender(String? gender) => this(gender: gender);
+
+  @override
+  UserInfoModel profilePicPath(String? profilePicPath) =>
+      this(profilePicPath: profilePicPath);
+
+  @override
+  UserInfoModel requestedBasicInfoUpdate(DateTime? requestedBasicInfoUpdate) =>
+      this(requestedBasicInfoUpdate: requestedBasicInfoUpdate);
+
+  @override
+  UserInfoModel requestedPreferenceInfoUpdate(
+          DateTime? requestedPreferenceInfoUpdate) =>
+      this(requestedPreferenceInfoUpdate: requestedPreferenceInfoUpdate);
+
+  @override
+  UserInfoModel preferredGender(String? preferredGender) =>
+      this(preferredGender: preferredGender);
+
+  @override
+  UserInfoModel preferredMinAge(num? preferredMinAge) =>
+      this(preferredMinAge: preferredMinAge);
+
+  @override
+  UserInfoModel preferredMaxAge(num? preferredMaxAge) =>
+      this(preferredMaxAge: preferredMaxAge);
+
+  @override
+  UserInfoModel preferredRaces(String? preferredRaces) =>
+      this(preferredRaces: preferredRaces);
+
+  @override
+  UserInfoModel preferredNationalities(String? preferredNationalities) =>
+      this(preferredNationalities: preferredNationalities);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserInfoModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// UserInfoModel(...).copyWith(id: 12, name: "My name")
+  /// ````
+  UserInfoModel call({
+    Object? bio = const $CopyWithPlaceholder(),
+    Object? dob = const $CopyWithPlaceholder(),
+    Object? age = const $CopyWithPlaceholder(),
+    Object? gender = const $CopyWithPlaceholder(),
+    Object? profilePicPath = const $CopyWithPlaceholder(),
+    Object? requestedBasicInfoUpdate = const $CopyWithPlaceholder(),
+    Object? requestedPreferenceInfoUpdate = const $CopyWithPlaceholder(),
+    Object? preferredGender = const $CopyWithPlaceholder(),
+    Object? preferredMinAge = const $CopyWithPlaceholder(),
+    Object? preferredMaxAge = const $CopyWithPlaceholder(),
+    Object? preferredRaces = const $CopyWithPlaceholder(),
+    Object? preferredNationalities = const $CopyWithPlaceholder(),
+  }) {
+    return UserInfoModel(
+      bio: bio == const $CopyWithPlaceholder()
+          ? _value.bio
+          // ignore: cast_nullable_to_non_nullable
+          : bio as String?,
+      dob: dob == const $CopyWithPlaceholder()
+          ? _value.dob
+          // ignore: cast_nullable_to_non_nullable
+          : dob as DateTime?,
+      age: age == const $CopyWithPlaceholder()
+          ? _value.age
+          // ignore: cast_nullable_to_non_nullable
+          : age as num?,
+      gender: gender == const $CopyWithPlaceholder()
+          ? _value.gender
+          // ignore: cast_nullable_to_non_nullable
+          : gender as String?,
+      profilePicPath: profilePicPath == const $CopyWithPlaceholder()
+          ? _value.profilePicPath
+          // ignore: cast_nullable_to_non_nullable
+          : profilePicPath as String?,
+      requestedBasicInfoUpdate:
+          requestedBasicInfoUpdate == const $CopyWithPlaceholder()
+              ? _value.requestedBasicInfoUpdate
+              // ignore: cast_nullable_to_non_nullable
+              : requestedBasicInfoUpdate as DateTime?,
+      requestedPreferenceInfoUpdate:
+          requestedPreferenceInfoUpdate == const $CopyWithPlaceholder()
+              ? _value.requestedPreferenceInfoUpdate
+              // ignore: cast_nullable_to_non_nullable
+              : requestedPreferenceInfoUpdate as DateTime?,
+      preferredGender: preferredGender == const $CopyWithPlaceholder()
+          ? _value.preferredGender
+          // ignore: cast_nullable_to_non_nullable
+          : preferredGender as String?,
+      preferredMinAge: preferredMinAge == const $CopyWithPlaceholder()
+          ? _value.preferredMinAge
+          // ignore: cast_nullable_to_non_nullable
+          : preferredMinAge as num?,
+      preferredMaxAge: preferredMaxAge == const $CopyWithPlaceholder()
+          ? _value.preferredMaxAge
+          // ignore: cast_nullable_to_non_nullable
+          : preferredMaxAge as num?,
+      preferredRaces: preferredRaces == const $CopyWithPlaceholder()
+          ? _value.preferredRaces
+          // ignore: cast_nullable_to_non_nullable
+          : preferredRaces as String?,
+      preferredNationalities:
+          preferredNationalities == const $CopyWithPlaceholder()
+              ? _value.preferredNationalities
+              // ignore: cast_nullable_to_non_nullable
+              : preferredNationalities as String?,
+    );
+  }
+}
+
+extension $UserInfoModelCopyWith on UserInfoModel {
+  /// Returns a callable class that can be used as follows: `instanceOfUserInfoModel.copyWith(...)` or like so:`instanceOfUserInfoModel.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$UserInfoModelCWProxy get copyWith => _$UserInfoModelCWProxyImpl(this);
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -10,10 +197,21 @@ UserInfoModel _$UserInfoModelFromJson(Map<String, dynamic> json) =>
     UserInfoModel(
       bio: json['bio'] as String?,
       dob: json['dob'] == null ? null : DateTime.parse(json['dob'] as String),
-      age: json['age'] as String?,
+      age: json['age'] as num?,
       gender: json['gender'] as String?,
       profilePicPath: json['profile_pic_path'] as String?,
-      introVideoPath: json['introductory_video_path'] as String?,
+      requestedBasicInfoUpdate: json['requested_basic_info_update'] == null
+          ? null
+          : DateTime.parse(json['requested_basic_info_update'] as String),
+      requestedPreferenceInfoUpdate: json['requested_preference_info_update'] ==
+              null
+          ? null
+          : DateTime.parse(json['requested_preference_info_update'] as String),
+      preferredGender: json['preferred_gender'] as String?,
+      preferredMinAge: json['preferred_min_age'] as num?,
+      preferredMaxAge: json['preferred_max_age'] as num?,
+      preferredRaces: json['preferred_races'] as String?,
+      preferredNationalities: json['preferred_nationalities'] as String?,
     );
 
 Map<String, dynamic> _$UserInfoModelToJson(UserInfoModel instance) =>
@@ -23,5 +221,13 @@ Map<String, dynamic> _$UserInfoModelToJson(UserInfoModel instance) =>
       'age': instance.age,
       'gender': instance.gender,
       'profile_pic_path': instance.profilePicPath,
-      'introductory_video_path': instance.introVideoPath,
+      'requested_basic_info_update':
+          instance.requestedBasicInfoUpdate?.toIso8601String(),
+      'requested_preference_info_update':
+          instance.requestedPreferenceInfoUpdate?.toIso8601String(),
+      'preferred_gender': instance.preferredGender,
+      'preferred_min_age': instance.preferredMinAge,
+      'preferred_max_age': instance.preferredMaxAge,
+      'preferred_races': instance.preferredRaces,
+      'preferred_nationalities': instance.preferredNationalities,
     };

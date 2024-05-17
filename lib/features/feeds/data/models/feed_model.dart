@@ -7,7 +7,7 @@ import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 
 part 'feed_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 @CopyWith()
 class FeedModel extends Equatable{
   final int? id;
@@ -41,6 +41,7 @@ class FeedModel extends Equatable{
   @JsonKey(name: "deleted_at")
   final DateTime? deleteAt;
   final String? status;
+  final bool? flipFile;
 
   const FeedModel({
     this.id,
@@ -60,11 +61,12 @@ class FeedModel extends Equatable{
     this.deleteAt,
     this.videoSource = VideoSource.network,
     this.status,
-    this.tempId
+    this.tempId,
+    this.flipFile,
   });
 
   @override
-  List<Object?> get props => [id, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, hasViewed, tempId];
+  List<Object?> get props => [id, tempId, mediaPath, mediaType, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, hasViewed];
 
   factory FeedModel.fromJson(Map<String, dynamic> json) => _$FeedModelFromJson(json);
   Map<String, dynamic> toJson() => _$FeedModelToJson(this);

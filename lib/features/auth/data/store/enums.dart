@@ -1,3 +1,4 @@
 enum AuthStatus {
-  initial, updateAuthUserInfoInProgress, logInInProgress, loginFailed, loginSuccessful, logOutInProgress, logOutCompleted, authorizeEmailInProgress, authorizeEmailFailed, submitEmailInProgress, submitEmailFailed, submitEmailSuccessful, resendEmailInProgress, resendEmailFailed, resendEmailSuccessful, authorizeEmailSuccessful
+  initial, setAuthUserInfoInProgress, logInInProgress, loginFailed, loginSuccessful, logOutInProgress, logOutCompleted, authorizeEmailInProgress, authorizeEmailFailed, submitEmailInProgress, submitEmailFailed, submitEmailSuccessful, resendEmailInProgress, resendEmailFailed, resendEmailSuccessful, authorizeEmailSuccessful,
+  fetchAuthUserInfoInProgress, fetchAuthUserInfoFailed, fetchAuthUserInfoSuccessful, setAuthUserInfoCompleted, deleteAccountCompleted, deleteAccountInProgress, updateAuthUserProfileInProgress, updateAuthUserProfileFailed, updateAuthUserProfileSuccessful, updateAuthUserProfilePhotoSuccessful, updateAuthUserProfilePhotoInProgress, updateAuthUserProfilePhotoFailed
 }

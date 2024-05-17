@@ -6,4 +6,5 @@ abstract final class AppRoutes {
   static const String preferences = "/preferences";
   static const String login = "/login";
   static const String camera = "/camera";
+  static const String photoGalleryPage = "/photo-gallery";
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_broadcast_event.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
@@ -62,18 +63,39 @@ class FeedsCubit extends Cubit<FeedState> {
   void postFeed({
     required File file,
     required FileType mediaType,
-    String? purpose, String? description, bool commentsDisabled = false
+    String? purpose,
+    String? description,
+    bool commentsDisabled = false,
+    bool flipFile = false,
+    String? tempPostId
   }) async {
 
 
     // This additional stuff is to ensure that we track the post request
-    final postId =  const Uuid().v1();
+    final postId =  tempPostId  ?? const Uuid().v1();
 
     /// set post as loading
     void setLoading() {
       final existingFeeds = <FeedModel>[...state.feeds];
-      final newFeed = FeedModel(tempId: postId, mediaPath: file.path, mediaType: FileType.video, status: "loading", purpose: purpose, description: description);
-      existingFeeds.insert(0, newFeed);
+      final existingTempFeedIndex = existingFeeds.indexWhere((element) => element.tempId == postId);
+      final newFeed = FeedModel(
+          tempId: postId,
+          mediaPath: file.path,
+          mediaType: FileType.video,
+          status: "loading",
+          purpose: purpose,
+          description: description,
+          commentsDisabledAt: commentsDisabled ? DateTime.now() : null,
+          flipFile: flipFile
+      );
+
+      // for the purposes of retry
+      if(existingTempFeedIndex > -1) {
+        existingFeeds[existingTempFeedIndex] = newFeed;
+      }else {
+        existingFeeds.insert(0, newFeed);
+      }
+
       emit(state.copyWith(status: FeedStatus.postFeedInProgress, feeds: existingFeeds));
     }
 
@@ -90,14 +112,17 @@ class FeedsCubit extends Cubit<FeedState> {
       final existingFeeds = <FeedModel>[...state.feeds];
       final postIndex = existingFeeds.indexWhere((element) => element.tempId == postId);
       existingFeeds[postIndex] = feed;
-      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds));
+      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds, data: feed));
     }
 
     //! update ui as loading image
     setLoading();
 
     // start upload
-    final uploadResponse = await fileRepository.uploadFileToCloudinary(files: [file]);
+    if(flipFile) {
+      file = await flipVideo(file);
+    }
+    final uploadResponse = await fileRepository.uploadFilesToServer(files: <File>[file]);
 
     if(uploadResponse.isLeft()){
       final l = uploadResponse.asLeft();
@@ -105,7 +130,8 @@ class FeedsCubit extends Cubit<FeedState> {
       return;
     }
 
-    final filePath = uploadResponse.asRight();
+    final uploads = uploadResponse.asRight();
+    final filePath = uploads.first;
     final media =  MediaModel(path: filePath, type: mediaType);
 
     // create actual post
@@ -125,6 +151,13 @@ class FeedsCubit extends Cubit<FeedState> {
   //! Fetch feeds and update the app's state as well as the UI
   Future<(String?, List<FeedModel>?)> fetchFeeds({required String path, required int pageKey, Map<String, dynamic>? queryParams}) async {
 
+
+    final uncompletedFeeds = state.feeds.where((element) => element.id == null).toList();
+    if(uncompletedFeeds.isNotEmpty && pageKey == 1) {
+      emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
+      emit(state.copyWith(status: FeedStatus.unCompletedPostsWithFeeds, feeds: state.feeds));
+    }
+
     emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
     final either = await feedsRepository.fetchFeeds(path);
     if(either.isLeft()){
@@ -134,10 +167,11 @@ class FeedsCubit extends Cubit<FeedState> {
     }
 
     final newItems = either.asRight();
-    final List<FeedModel> feeds = [...state.feeds];
+    final List<FeedModel> feeds = <FeedModel>[...state.feeds];
     if(pageKey == 1){
       // if its first page request remove all existing threads
       feeds.clear();
+      feeds.addAll(uncompletedFeeds);
     }
     feeds.addAll(newItems);
 

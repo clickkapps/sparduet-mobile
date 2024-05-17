@@ -3,22 +3,22 @@ import 'package:equatable/equatable.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 
-part 'feed_preview_state.g.dart';
+part 'feeds_previews_state.g.dart';
 
 @CopyWith()
-class FeedPreviewState extends Equatable {
+class FeedsPreviewsState extends Equatable {
 
   final FeedStatus status;
   final String? message;
-  final FeedModel? feed;
+  final List<FeedModel> feeds;
 
-  const FeedPreviewState({
+  const FeedsPreviewsState({
     this.status = FeedStatus.initial,
     this.message,
-    this.feed
+    this.feeds = const []
   });
 
   @override
-  List<Object?> get props => [status, feed];
+  List<Object?> get props => [status, feeds];
 
 }

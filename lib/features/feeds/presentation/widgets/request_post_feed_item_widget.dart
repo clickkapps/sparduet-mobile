@@ -7,7 +7,7 @@ import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
-import 'package:sparkduet/network/api_config.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
@@ -32,11 +32,7 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
   PostFeedPurpose get getRequestPostParameters {
     String? title, subTitle, key, description;
     if (widget.feedId == -2) {
-      title = "Hi✋! What are you looking for in your next relationship?";
-      subTitle =
-      "A quick 30-second video sharing your expectations would be helpful for potential matches";
-      key = "expectations";
-      description = "What I'm looking for in my next relationship";
+      return AppConstants.nextRelationshipExpectationPostFeedPurpose;
     }
     // else if(feedId == -3) {
     //
@@ -47,20 +43,9 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
     // else if(feedId == -5) {
     //
     // }
-    else {
       // -1
-      title = "Hi✋, Let's get started";
-      subTitle =
-      "Introduce yourself to potential suitors. A good 30 sec video will attract the best suitors";
-      key = "introduction";
-      description = "Hey✋, let's connect and learn more about each other.";
-    }
-    return PostFeedPurpose(
-        title: title,
-        subTitle: subTitle,
-        key: key,
-        description: description
-    );
+
+    return AppConstants.introductoryPostFeedPurpose;
 
   }
 
@@ -94,9 +79,12 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
           behavior: HitTestBehavior.opaque,
           child: CustomVideoPlayer(
             videoSource: VideoSource.network,
-            networkUrl: AppApiRoutes.videoMediaPath(mediaId: AppConstants.requestPostFeedVideoMediaId),
+            // networkUrl: AppConstants.videoMediaPath(mediaId: AppConstants.requestPostFeedVideoMediaId),
+            networkUrl: AppConstants.testVideoUrl,
             builder: (controller) => widget.builder?.call(controller, audioPlayer),
             autoPlay: false,
+            hls: true,
+            useCache: true,
             backgroundColor: AppColors.darkColorScheme.background,
           ),
         ),

@@ -29,6 +29,7 @@ class CustomVideoPlayer extends StatefulWidget {
   final double? maxWidth;
   final double? maxHeight;
   final bool hls;
+  final bool useCache;
   final bool? showControlsOnInitialize;
   final Function({required bool hidden})? controlsVisibilityChanged;
   final Map<String, String>? headers;
@@ -40,6 +41,7 @@ class CustomVideoPlayer extends StatefulWidget {
     this.mute = true,
     this.loop = true,
     this.hls = false,
+    this.useCache = false,
     this.showDefaultControls = false,
     this.enableProgressBar,
     this.showCustomVolumeButton = true,
@@ -92,8 +94,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         widget.networkUrl!,
         videoFormat: widget.hls == true ? BetterPlayerVideoFormat.hls : null,
         headers: widget.headers,
-        cacheConfiguration: const BetterPlayerCacheConfiguration(
-          // useCache: true,
+        cacheConfiguration:  BetterPlayerCacheConfiguration(
+          useCache: widget.useCache,
         ),
 
       );
@@ -104,8 +106,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
       betterPlayerDataSource = BetterPlayerDataSource(
         BetterPlayerDataSourceType.file,
         widget.file!.path,
-        cacheConfiguration: const BetterPlayerCacheConfiguration(
-            useCache: true
+        cacheConfiguration: BetterPlayerCacheConfiguration(
+            useCache: widget.useCache
         ),
       );
 
@@ -117,8 +119,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
       betterPlayerDataSource = BetterPlayerDataSource(
         BetterPlayerDataSourceType.file,
         file.path,
-        cacheConfiguration: const BetterPlayerCacheConfiguration(
-            // useCache: true
+        cacheConfiguration: BetterPlayerCacheConfiguration(
+            useCache: widget.useCache
         ),
       );
     }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:sparkduet/core/app_assets.dart';
@@ -15,6 +17,7 @@ class CustomUserAvatarWidget extends StatelessWidget {
   final double borderWidth;
   final BoxFit fit;
   final double borderRadius;
+  final File? placeHolderFile;
   const CustomUserAvatarWidget({
   this.size = 35,
   this.color,
@@ -23,10 +26,11 @@ class CustomUserAvatarWidget extends StatelessWidget {
   this.online = false,
   this.fit = BoxFit.cover,
   this.borderRadius = 1000,
+    this.placeHolderFile,
     this.borderWidth = 3,
   super.key});
 
-  Widget get  avatarPlaceholder => Image.asset(AppAssets.avatar, width: size, fit: BoxFit.cover, height: size,);
+  Widget get  avatarPlaceholder => placeHolderFile != null ? Image.file(placeHolderFile!, width: size, fit: BoxFit.cover, height: size,) : Image.asset(AppAssets.avatar, width: size, fit: BoxFit.cover, height: size,);
 
   @override
   Widget build(BuildContext context) {

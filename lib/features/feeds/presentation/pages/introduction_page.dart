@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 
 class IntroductionPage extends StatelessWidget with FileManagerMixin{
 
-  final Function() onAccept;
+  final Function(PostFeedPurpose) onAccept;
   const IntroductionPage({super.key, required this.onAccept});
 
   @override
@@ -24,14 +26,13 @@ class IntroductionPage extends StatelessWidget with FileManagerMixin{
           },
           children: [
 
-            Text("Hello dear", style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500, fontSize: 30),),
             FittedBox(
               fit: BoxFit.scaleDown,
-              child: Text("Introduce yourself to suitors.", style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w300, fontSize: 18),),
+              child: Text(AppConstants.introductoryPostFeedPurpose.title, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w300, fontSize: 18),),
             ),
 
-            Text("A good 30 seconds video will attract the best suitors.", style: theme.textTheme.titleSmall,),
-            CustomButtonWidget(text: "Let's start", onPressed: onAccept,)
+            Text(AppConstants.introductoryPostFeedPurpose.description, style: theme.textTheme.titleSmall,),
+            CustomButtonWidget(text: "Let's start", onPressed: () => onAccept.call(AppConstants.introductoryPostFeedPurpose), expand: true,)
 
           ],
         ),

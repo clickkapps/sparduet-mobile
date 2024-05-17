@@ -46,7 +46,7 @@ extension StringExtension on String? {
 extension ContextExtension on BuildContext {
 
   /// shows a [SnackBar]
-  void showSnackBar(String message, {Color? background, Color? foreground, NotificationAppearance? appearance, BuildContext? context, Function()? onTap}) {
+  void showSnackBar(String message, {Color? background, Color? foreground, NotificationAppearance appearance = NotificationAppearance.info, BuildContext? context, Function()? onTap}) {
     Future.delayed(const Duration(milliseconds: 0), () async {
       try{
 
@@ -150,7 +150,7 @@ extension ContextExtension on BuildContext {
     }
   }
 
-  void showConfirmDialog(BuildContext context,
+  void showConfirmDialog(
       {required VoidCallback onConfirmTapped,
         VoidCallback? onCancelTapped,
         required String title,
@@ -164,13 +164,13 @@ extension ContextExtension on BuildContext {
         Widget? child,
         Color? backgroundColor,
         String? cancelAction}) {
-    final theme = Theme.of(context);
+    final theme = Theme.of(this);
     showModalBottomSheet<void>(
         isScrollControlled: true,
         isDismissible: isDismissible,
         // backgroundColor: .colorScheme.background,
         backgroundColor: theme.brightness == Brightness.light ? const Color(0xffF2F3F4) : const Color(0xff202021),
-        context: context,
+        context: this,
         shape:  const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
@@ -258,7 +258,7 @@ extension ContextExtension on BuildContext {
                                   expand: true,
                                   appearance: ButtonAppearance.error,
                                   onPressed: () {
-                                    Navigator.of(context).pop();
+                                    Navigator.of(this).pop();
                                     onCancelTapped?.call();
                                   },
                                 )),
@@ -267,9 +267,9 @@ extension ContextExtension on BuildContext {
                               child: CustomButtonWidget(
                                 text: confirmAction ?? "Confirm",
                                 expand: true,
-                                appearance: ButtonAppearance.primary,
+                                appearance: ButtonAppearance.secondary,
                                 onPressed: () {
-                                  Navigator.of(context).pop();
+                                  Navigator.of(this).pop();
 
                                   onConfirmTapped();
 
@@ -327,7 +327,7 @@ extension ContextExtension on BuildContext {
       }
 
       // Either the permission was already granted before or the user just granted it.
-      showConfirmDialog(this, onConfirmTapped: (){
+      showConfirmDialog( onConfirmTapped: (){
         // The user opted to never again see the permission request dialog for this
         // app. The only way to change the permission's status now is to let the
         // user manually enables it in the system settings.

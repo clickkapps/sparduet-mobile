@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
@@ -12,7 +14,6 @@ import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_image_preview_widget.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_video_preview_widget.dart';
-import 'package:sparkduet/features/files/data/store/enums.dart';
 import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
@@ -26,7 +27,8 @@ class FeedEditorPreviewPage extends StatefulWidget {
   final FileType fileType;
   final PostFeedPurpose? feedPurpose;
   final ThemeData appTheme;
-  const FeedEditorPreviewPage({super.key, required this.file, required this.fileType, this.feedPurpose, required this.appTheme});
+  final bool frontCameraVideo;
+  const FeedEditorPreviewPage({super.key, required this.file, required this.fileType, this.feedPurpose, required this.appTheme, this.frontCameraVideo = false});
 
   @override
   State<FeedEditorPreviewPage> createState() => _FeedEditorPreviewPageState();
@@ -193,10 +195,10 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
 
   void validateAndPostFeedHandler(BuildContext ctx) {
 
-    if(!additionalInfoSeen) {
-      showVideoInfoHandler(context);
-      return;
-    }
+    // if(!additionalInfoSeen) {
+    //   showVideoInfoHandler(context);
+    //   return;
+    // }
 
     if(widget.fileType == FileType.video) {
       // get the trimmed video. We always do this cus the user can always change the start and end duration even if the video is less than 30secs
@@ -213,11 +215,12 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
 
   ///! Post / Sumbit Feed
   submitFeed({required File file, required FileType fileType}) {
-    context.read<FeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key);
+    context.read<FeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key, flipFile: widget.frontCameraVideo);
     if(widget.appTheme.brightness == Brightness.light) {
       context.read<ThemeCubit>().setSystemUIOverlaysToLight();
     }
-    context.read<NavCubit>().requestTabChange(NavPosition.profile);//
+    context.go(AppRoutes.authProfile);
+    // context.read<NavCubit>().requestTabChange(NavPosition.profile);//
   }
 
   @override
@@ -280,7 +283,7 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
             ? FeedEditorVideoPreviewWidget(trimmer: trimmer,file: editedFile, builder: (start, end) {
               _startVideoDuration = start;
               _endVideoDuration = end;
-            },) : FeedEditorImagePreviewWidget(file: editedFile),
+            }, frontCameraVideo: widget.frontCameraVideo,) : FeedEditorImagePreviewWidget(file: editedFile),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(

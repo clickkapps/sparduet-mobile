@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:imgly_sdk/imgly_sdk.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_editor_sdk/photo_editor_sdk.dart';
 import 'package:sparkduet/core/app_classes.dart';
 import 'package:sparkduet/core/app_constants.dart';
@@ -11,6 +13,7 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 mixin FileManagerMixin {
 
+
   // void pickImageFile(BuildContext context, {Function(File)? onSuccess, Function(String)? onError}) {
   //
   //   context.showCustomListBottomSheet(items: <ListItem>[
@@ -18,12 +21,12 @@ mixin FileManagerMixin {
   //     const ListItem(id: "gallery", title: "Select image from gallery", icon: FeatherIcons.image),
   //   ], onItemTapped: (item) {
   //     if(item.id == "camera") {
-  //       context.pickFileFromCamera(requestType: RequestType.image, onSuccess: onSuccess, onError: onError);
+  //       // context.pickFileFromCamera(requestType: RequestType.image, onSuccess: onSuccess, onError: onError);
   //       return;
   //     }
   //
   //     if(item.id == "gallery") {
-  //       context.pickFilesFromGallery(requestType: RequestType.image, onSuccess: (files) => onSuccess?.call((files??[]).first), onError: onError);
+  //
   //       return;
   //     }
   //   });

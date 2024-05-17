@@ -12,11 +12,13 @@ class FeedState extends Equatable {
   final FeedStatus status;
   final String? message;
   final List<FeedModel>  feeds;
+  final dynamic data; // temporal data
 
   const FeedState({
     this.status = FeedStatus.initial,
     this.message,
     this.feeds = const  [],
+    this.data
     // this.postFeedRequest = const PostFeedRequest()
   });
 

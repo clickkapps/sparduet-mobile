@@ -5,7 +5,7 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/users/presentation/widgets/completed_user_post_item.dart';
-import 'package:sparkduet/network/api_config.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_infinite_grid_view_widget.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 

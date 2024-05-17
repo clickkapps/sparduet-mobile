@@ -1,18 +1,18 @@
 import 'dart:async';
-
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
-import 'package:sparkduet/core/app_colors.dart';
-import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
+import 'package:sparkduet/features/feeds/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/introduction_page.dart';
 import 'package:sparkduet/features/home/data/enums.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
-import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -27,17 +27,43 @@ class _HomePageState extends State<HomePage> {
 
   int activeIndex = 0;
   late NavCubit navCubit;
+  late FeedsCubit feedsCubit;
   StreamSubscription? navCubitStreamSubscription;
+  StreamSubscription? feedsCubitStreamSubscription;
 
   @override
   void initState() {
     navCubit = context.read<NavCubit>();
+    feedsCubit = context.read<FeedsCubit>();
     navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChangeRequested) {
             onItemTapped(event.currentTabIndex);
         }
     });
+    feedsCubitStreamSubscription = feedsCubit.stream.listen((event) {
+      if(event.status == FeedStatus.postFeedSuccessful) {
+        final feed = event.data as FeedModel;
+        // Post has just been created by he user
+
+        //! if the purpose of the video is introduction, fetch the updated user detail.
+        if(feed.purpose == "introduction") {
+          if(mounted) {
+            context.read<AuthCubit>().fetchAuthUserInfo();
+          }
+        }
+      }
+    });
+
+    // fetch and update user profile info
+    context.read<AuthCubit>().fetchAuthUserInfo();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    navCubitStreamSubscription?.cancel();
+    feedsCubitStreamSubscription?.cancel();
+    super.dispose();
   }
 
   ///
@@ -68,9 +94,9 @@ class _HomePageState extends State<HomePage> {
           builder: (_ , controller) {
             return  ClipRRect(
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              child: IntroductionPage(onAccept: () async{
+              child: IntroductionPage(onAccept: (purpose) async{
                 context.popScreen();
-                openFeedCamera(context);
+                openFeedCamera(context, purpose: purpose);
               },),
             );
           }
@@ -120,8 +146,6 @@ class _HomePageState extends State<HomePage> {
     activeIndex = index;
 
   }
-
-
 
   @override
   Widget build(BuildContext context) {

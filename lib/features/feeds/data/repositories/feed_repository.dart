@@ -1,7 +1,9 @@
 import 'package:dartz/dartz.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/files/data/models/media_model.dart';
-import 'package:sparkduet/network/api_config.dart';
+import 'package:sparkduet/features/users/data/models/user_model.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/network/network_provider.dart';
 
 class FeedRepository {
@@ -13,6 +15,18 @@ class FeedRepository {
   Future<Either<String, FeedModel>> postFeed({String? purpose, MediaModel? media, String? description, bool commentsDisabled = false}) async {
 
       try {
+
+        // // Simulated response
+        await Future.delayed(const Duration(seconds: 4), );
+        const feed = FeedModel(
+            id: 1,
+            user: UserModel(id: 2, email: "danielkwakye1000@gmail.com"),
+            mediaPath: "imnnt00chidoe0appuye",
+            mediaType: FileType.video,
+            purpose: "introduction",
+            description: "Hey✋, let's connect and learn more about each other."
+        );
+        return const Right(feed);
 
         // by default it fetches the current loggedIn User Profile
         const path = AppApiRoutes.createFeed;

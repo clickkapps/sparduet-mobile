@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +16,10 @@ import 'package:sparkduet/features/feeds/presentation/pages/stories_feeds_page.d
 import 'package:sparkduet/features/home/presentation/pages/home_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/preferences_page.dart';
 import 'package:sparkduet/features/users/presentation/pages/user_profile_page.dart';
+import 'package:sparkduet/utils/custom_photo_gallery_page.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
+
+final GlobalKey<NavigatorState> _rootNavigator = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Guest Routes
 final List<String> guestRoutes = [
@@ -38,6 +43,7 @@ final router = GoRouter(
     return null;
   },
   initialLocation: AppRoutes.home,
+  navigatorKey: _rootNavigator,
   routes: [
 
     GoRoute(
@@ -47,11 +53,42 @@ final router = GoRouter(
 
     GoRoute(
       path: AppRoutes.camera,
+      parentNavigatorKey: _rootNavigator,
       builder: (context, state) {
         final map = state.extra as Map<String, dynamic>;
         final cameras = map['cameras'] as List<CameraDescription>;
         final feedPurpose = map["feedPurpose"] as PostFeedPurpose?;
         return FeedEditorCameraPage(cameras: cameras, purpose: feedPurpose,);
+      },
+    ),
+
+    //! extra: -> images (list of files / list of imageUrls), initialIndex (optional)
+    GoRoute(
+      path: AppRoutes.photoGalleryPage,
+      parentNavigatorKey: _rootNavigator,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        PhotoFileSource fileSource = PhotoFileSource.url;
+        if(extra['images'] is List<File>) {
+          fileSource = PhotoFileSource.file;
+        }
+
+        final initialPageIndex = extra['initialIndex'] as int?;
+        final showProgressText = extra['showProgressText'] as bool?;
+        return CustomTransitionPage(
+          fullscreenDialog: true,
+          opaque: false,
+          arguments: extra,
+          name: state.fullPath,
+          transitionsBuilder: (_, __, ___, child) => child,
+          child: CustomPhotoGalleryPage(
+            urls: fileSource == PhotoFileSource.url ? extra['images'] as List<String> : null,
+            files: fileSource == PhotoFileSource.file ? extra['images'] as List<File> : null,
+            fileSource: fileSource,
+            initialPageIndex: initialPageIndex ?? 0,
+            showProgressText: showProgressText ?? true,
+          ),
+        );
       },
     ),
 

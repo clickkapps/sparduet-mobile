@@ -111,6 +111,7 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
     if(widget.disabled != null && widget.disabled!){
       readOnly = true;
     }
+    final double outlineOpacity = theme.brightness == Brightness.light ? 0.5 : 1;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -147,15 +148,15 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
                 hintStyle: TextStyle(color: widget.placeHolderColor ?? theme.colorScheme.onBackground.withOpacity(0.5)),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 focusedBorder: OutlineInputBorder(
-                  borderSide:  BorderSide(color: widget.borderColor ?? theme.colorScheme.outline.withOpacity(0.5), width: 1),
+                  borderSide:  BorderSide(color: widget.borderColor ?? theme.colorScheme.outline.withOpacity(outlineOpacity), width: 1),
                   borderRadius: BorderRadius.circular(radius),
                 ),
                 border: OutlineInputBorder(
-                  borderSide:  BorderSide(color: widget.borderColor ?? theme.colorScheme.outline.withOpacity(0.5), width: 1),
+                  borderSide:  BorderSide(color: widget.borderColor ?? theme.colorScheme.outline.withOpacity(outlineOpacity), width: 1),
                   borderRadius: BorderRadius.circular(radius),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: widget.borderColor ?? theme.colorScheme.outline.withOpacity(0.5), width: 1),
+                  borderSide: BorderSide(color: widget.borderColor ?? theme.colorScheme.outline.withOpacity(outlineOpacity), width: 1),
                   borderRadius: BorderRadius.circular(radius),
                 ),
                 suffixIcon:  widget.isPassword! ? IconButton(onPressed: () => setState(() => _hideText = !_hideText),

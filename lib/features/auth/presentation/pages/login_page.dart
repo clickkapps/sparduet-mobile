@@ -172,13 +172,22 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
             body: Stack(
               children: [
                 CustomVideoPlayer(
-                  networkUrl: "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/hl6is7u3aksdcg2gptgs.mp4",
+                  // networkUrl: "https://clickkapps-518052896.imgix.net/3700456-uhd_2160_3840_30fps.mp4",
+                  // networkUrl: "https://stream.mux.com/GQ8byRrKCj2ooo5fZtV8R6TBO202t9YCO01FnkWNMWvgQ.m3u8",
+                  // networkUrl: "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/hl6is7u3aksdcg2gptgs.mp4",
+                  networkUrl: "https://d2e46virtl8cds.cloudfront.net/pexels-mikhail-nilov-6507686%20(1080p).mp4",
                   autoPlay: true,
                   loop: true,
                   aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
                   hls: false,
+                  useCache: true,
                   fit: BoxFit.cover,
                   videoSource: VideoSource.network,
+                ),
+                Container(
+                  width: mediaQuery.size.width,
+                  height: mediaQuery.size.height,
+                  color: Colors.black.withOpacity(0.1),
                 ),
                 SafeArea(child: Align(
                     alignment: Alignment.topCenter,

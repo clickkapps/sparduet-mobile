@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -43,4 +45,61 @@ String formatDuration(Duration duration) {
 
   // Return formatted string
   return '$formattedMinutes:$formattedSeconds';
+}
+
+/// Flips and overrides provided image.
+File flipImage(String path) {
+// Read the image from file.
+final inputImageFile = File(path);
+final bytes = inputImageFile.readAsBytesSync();
+var image = img.decodeImage(Uint8List.fromList(bytes))!;
+
+// Flip the image.
+image = img.flip(image, direction: img.FlipDirection.horizontal);
+
+// Save the flipped image.
+File(path).writeAsBytesSync(Uint8List.fromList(img.encodeJpg(image)));
+// 'Flipped image saved to: $path'.logD;
+return File(path);
+}
+
+///Files video
+Future<File> flipVideo(File file) async {
+  // final img.Image? capturedImage = img.decodeImage(await File(file.path).readAsBytes());
+  // if(capturedImage == null) {
+  //   return file;
+  // }
+  // final img.Image orientedImage = img.bakeOrientation(capturedImage);
+  // return await File(file.path).writeAsBytes(img.encodeJpg(orientedImage));
+  final session = await FFmpegKit.executeAsync("-y -i ${file.path} -filter:v \"hflip\" ${file.path}_flipped.mp4");
+
+  final returnCode = await session.getReturnCode();
+
+  if (ReturnCode.isSuccess(returnCode)) {
+
+    // SUCCESS
+    // final path = await session.getOutput();
+    return File("${file.path}_flipped.mp4");
+
+  } else if (ReturnCode.isCancel(returnCode)) {
+
+    // CANCEL
+    return file;
+
+  } else {
+
+    // ERROR
+    return file;
+
+  }
+
+  return flipImage(file.path);
+}
+
+Future<void> disableFullScreen() async {
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+}
+
+Future<void> enableFullScreen() async {
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky, overlays: []);
 }

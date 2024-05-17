@@ -45,6 +45,8 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel tempId(String? tempId);
 
+  FeedModel flipFile(bool? flipFile);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -71,6 +73,7 @@ abstract class _$FeedModelCWProxy {
     VideoSource? videoSource,
     String? status,
     String? tempId,
+    bool? flipFile,
   });
 }
 
@@ -144,6 +147,9 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
   FeedModel tempId(String? tempId) => this(tempId: tempId);
 
   @override
+  FeedModel flipFile(bool? flipFile) => this(flipFile: flipFile);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -171,6 +177,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
     Object? videoSource = const $CopyWithPlaceholder(),
     Object? status = const $CopyWithPlaceholder(),
     Object? tempId = const $CopyWithPlaceholder(),
+    Object? flipFile = const $CopyWithPlaceholder(),
   }) {
     return FeedModel(
       id: id == const $CopyWithPlaceholder()
@@ -250,6 +257,10 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
           ? _value.tempId
           // ignore: cast_nullable_to_non_nullable
           : tempId as String?,
+      flipFile: flipFile == const $CopyWithPlaceholder()
+          ? _value.flipFile
+          // ignore: cast_nullable_to_non_nullable
+          : flipFile as bool?,
     );
   }
 }
@@ -292,12 +303,13 @@ FeedModel _$FeedModelFromJson(Map<String, dynamic> json) => FeedModel(
               VideoSource.network,
       status: json['status'] as String?,
       tempId: json['tempId'] as String?,
+      flipFile: json['flipFile'] as bool?,
     );
 
 Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'id': instance.id,
       'tempId': instance.tempId,
-      'user': instance.user,
+      'user': instance.user?.toJson(),
       'description': instance.description,
       'purpose': instance.purpose,
       'comments_disabled_at': instance.commentsDisabledAt?.toIso8601String(),
@@ -314,6 +326,7 @@ Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'hasViewed': instance.hasViewed,
       'deleted_at': instance.deleteAt?.toIso8601String(),
       'status': instance.status,
+      'flipFile': instance.flipFile,
     };
 
 const _$FileTypeEnumMap = {

@@ -4,7 +4,7 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
-import 'package:sparkduet/network/api_config.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -31,7 +31,7 @@ class _AuthorizeSocialPageState extends State<AuthorizeSocialPage> {
 
   @override
   void initState() {
-    url = '${AppApiRoutes.websiteUrl}/auth/social?provider=${widget.loginType}';
+    url = '${AppApiRoutes.webApiUrl}/auth/social?provider=${widget.loginType}';
     _themeCubit = context.read<ThemeCubit>();
     _themeCubit.setSystemUIOverlaysToLight(androidSystemNavigationBarColor: AppColors.lightColorScheme.surface, androidStatusBarIconBrightness: Brightness.light);
 

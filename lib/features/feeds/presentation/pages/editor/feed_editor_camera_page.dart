@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,11 +18,9 @@ import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_preview_page.dart';
 import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
-import 'package:sparkduet/features/files/presentation/pages/video_trimmer_page.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
-import 'package:video_player/video_player.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:flutter_video_info/flutter_video_info.dart';
 
@@ -53,7 +52,7 @@ class FeedEditorCameraPage extends StatefulWidget {
   State<FeedEditorCameraPage> createState() => _FeedEditorCameraPageState();
 }
 
-class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileManagerMixin{
+class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileManagerMixin, WidgetsBindingObserver{
 
   AssetEntity? firstGalleryItem;
   final ValueNotifier<bool> galleryItemLoading = ValueNotifier(false);
@@ -67,7 +66,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   final ValueNotifier<bool> isTimerAnimating = ValueNotifier(false);
   final ValueNotifier<bool> isPreTimerAnimating = ValueNotifier(false);
   CameraState cameraState = CameraState.initial;
-  RequestType cameraType = RequestType.video;
+  late RequestType cameraType;
   final videoInfo = FlutterVideoInfo();
   Timer? _timer;
   bool timerIsRunning = false;
@@ -81,14 +80,46 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
   @override
   void initState() {
+    if(widget.purpose != null) {
+      if(widget.purpose?.expectedFile == ExpectedFiles.video || widget.purpose?.expectedFile == ExpectedFiles.any) {
+        cameraType = RequestType.video;
+      }
+      if(widget.purpose?.expectedFile == ExpectedFiles.photo || widget.purpose?.expectedFile == ExpectedFiles.any) {
+        cameraType = RequestType.image;
+      }
+    }else {
+      cameraType = RequestType.video;
+    }
     description = ValueNotifier(widget.cameras.length >  1 ? 1 : 0); // use the front camera if user has it
+    // description = ValueNotifier(0); // use the front camera if user has it
     timeRemaining = ValueNotifier(duration.value);
     preRecordingTimerRemaining = ValueNotifier(preRecordingTimerDurationStartValue.value);
-    controller = CameraController(widget.cameras[description.value], ResolutionPreset.max);
+    initializeCamera();
+    WidgetsBinding.instance.addObserver(this);
+    onWidgetBindingComplete(onComplete: () {
+      appTheme = Theme.of(context);
+      context.read<ThemeCubit>().setSystemUIOverlaysToDark();
+    });
+
+    super.initState();
+  }
+
+  void initializeCamera() {
+    controller = CameraController(widget.cameras[description.value], ResolutionPreset.max,);
     controller.initialize().then((_) {
       if (!mounted) {return;}
       initialized.value = true;
-      pickFirstAssetFromGallery(RequestType.video);
+      if(widget.purpose != null) {
+        if(widget.purpose?.expectedFile == ExpectedFiles.video || widget.purpose?.expectedFile == ExpectedFiles.any) {
+          pickFirstAssetFromGallery(RequestType.video);
+        }
+        if(widget.purpose?.expectedFile == ExpectedFiles.photo || widget.purpose?.expectedFile == ExpectedFiles.any) {
+          pickFirstAssetFromGallery(RequestType.image);
+        }
+      }else  {
+        pickFirstAssetFromGallery(RequestType.video);
+      }
+
     }).catchError((Object e) {
       error.value = "Oops! unable to start camera";
       if (e is CameraException) {
@@ -102,11 +133,23 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
         }
       }
     });
-    onWidgetBindingComplete(onComplete: () {
-      appTheme = Theme.of(context);
-      context.read<ThemeCubit>().setSystemUIOverlaysToDark();
-    });
-    super.initState();
+
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // final CameraController? cameraController = controller;
+    //
+    // // App state changed before we got the chance to initialize.
+    // if (controller == null || !controller.value.isInitialized) {
+    //   return;
+    // }
+    //
+    // if (state == AppLifecycleState.inactive) {
+    //   cameraController.dispose();
+    // } else if (state == AppLifecycleState.resumed) {
+    //   _initializeCameraController(cameraController.description);
+    // }
   }
 
   @override
@@ -303,9 +346,9 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   }
 
   void stopAndPreviewRecording() async {
-    stopVideoRecording(onSuccess: (file) {
+    stopVideoRecording(onSuccess: (file) async {
       if(mounted) {
-        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme, feedPurpose: widget.purpose,));
+        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme, feedPurpose: widget.purpose, frontCameraVideo: description.value == 1,));
       }
     });
   }
@@ -331,10 +374,17 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
   void takePhotoAndPreview() async {
     capturePhoto(onSuccess: (file) {
-      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme, feedPurpose: widget.purpose,));
+      if(description.value == 1) { // if its front camera user used fix, front camera flipped issue
+        file = flipImage(file.path);
+      }
+      if(mounted) {
+        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme, feedPurpose: widget.purpose,));
+      }
     });
 
   }
+
+
 
   /// For displaying first gallery item on the camera
   void pickFirstAssetFromGallery (RequestType requestType) async {
@@ -358,7 +408,6 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
             });
         }
       }
-
       // Update the state and notify UI
       // albumName.value = selectedAlbum.name;
     }
@@ -366,9 +415,7 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
   /// When file is selected from the gallery
   void onFileSelectedFromGalleryHandler(BuildContext context, {required File file, required FileType fileType}) async {
-
       context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType, feedPurpose: widget.purpose, appTheme: appTheme,));
-
   }
 
   /// Build camera UI
@@ -403,32 +450,43 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
                      if(cameraState == CameraState.initial) ... {
                        Positioned(
                          left: 0, right: 10,
-                         child: Row(
+                         child:
+                         SeparatedRow(
                            mainAxisAlignment: MainAxisAlignment.center,
+                           crossAxisAlignment: CrossAxisAlignment.center,
+                           separatorBuilder: (BuildContext context, int index) {
+                             return  const SizedBox(width: 10,);
+                           },
                            children: [
-                             cameraType == RequestType.image ? Chip(label: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
-                               backgroundColor: AppColors.darkColorScheme.background,
-                             ) : GestureDetector(onTap: () {
-                              setState(() {
-                                cameraType = RequestType.image;
-                                preRecordingTimerDurationStartValue.value = 0;
-                                preRecordingTimerRemaining.value = preRecordingTimerDurationStartValue.value;
-                                pickFirstAssetFromGallery(RequestType.image);
-                              });
-                             }, child: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
 
-                             const SizedBox(width: 10,),
+                             /// Switch between photo and video buttons
 
-                             cameraType == RequestType.video ? Chip(label: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
-                               backgroundColor: AppColors.darkColorScheme.background,
-                             ) : GestureDetector(onTap: () {
-                               setState(() {
-                                 cameraType = RequestType.video;
-                                 preRecordingTimerDurationStartValue.value = 3;
-                                 preRecordingTimerRemaining.value = preRecordingTimerDurationStartValue.value;
-                                 pickFirstAssetFromGallery(RequestType.video);
-                               });
-                             }, child: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
+                             if(widget.purpose == null || widget.purpose?.expectedFile == ExpectedFiles.photo || widget.purpose?.expectedFile == ExpectedFiles.any) ... {
+                               cameraType == RequestType.image ? Chip(label: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                 backgroundColor: AppColors.darkColorScheme.background,
+                               ) : GestureDetector(onTap: () {
+                                 setState(() {
+                                   cameraType = RequestType.image;
+                                   preRecordingTimerDurationStartValue.value = 0;
+                                   preRecordingTimerRemaining.value = preRecordingTimerDurationStartValue.value;
+                                   pickFirstAssetFromGallery(RequestType.image);
+                                 });
+                               }, child: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
+                             },
+
+                             if(widget.purpose == null || widget.purpose?.expectedFile == ExpectedFiles.video || widget.purpose?.expectedFile == ExpectedFiles.any) ... {
+                               cameraType == RequestType.video ? Chip(label: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                 backgroundColor: AppColors.darkColorScheme.background,
+                               ) : GestureDetector(onTap: () {
+                                 setState(() {
+                                   cameraType = RequestType.video;
+                                   // preRecordingTimerDurationStartValue.value = 3;
+                                   // preRecordingTimerRemaining.value = preRecordingTimerDurationStartValue.value;
+                                   pickFirstAssetFromGallery(RequestType.video);
+                                 });
+                               }, child: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
+
+                             }
 
                            ],
                          ),

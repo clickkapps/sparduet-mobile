@@ -18,7 +18,7 @@ import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
 import 'package:sparkduet/features/home/data/enums.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
-import 'package:sparkduet/network/api_config.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_error_content_widget.dart';
 
@@ -97,6 +97,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
 
   @override
   void dispose() {
+    pauseActiveStory();
     preloadPageController.dispose();
     navCubitSubscription?.cancel();
     super.dispose();
@@ -119,26 +120,32 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
-    await videoControllers[activeFeedIndex]?.pause();
-    await requestPostFeedAudioControllers[activeFeedIndex]?.pause();
-    await requestPostFeedVideoControllers[activeFeedIndex]?.pause();
+    videoControllers[activeFeedIndex]?.pause();
+    requestPostFeedAudioControllers[activeFeedIndex]?.pause();
+    requestPostFeedVideoControllers[activeFeedIndex]?.pause();
     activeStoryPlaying = false;
+  }
+
+  Future<void> resetActiveStory() async {
+     videoControllers[activeFeedIndex]?.seekTo(Duration.zero);
+     requestPostFeedAudioControllers[activeFeedIndex]?.setReleaseMode(ReleaseMode.loop);
+     requestPostFeedVideoControllers[activeFeedIndex]?.seekTo(Duration.zero);
   }
 
   void resumeActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
-    await videoControllers[activeFeedIndex]?.play();
-    await requestPostFeedAudioControllers[activeFeedIndex]?.resume();
-    await requestPostFeedVideoControllers[activeFeedIndex]?.play();
+    videoControllers[activeFeedIndex]?.play();
+    requestPostFeedAudioControllers[activeFeedIndex]?.resume();
+    requestPostFeedVideoControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
 
-  void playActiveStoryFromStart() async {
+  void playActiveStory() async {
     // "request post feed"
-    await requestPostFeedVideoControllers[activeFeedIndex]?.play();
-    requestPostFeedAudioControllers[activeFeedIndex]?..setReleaseMode(ReleaseMode.loop)..play(UrlSource(AppConstants.requestPostFeedAudioUrl));
+    requestPostFeedVideoControllers[activeFeedIndex]?.play();
+    requestPostFeedAudioControllers[activeFeedIndex]?.play(UrlSource(AppConstants.requestPostFeedAudioUrl));
     // The actual post video
-    videoControllers[activeFeedIndex]?..seekTo(Duration.zero)..play();
+    videoControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
   
@@ -150,7 +157,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text("Connections ❤️", style: TextStyle(color: Colors.white,
+        title: const Text("For you ❤️", style: TextStyle(color: Colors.white,
             // fontSize: 16
         ),),
         actions:  [
@@ -160,7 +167,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
         ],
       ),
       extendBodyBehindAppBar: true,
-      body: BlocListener<FeedsCubit, FeedState>(
+      body: BlocListener<StoriesFeedsCubit, FeedState>(
         listener: feedCubitListener,
         child: ColoredBox(
           color: AppColors.darkColorScheme.background,
@@ -198,7 +205,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                                    requestPostFeedVideoControllers[i] = videoController;
                                    requestPostFeedAudioControllers[i] = audioController;
                                    // play first after initializing
-                                   if(i == 0) { playActiveStoryFromStart(); }
+                                   if(i == 0) { playActiveStory(); }
                                 },
                                   onTap: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
                                   onFeedEditorOpened: () {
@@ -213,14 +220,15 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                               return StoryFeedItemWidget(videoBuilder: (controller) {
                                 videoControllers[i] = controller;
                               }, onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
-                                feed: feed,);
+                                feed: feed, autoPlay: i == 0, hls: true,);
 
                             },
                             onPageChanged: (int position) async  {
 
                               pauseActiveStory();
+                              resetActiveStory();
                               activeFeedIndex = position;
-                              playActiveStoryFromStart();
+                              playActiveStory();
 
                             },
                             preloadPagesCount: 2,

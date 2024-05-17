@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:sparkduet/core/app_storage.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
-import 'package:sparkduet/network/api_config.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/network/network_provider.dart';
 
 class AuthRepository {
@@ -97,6 +97,8 @@ class AuthRepository {
   }
 
 
+
+
   /// this method gets information about the current user
   /// and saves to local storage
 
@@ -108,7 +110,7 @@ class AuthRepository {
       await localStorageProvider.setAuthTokenVal(token);
 
       // fetch and update the current loggedIn user
-      return await _fetchAuthUserProfile();
+      return await fetchAuthUserProfile();
 
     } catch (e) {
       return Left(e.toString());
@@ -117,7 +119,7 @@ class AuthRepository {
   }
 
   // fetch and update the current loggedIn user from the server
-  Future<Either<String, AuthUserModel>> _fetchAuthUserProfile() async {
+  Future<Either<String, AuthUserModel>> fetchAuthUserProfile() async {
 
     try {
 
@@ -151,6 +153,43 @@ class AuthRepository {
       return Left(e.toString());
     }
 
+
+  }
+
+  // update auth profile
+  Future<Either<String, AuthUserModel>> updateAuthUserProfile({
+    required Map<String, dynamic> payload}) async {
+
+    try {
+
+      const path = AppApiRoutes.updateProfile;
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+          useToken: true,
+          body: payload
+      );
+
+      if(response!.statusCode == 200){
+
+        if(!(response.data["status"] as bool)) {
+          return Left(response.data["message"]);
+        }
+
+        final data = response.data["extra"] as Map<String, dynamic>;
+        final user = AuthUserModel.fromJson(data);
+        await localStorageProvider.saveAuthUserToLocalStorage(user);
+
+        return Right(user);
+      }else {
+        return Left(response.statusMessage ?? "");
+      }
+
+
+    } catch(e) {
+      return Left(e.toString());
+    }
 
   }
 

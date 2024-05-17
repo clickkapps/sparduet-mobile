@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/mixin/launch_external_app_mixin.dart';
-import 'package:sparkduet/network/api_config.dart';
+import 'package:sparkduet/network/api_routes.dart';
 
 class TermsPrivacyWidget extends StatelessWidget with LaunchExternalAppMixin{
 

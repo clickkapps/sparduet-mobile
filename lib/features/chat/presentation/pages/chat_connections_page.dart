@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/home/data/nav_cubit.dart';
 import 'package:sparkduet/utils/custom_badge_icon.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
@@ -16,9 +19,12 @@ class ChatConnectionsPage extends StatelessWidget {
       body: NestedScrollView(headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
 
           return [
-              const SliverAppBar(
+               SliverAppBar(
                 elevation: 0,
-                title: Text("Inbox"),
+                title: const Text("Inbox"),
+                leading: CloseButton(color: theme.colorScheme.onBackground, onPressed: () => {
+                  context.read<NavCubit>().requestTabChange(NavPosition.home)
+                },),
               ),
                SliverToBoxAdapter(
                 child: SizedBox(
