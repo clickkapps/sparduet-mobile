@@ -23,6 +23,8 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel mediaType(FileType? mediaType);
 
+  FeedModel assetId(String? assetId);
+
   FeedModel totalLikes(num? totalLikes);
 
   FeedModel hasLiked(bool? hasLiked);
@@ -62,6 +64,7 @@ abstract class _$FeedModelCWProxy {
     bool? blockedByAdminAt,
     String? mediaPath,
     FileType? mediaType,
+    String? assetId,
     num? totalLikes,
     bool? hasLiked,
     num? totalBookmarks,
@@ -108,6 +111,9 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
 
   @override
   FeedModel mediaType(FileType? mediaType) => this(mediaType: mediaType);
+
+  @override
+  FeedModel assetId(String? assetId) => this(assetId: assetId);
 
   @override
   FeedModel totalLikes(num? totalLikes) => this(totalLikes: totalLikes);
@@ -166,6 +172,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
     Object? blockedByAdminAt = const $CopyWithPlaceholder(),
     Object? mediaPath = const $CopyWithPlaceholder(),
     Object? mediaType = const $CopyWithPlaceholder(),
+    Object? assetId = const $CopyWithPlaceholder(),
     Object? totalLikes = const $CopyWithPlaceholder(),
     Object? hasLiked = const $CopyWithPlaceholder(),
     Object? totalBookmarks = const $CopyWithPlaceholder(),
@@ -212,6 +219,10 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
           ? _value.mediaType
           // ignore: cast_nullable_to_non_nullable
           : mediaType as FileType?,
+      assetId: assetId == const $CopyWithPlaceholder()
+          ? _value.assetId
+          // ignore: cast_nullable_to_non_nullable
+          : assetId as String?,
       totalLikes: totalLikes == const $CopyWithPlaceholder()
           ? _value.totalLikes
           // ignore: cast_nullable_to_non_nullable
@@ -288,6 +299,7 @@ FeedModel _$FeedModelFromJson(Map<String, dynamic> json) => FeedModel(
       blockedByAdminAt: json['blocked_by_admin_at'] as bool?,
       mediaPath: json['media_path'] as String?,
       mediaType: $enumDecodeNullable(_$FileTypeEnumMap, json['media_type']),
+      assetId: json['asset_id'] as String?,
       totalLikes: json['total_likes'] as num?,
       hasLiked: json['has_liked'] as bool?,
       totalBookmarks: json['total_bookmarks'] as num?,
@@ -315,6 +327,7 @@ Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'comments_disabled_at': instance.commentsDisabledAt?.toIso8601String(),
       'blocked_by_admin_at': instance.blockedByAdminAt,
       'media_path': instance.mediaPath,
+      'asset_id': instance.assetId,
       'media_type': _$FileTypeEnumMap[instance.mediaType],
       'videoSource': _$VideoSourceEnumMap[instance.videoSource]!,
       'total_likes': instance.totalLikes,

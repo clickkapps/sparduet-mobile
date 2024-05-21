@@ -10,19 +10,19 @@ part 'feed_state.g.dart';
 class FeedState extends Equatable {
 
   final FeedStatus status;
-  final String? message;
+  final String message;
   final List<FeedModel>  feeds;
   final dynamic data; // temporal data
 
   const FeedState({
     this.status = FeedStatus.initial,
-    this.message,
+    this.message = "There's an issue with your connection",
     this.feeds = const  [],
     this.data
     // this.postFeedRequest = const PostFeedRequest()
   });
 
   @override
-  List<Object?> get props => [status, feeds];
+  List<Object?> get props => [status, feeds, message];
 
 }

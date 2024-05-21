@@ -11,6 +11,8 @@ abstract class _$MediaModelCWProxy {
 
   MediaModel type(FileType type);
 
+  MediaModel assetId(String? assetId);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `MediaModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -20,6 +22,7 @@ abstract class _$MediaModelCWProxy {
   MediaModel call({
     String? path,
     FileType? type,
+    String? assetId,
   });
 }
 
@@ -36,6 +39,9 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
   MediaModel type(FileType type) => this(type: type);
 
   @override
+  MediaModel assetId(String? assetId) => this(assetId: assetId);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `MediaModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -46,6 +52,7 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
   MediaModel call({
     Object? path = const $CopyWithPlaceholder(),
     Object? type = const $CopyWithPlaceholder(),
+    Object? assetId = const $CopyWithPlaceholder(),
   }) {
     return MediaModel(
       path: path == const $CopyWithPlaceholder() || path == null
@@ -56,6 +63,10 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
           ? _value.type
           // ignore: cast_nullable_to_non_nullable
           : type as FileType,
+      assetId: assetId == const $CopyWithPlaceholder()
+          ? _value.assetId
+          // ignore: cast_nullable_to_non_nullable
+          : assetId as String?,
     );
   }
 }

@@ -37,7 +37,6 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   late NavCubit navCubit;
   int activeFeedIndex = 0;
   final Map<int, BetterPlayerController?> videoControllers = {};
-  final Map<int, AudioPlayer?> requestPostFeedAudioControllers = {}; // we use this when we request user to post a feed
   final Map<int, BetterPlayerController?> requestPostFeedVideoControllers = {};
   final int pageKey = 1;
   final preloadPageController = PreloadPageController();
@@ -121,21 +120,18 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
-    requestPostFeedAudioControllers[activeFeedIndex]?.pause();
     requestPostFeedVideoControllers[activeFeedIndex]?.pause();
     activeStoryPlaying = false;
   }
 
   Future<void> resetActiveStory() async {
      videoControllers[activeFeedIndex]?.seekTo(Duration.zero);
-     requestPostFeedAudioControllers[activeFeedIndex]?.setReleaseMode(ReleaseMode.loop);
      requestPostFeedVideoControllers[activeFeedIndex]?.seekTo(Duration.zero);
   }
 
   void resumeActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.play();
-    requestPostFeedAudioControllers[activeFeedIndex]?.resume();
     requestPostFeedVideoControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
@@ -143,7 +139,6 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   void playActiveStory() async {
     // "request post feed"
     requestPostFeedVideoControllers[activeFeedIndex]?.play();
-    requestPostFeedAudioControllers[activeFeedIndex]?.play(UrlSource(AppConstants.requestPostFeedAudioUrl));
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
@@ -201,9 +196,8 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
 
                               // negative ids are meant to request the user to create a post
                               if((feed.id  ?? 0) < 0) {
-                                return RequestPostFeedItem(feedId: feed.id!, builder: (videoController, audioController) {
+                                return RequestPostFeedItem(feedId: feed.id!, builder: (videoController) {
                                    requestPostFeedVideoControllers[i] = videoController;
-                                   requestPostFeedAudioControllers[i] = audioController;
                                    // play first after initializing
                                    if(i == 0) { playActiveStory(); }
                                 },

@@ -20,7 +20,7 @@ class StoriesPreviewsPage extends StatefulWidget {
 
 class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsBindingObserver {
 
-  int activeFeedIndex = 0;
+  late int activeFeedIndex ;
   final Map<int, BetterPlayerController?> videoControllers = {};
   late StoriesPreviewsCubit storiesPreviewsCubit;
   late PreloadPageController preloadPageController;
@@ -29,6 +29,7 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
 
   @override
   void initState() {
+    activeFeedIndex = widget.initialFeedIndex;
     preloadPageController = PreloadPageController(initialPage: widget.initialFeedIndex);
     storiesPreviewsCubit = context.read<StoriesPreviewsCubit>();
     storiesPreviewsCubit.setFeeds(widget.feeds);
@@ -94,6 +95,7 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: AppColors.darkColorScheme.onBackground),
         actions:  const [
           // IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.sliders, color: Colors.white,)),
           // IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.search, color: Colors.white,)),
@@ -129,8 +131,9 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
                       // Regular stories .....
                       return StoryFeedItemWidget(videoBuilder: (controller) {
                         videoControllers[i] = controller;
+                        playActiveStory();
                       }, onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
-                        feed: feed,);
+                        feed: feed, hls: true,);
 
                     },
                     onPageChanged: (int position) async  {

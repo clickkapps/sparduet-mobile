@@ -5,6 +5,7 @@ import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
 import '../repositories/auth_repository.dart';
 
@@ -25,6 +26,15 @@ class AuthCubit extends Cubit<AuthState> {
       setAuthUserInfo(updatedAuthUser: user);
     }
     return user;
+  }
+
+  void setIntroductoryPost(FeedModel feedModel) {
+    final user = state.authUser?.copyWith(
+      introductoryPost: feedModel
+    );
+    if(user == null) {return;}
+    authRepository.saveAuthUser(user);
+    setAuthUserInfo(updatedAuthUser: user);
   }
 
   void fetchAuthUserInfo() async {

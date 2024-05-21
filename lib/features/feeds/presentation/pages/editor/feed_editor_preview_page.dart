@@ -10,6 +10,7 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_image_preview_widget.dart';
@@ -215,11 +216,12 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
 
   ///! Post / Sumbit Feed
   submitFeed({required File file, required FileType fileType}) {
-    context.read<FeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key, flipFile: widget.frontCameraVideo);
+    final authUser = context.read<AuthCubit>().state.authUser;
+    context.read<FeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key, flipFile: widget.frontCameraVideo, user: authUser);
     if(widget.appTheme.brightness == Brightness.light) {
       context.read<ThemeCubit>().setSystemUIOverlaysToLight();
     }
-    context.go(AppRoutes.authProfile);
+    context.go(AppRoutes.authProfile, extra: {"focusOnYourPosts":true});
     // context.read<NavCubit>().requestTabChange(NavPosition.profile);//
   }
 

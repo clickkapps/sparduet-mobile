@@ -134,7 +134,10 @@ final router = GoRouter(
           GoRoute(
               path: AppRoutes.authProfile,
               pageBuilder: (ctx, state) {
-                return NoTransitionPage(child: const AuthProfilePage(), name: state.fullPath, arguments: state.extra);
+                final map = state.extra as Map<String,dynamic>?;
+                final bool focusOnYourPosts  = (map?["focusOnYourPosts"] as bool?) ?? false;
+                final bool focusOnBookmarks = (map?["focusOnBookmarks"] as bool?) ?? false;
+                return NoTransitionPage(child:  AuthProfilePage(focusOnBookmarks: focusOnBookmarks,focusOnYourPosts: focusOnYourPosts,), name: state.fullPath, arguments: state.extra);
               }
           ),
         ],

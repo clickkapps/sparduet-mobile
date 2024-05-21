@@ -11,29 +11,30 @@ class FeedRepository {
   final NetworkProvider networkProvider;
   const FeedRepository({required this.networkProvider});
 
-  // Create a new story feed
-  Future<Either<String, FeedModel>> postFeed({String? purpose, MediaModel? media, String? description, bool commentsDisabled = false}) async {
+  // Initiate post without the media to get the Id
+  Future<Either<String, int>> createPost({String? purpose, MediaModel? media, String? description, bool commentsDisabled = false}) async {
 
       try {
 
         // // Simulated response
-        await Future.delayed(const Duration(seconds: 4), );
-        const feed = FeedModel(
-            id: 1,
-            user: UserModel(id: 2, email: "danielkwakye1000@gmail.com"),
-            mediaPath: "imnnt00chidoe0appuye",
-            mediaType: FileType.video,
-            purpose: "introduction",
-            description: "Hey✋, let's connect and learn more about each other."
-        );
-        return const Right(feed);
+        // await Future.delayed(const Duration(seconds: 4), );
+        // const feed = FeedModel(
+        //     id: 1,
+        //     user: UserModel(id: 2, email: "danielkwakye1000@gmail.com"),
+        //     mediaPath: "imnnt00chidoe0appuye",
+        //     mediaType: FileType.video,
+        //     purpose: "introduction",
+        //     description: "Hey✋, let's connect and learn more about each other."
+        // );
+        // return const Right(feed);
 
         // by default it fetches the current loggedIn User Profile
-        const path = AppApiRoutes.createFeed;
+        const path = AppApiRoutes.createPost;
         final body = {
             "purpose": purpose,
-            "media_path": media?.path,
-            "media_type": media?.type.name,
+            "media_path": media?.path ?? "",
+            "media_type": media?.type.name ?? "",
+            "asset_id": media?.assetId ?? "",
             "description": description,
             "comments_disabled": commentsDisabled
         };
@@ -50,9 +51,8 @@ class FeedRepository {
             return Left(response.data["message"] as String);
           }
 
-          final feedJson = response.data["extra"] as Map<String, dynamic>;
-          final feed = FeedModel.fromJson(feedJson);
-          return Right(feed);
+          final feedId = response.data["extra"]["id"] as int;
+          return Right(feedId);
 
         } else {
           return Left(response.statusMessage ?? "");
@@ -62,6 +62,46 @@ class FeedRepository {
       }catch(error) {
         return Left(error.toString());
       }
+
+  }
+
+  Future<Either<String, FeedModel>> attachMediaToPost({required int postId,required MediaModel media}) async {
+
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      final path = AppApiRoutes.attachMediaToPost(postId: postId);
+      final body = {
+        "media_path": media.path,
+        "media_type": media.type.name,
+        "asset_id": media.assetId,
+        "aspect_ratio": media.aspectRatio
+      };
+
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.post,
+        body: body,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        final feedJson = response.data["extra"] as Map<String, dynamic>;
+        final feed = FeedModel.fromJson(feedJson);
+        return Right(feed);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+
+    }catch(error) {
+      return Left(error.toString());
+    }
 
   }
 

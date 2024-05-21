@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
-import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/core/app_post_converter.dart';
+import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_broadcast_event.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
@@ -67,26 +68,28 @@ class FeedsCubit extends Cubit<FeedState> {
     String? description,
     bool commentsDisabled = false,
     bool flipFile = false,
-    String? tempPostId
+    String? tempPostId,
+    required AuthUserModel? user
   }) async {
 
 
     // This additional stuff is to ensure that we track the post request
-    final postId =  tempPostId  ?? const Uuid().v1();
+    final postTempId =  tempPostId  ?? const Uuid().v1();
 
     /// set post as loading
     void setLoading() {
       final existingFeeds = <FeedModel>[...state.feeds];
-      final existingTempFeedIndex = existingFeeds.indexWhere((element) => element.tempId == postId);
+      final existingTempFeedIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
       final newFeed = FeedModel(
-          tempId: postId,
+          tempId: postTempId,
           mediaPath: file.path,
-          mediaType: FileType.video,
+          mediaType: mediaType,
           status: "loading",
           purpose: purpose,
           description: description,
           commentsDisabledAt: commentsDisabled ? DateTime.now() : null,
-          flipFile: flipFile
+          flipFile: flipFile,
+          user: user
       );
 
       // for the purposes of retry
@@ -99,10 +102,22 @@ class FeedsCubit extends Cubit<FeedState> {
       emit(state.copyWith(status: FeedStatus.postFeedInProgress, feeds: existingFeeds));
     }
 
+    void updatePostId(int postId) {
+      final existingFeeds = <FeedModel>[...state.feeds];
+      final existingTempFeedIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
+      if(existingTempFeedIndex > -1) {
+        existingFeeds[existingTempFeedIndex] = existingFeeds[existingTempFeedIndex].copyWith(
+          id: postId,
+          status: null
+        );
+      }
+      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds));
+    }
+
     ///! function to set post as failed
     void setError(String error) {
       final existingFeeds = <FeedModel>[...state.feeds];
-      final postIndex = existingFeeds.indexWhere((element) => element.tempId == postId);
+      final postIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
       existingFeeds[postIndex] = existingFeeds[postIndex].copyWith(status: "failed");
       emit(state.copyWith(status: FeedStatus.postFeedFailed, message: error, feeds: existingFeeds));
     }
@@ -110,19 +125,51 @@ class FeedsCubit extends Cubit<FeedState> {
     ///! set Post as successful
     void setCompleted(FeedModel feed) {
       final existingFeeds = <FeedModel>[...state.feeds];
-      final postIndex = existingFeeds.indexWhere((element) => element.tempId == postId);
+      final postIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
       existingFeeds[postIndex] = feed;
-      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds, data: feed));
+      emit(state.copyWith(status: FeedStatus.postFeedProcessFileCompleted, feeds: existingFeeds, data: feed));
     }
 
     //! update ui as loading image
     setLoading();
 
-    // start upload
-    if(flipFile) {
-      file = await flipVideo(file);
+
+    // Initiate post without the post media
+    final postResponse = await feedsRepository.createPost(purpose: purpose, media: MediaModel(path: "", type: mediaType), description: description, commentsDisabled: commentsDisabled);
+    if(postResponse.isLeft()) {
+      final l = postResponse.asLeft();
+      setError(l);
+      return;
     }
-    final uploadResponse = await fileRepository.uploadFilesToServer(files: <File>[file]);
+
+    // this has everything except the media
+    final initialPostId = postResponse.asRight();
+
+    // update post with serverId
+    // This will mark the post as completed whiles we process the file
+    updatePostId(initialPostId);
+
+
+    File? postFile;
+    FileType? postMediaType;
+    emit(state.copyWith(status: FeedStatus.postFeedProcessFileInProgress));
+
+
+    //! Flip file if its front camera
+    if(flipFile) {
+      postFile = await AppPostConverter.flipVideo(file);
+    }
+
+    // convert image to music
+    if(mediaType == FileType.image) {
+      postFile = await AppPostConverter.convertImageToVideoWithMusic(file.path, "https://d2e46virtl8cds.cloudfront.net/track_1.mp3");
+      if(postFile == null) {
+        setError("Unable to convert image to video");
+      }
+    }
+
+    // start upload
+    final uploadResponse = await fileRepository.uploadVideoToServer(videoFile: postFile ?? file);
 
     if(uploadResponse.isLeft()){
       final l = uploadResponse.asLeft();
@@ -130,20 +177,23 @@ class FeedsCubit extends Cubit<FeedState> {
       return;
     }
 
-    final uploads = uploadResponse.asRight();
-    final filePath = uploads.first;
-    final media =  MediaModel(path: filePath, type: mediaType);
+    final upld = uploadResponse.asRight();
+    final filePath = upld.$1;
+    final assetId = upld.$2;
+    final aspectRatio = upld.$3;
+    final media =  MediaModel(path: filePath, type: postMediaType ?? mediaType, assetId: assetId, aspectRatio: aspectRatio);
 
-    // create actual post
-    final postResponse = await feedsRepository.postFeed(purpose: purpose, media: media, description: description, commentsDisabled: commentsDisabled);
-    if(postResponse.isLeft()) {
-      final l = postResponse.asLeft();
+    // attach media file to server
+    final attachMediaResponse = await feedsRepository.attachMediaToPost(postId: initialPostId, media: media);
+    if(attachMediaResponse.isLeft()) {
+      final l = attachMediaResponse.asLeft();
       setError(l);
       return;
     }
 
-    final r = postResponse.asRight();
-    setCompleted(r);
+    final completedPost = attachMediaResponse.asRight();
+    setCompleted(completedPost);
+
 
   }
 
@@ -159,7 +209,7 @@ class FeedsCubit extends Cubit<FeedState> {
     }
 
     emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
-    final either = await feedsRepository.fetchFeeds(path);
+    final either = await feedsRepository.fetchFeeds(path, queryParams: queryParams);
     if(either.isLeft()){
       final l = either.asLeft();
       emit(state.copyWith(status: FeedStatus.fetchFeedsFailed, message: l));

@@ -6,10 +6,10 @@ import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 
-class IntroductionPage extends StatelessWidget with FileManagerMixin{
+class IntroductionWidget extends StatelessWidget with FileManagerMixin{
 
   final Function(PostFeedPurpose) onAccept;
-  const IntroductionPage({super.key, required this.onAccept});
+  const IntroductionWidget({super.key, required this.onAccept});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class IntroductionPage extends StatelessWidget with FileManagerMixin{
               child: Text(AppConstants.introductoryPostFeedPurpose.title, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w300, fontSize: 18),),
             ),
 
-            Text(AppConstants.introductoryPostFeedPurpose.description, style: theme.textTheme.titleSmall,),
+            Text(AppConstants.introductoryPostFeedPurpose.subTitle, style: theme.textTheme.titleSmall,),
             CustomButtonWidget(text: "Let's start", onPressed: () => onAccept.call(AppConstants.introductoryPostFeedPurpose), expand: true,)
 
           ],

@@ -118,6 +118,10 @@ class AuthRepository {
 
   }
 
+  Future<void> saveAuthUser(AuthUserModel updatedUser) async {
+    await localStorageProvider.saveAuthUserToLocalStorage(updatedUser);
+  }
+
   // fetch and update the current loggedIn user from the server
   Future<Either<String, AuthUserModel>> fetchAuthUserProfile() async {
 

@@ -9,7 +9,7 @@ part of 'feed_state.dart';
 abstract class _$FeedStateCWProxy {
   FeedState status(FeedStatus status);
 
-  FeedState message(String? message);
+  FeedState message(String message);
 
   FeedState feeds(List<FeedModel> feeds);
 
@@ -39,7 +39,7 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
   FeedState status(FeedStatus status) => this(status: status);
 
   @override
-  FeedState message(String? message) => this(message: message);
+  FeedState message(String message) => this(message: message);
 
   @override
   FeedState feeds(List<FeedModel> feeds) => this(feeds: feeds);
@@ -66,10 +66,10 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
           ? _value.status
           // ignore: cast_nullable_to_non_nullable
           : status as FeedStatus,
-      message: message == const $CopyWithPlaceholder()
+      message: message == const $CopyWithPlaceholder() || message == null
           ? _value.message
           // ignore: cast_nullable_to_non_nullable
-          : message as String?,
+          : message as String,
       feeds: feeds == const $CopyWithPlaceholder() || feeds == null
           ? _value.feeds
           // ignore: cast_nullable_to_non_nullable

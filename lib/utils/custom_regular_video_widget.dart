@@ -30,6 +30,7 @@ class CustomVideoPlayer extends StatefulWidget {
   final double? maxHeight;
   final bool hls;
   final bool useCache;
+  final String? cacheKey;
   final bool? showControlsOnInitialize;
   final Function({required bool hidden})? controlsVisibilityChanged;
   final Map<String, String>? headers;
@@ -41,7 +42,8 @@ class CustomVideoPlayer extends StatefulWidget {
     this.mute = true,
     this.loop = true,
     this.hls = false,
-    this.useCache = false,
+    this.useCache = true,
+    this.cacheKey,
     this.showDefaultControls = false,
     this.enableProgressBar,
     this.showCustomVolumeButton = true,
@@ -96,6 +98,7 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         headers: widget.headers,
         cacheConfiguration:  BetterPlayerCacheConfiguration(
           useCache: widget.useCache,
+            key: widget.cacheKey
         ),
 
       );
@@ -107,7 +110,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         BetterPlayerDataSourceType.file,
         widget.file!.path,
         cacheConfiguration: BetterPlayerCacheConfiguration(
-            useCache: widget.useCache
+            useCache: widget.useCache,
+            key: widget.cacheKey
         ),
       );
 
@@ -120,7 +124,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         BetterPlayerDataSourceType.file,
         file.path,
         cacheConfiguration: BetterPlayerCacheConfiguration(
-            useCache: widget.useCache
+            useCache: widget.useCache,
+            key: widget.cacheKey
         ),
       );
     }
@@ -159,7 +164,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   void _playerEventListener(BetterPlayerEvent event) {
     // debugPrint("event: ${event.betterPlayerEventType} , data: ${event.parameters}");
     if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-      _betterPlayerController.setOverriddenAspectRatio(widget.aspectRatio ?? _betterPlayerController.videoPlayerController!.value.aspectRatio);
+      final aspectRatio = widget.aspectRatio ?? _betterPlayerController.videoPlayerController!.value.aspectRatio;
+      _betterPlayerController.setOverriddenAspectRatio(aspectRatio);
       widget.builder?.call(_betterPlayerController);
       // if(widget.fit != null){
       //   _betterPlayerController.setOverriddenFit(widget.fit!);
@@ -202,15 +208,23 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     return DecoratedBox(
         decoration:  BoxDecoration(
           color: widget.backgroundColor ?? AppColors.darkColorScheme.surface,
+          // color: Colors.yellow
         ),
 
         child: Center(
           child: ValueListenableBuilder<VideoSrcStatus>(valueListenable: videoSourceStatus, builder: (_, videoSrcStatus, ch){
             if(videoSrcStatus == VideoSrcStatus.ready){
               return ValueListenableBuilder<bool>(valueListenable: videoPlayerInitialized, builder: (ctx, videoInitialized, _) {
+                final aspectRatio = widget.aspectRatio ?? _betterPlayerController.videoPlayerController!.value.aspectRatio;
                 if(videoInitialized) {
-                  return BetterPlayer(
-                    controller: _betterPlayerController,
+                  return Align(
+                    alignment: aspectRatio > 0.6 ? Alignment.center : Alignment.bottomCenter,
+                    child: AspectRatio(
+                      aspectRatio: aspectRatio,
+                      child: BetterPlayer(
+                        controller: _betterPlayerController,
+                      ),
+                    ),
                   );
                 }
                 return  _videoPlaceholderWidget(ctx);

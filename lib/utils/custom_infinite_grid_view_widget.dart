@@ -37,13 +37,11 @@ class CustomInfiniteGridViewWidget<M> extends StatefulWidget {
 class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridViewWidget> {
 
   // page key is page index. Starting from 0, 1, 2 .........
-  final PagingController<int, M> pagingController = PagingController(firstPageKey: 1
-    // , invisibleItemsThreshold: defaultThreadsPageSize
-  );
+  late PagingController<int, M> pagingController;
 
   @override
   void initState() {
-
+    pagingController = PagingController(firstPageKey: 1, invisibleItemsThreshold: AppConstants.gridPageSize);
     pagingController.addPageRequestListener((pageKey) async {
 
       final newItems = await fetchData(pageKey);

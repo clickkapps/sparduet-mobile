@@ -63,38 +63,6 @@ File(path).writeAsBytesSync(Uint8List.fromList(img.encodeJpg(image)));
 return File(path);
 }
 
-///Files video
-Future<File> flipVideo(File file) async {
-  // final img.Image? capturedImage = img.decodeImage(await File(file.path).readAsBytes());
-  // if(capturedImage == null) {
-  //   return file;
-  // }
-  // final img.Image orientedImage = img.bakeOrientation(capturedImage);
-  // return await File(file.path).writeAsBytes(img.encodeJpg(orientedImage));
-  final session = await FFmpegKit.executeAsync("-y -i ${file.path} -filter:v \"hflip\" ${file.path}_flipped.mp4");
-
-  final returnCode = await session.getReturnCode();
-
-  if (ReturnCode.isSuccess(returnCode)) {
-
-    // SUCCESS
-    // final path = await session.getOutput();
-    return File("${file.path}_flipped.mp4");
-
-  } else if (ReturnCode.isCancel(returnCode)) {
-
-    // CANCEL
-    return file;
-
-  } else {
-
-    // ERROR
-    return file;
-
-  }
-
-  return flipImage(file.path);
-}
 
 Future<void> disableFullScreen() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);

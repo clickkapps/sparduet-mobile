@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
@@ -10,7 +10,6 @@ import 'package:sparkduet/features/users/presentation/widgets/completed_user_pos
 import 'package:sparkduet/features/users/presentation/widgets/uncompleted_user_post_item.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_infinite_grid_view_widget.dart';
-import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 
 class UserPostsTabViewWidget<C extends FeedsCubit> extends StatefulWidget {
   final int? userId;
@@ -34,7 +33,7 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
 
   Future<(String?, List<FeedModel>?)> fetchData(int pageKey) async {
     final path = AppApiRoutes.userPosts(userId: widget.userId);
-     return await feedsCubit.fetchFeeds(path: path, pageKey: pageKey);
+     return await feedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: {"page": pageKey, "limit": AppConstants.gridPageSize});
   }
 
   @override
@@ -43,8 +42,12 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
     return CustomInfiniteGridViewWidget<FeedModel>(fetchData: fetchData, itemBuilder: (_, dynamic item, index) {
         final post = item as FeedModel;
 
-        if(post.id == null) {
-          return UncompletedUserPostItem(post: post);
+        if(post.id == null || post.tempId != null) {
+          return UncompletedUserPostItem(post: post, onTap: () {
+            if(post.id != null) {
+              context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
+            }
+          },);
         }else{
          return CompletedUserPostItem(post: post, onTap: () {
            context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));

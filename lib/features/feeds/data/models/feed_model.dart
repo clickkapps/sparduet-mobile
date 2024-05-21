@@ -21,6 +21,8 @@ class FeedModel extends Equatable{
   final bool? blockedByAdminAt;
   @JsonKey(name: "media_path")
   final String? mediaPath;
+  @JsonKey(name: "asset_id")
+  final String? assetId;
   @JsonKey(name: "media_type")
   final FileType? mediaType; //video / image
   final VideoSource videoSource;
@@ -45,12 +47,14 @@ class FeedModel extends Equatable{
 
   const FeedModel({
     this.id,
-    this.user, this.description,
+    this.user,
+    this.description,
     this.purpose,
     this.commentsDisabledAt,
     this.blockedByAdminAt,
     this.mediaPath,
     this.mediaType,
+    this.assetId,
     this.totalLikes,
     this.hasLiked,
     this.totalBookmarks,
@@ -66,7 +70,7 @@ class FeedModel extends Equatable{
   });
 
   @override
-  List<Object?> get props => [id, tempId, mediaPath, mediaType, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, hasViewed];
+  List<Object?> get props => [id, tempId, mediaPath, mediaType, assetId, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, hasViewed, user];
 
   factory FeedModel.fromJson(Map<String, dynamic> json) => _$FeedModelFromJson(json);
   Map<String, dynamic> toJson() => _$FeedModelToJson(this);

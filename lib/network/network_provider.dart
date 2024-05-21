@@ -7,7 +7,7 @@ import 'package:sparkduet/network/basic_auth_interceptor.dart';
 
 class NetworkProvider {
 
-  Dio _getDioInstance({required bool useToken}) {
+   Dio _getDioInstance({required bool useToken}) {
     var dio = Dio(BaseOptions(
       connectTimeout: const Duration(minutes: 5),
       receiveTimeout: const Duration(minutes: 5),
@@ -29,7 +29,9 @@ class NetworkProvider {
       bool useToken = true,
       dynamic body = const {},
       Map<String, dynamic> queryParams = const {},
-      FormData? formData}) async {
+      FormData? formData,
+        Function(int, int )? onUploadProgress
+      }) async {
     Response? response;
     try {
       switch (method) {
@@ -67,6 +69,19 @@ class NetworkProvider {
               if (kDebugMode) {
                 print('$sent $total');
               }
+              onUploadProgress?.call(sent, total);
+            },
+          );
+          break;
+        case RequestMethod.uploadWithPut:
+          response = await _getDioInstance(useToken: useToken).put(
+            path,
+            data: formData,
+            onSendProgress: (int sent, int total) {
+              if (kDebugMode) {
+                print('$sent $total');
+              }
+              onUploadProgress?.call(sent, total);
             },
           );
           break;
@@ -109,4 +124,4 @@ class NetworkProvider {
   }
 }
 
-enum RequestMethod { get, post, put, patch, delete, upload }
+enum RequestMethod { get, post, put, patch, delete, upload, uploadWithPut }

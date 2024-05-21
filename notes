@@ -56,11 +56,7 @@ you should protect urself
 
 MUX:
 
-Access Token ID:
-ab1be6db-2321-42a6-8c68-21c2be4302f4
 
-Secrete Key:
-K9X+3j2U2rIqG6Ooaz960C+hpki6NL4fRUOJaK936RG/cmoebTIvVSaUCHj6tf+8z6TyVkbaskC
 
 https://medium.com/flutter-community/integrating-video-streaming-with-flutter-using-mux-5ba707cca847
 
@@ -76,8 +72,3 @@ openssl is already installed on this device
 https://www.youtube.com/watch?v=EIYrhbBk7do
 https://github.com/dreamonkey/laravel-cloudfront-url-signer
 
-
-Production token
-8d5a9874-85c9-426b-bdf2-7d2032a987a4
-Production Secrete Key
-sYQK1h4+VDfhveU/PU5oljgbUXTeHWWFqHw2UqX6AlEBrYDnEAHqXr7KghDJD4L0S11zTir+AuW

@@ -8,10 +8,12 @@ part 'media_model.g.dart';
 @CopyWith()
 class MediaModel extends Equatable{
   final String path;
+  final String? assetId;
+  final String? aspectRatio;
   final FileType type;
 
-  const MediaModel({required this.path, required this.type});
+  const MediaModel({required this.path, required this.type, this.assetId, this.aspectRatio});
 
   @override
-  List<Object?> get props => [path, type];
+  List<Object?> get props => [path, type, assetId];
 }

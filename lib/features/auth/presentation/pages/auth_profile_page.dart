@@ -16,6 +16,7 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
@@ -36,7 +37,10 @@ import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
 class AuthProfilePage extends StatefulWidget {
-  const AuthProfilePage({super.key});
+
+  final bool focusOnYourPosts;
+  final bool focusOnBookmarks;
+  const AuthProfilePage({super.key, this.focusOnBookmarks = false, this.focusOnYourPosts = false});
 
   @override
   State<AuthProfilePage> createState() => _AuthProfilePageState();
@@ -57,7 +61,6 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
   StreamSubscription? authubitSubscription;
   ValueNotifier<int> activeTab = ValueNotifier(0);
   dynamic profilePhoto;
-  BetterPlayerController? introVideoPlayerController;
 
   @override
   void initState() {
@@ -83,26 +86,16 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
         }
         if(event.status == FeedStatus.postFeedSuccessful) {
           userPostsPagingController?.itemList = event.feeds;
+          context.showSnackBar("Post created", appearance: NotificationAppearance.info);
+        }
+        if(event.status == FeedStatus.postFeedProcessFileCompleted) {
+          userPostsPagingController?.itemList = event.feeds;
           final feed = event.data as FeedModel;
           if(mounted) {
-            context.showSnackBar("Post created", appearance: NotificationAppearance.info);
             //! if the purpose of the video is introduction, and there's an existing video
             // change the data source
             if(feed.purpose == "introduction") {
-              if(mounted && introVideoPlayerController != null) {
-                bool hls = false;
-                 introVideoPlayerController?.setupDataSource(
-                     BetterPlayerDataSource(
-                       BetterPlayerDataSourceType.network,
-                       AppConstants.videoMediaPath(mediaId: feed.mediaPath),
-                       videoFormat: hls == true ? BetterPlayerVideoFormat.hls : null,
-                       cacheConfiguration:  const BetterPlayerCacheConfiguration(
-                         useCache: true,
-                       ),
-
-                     )
-                 );
-              }
+              authCubit.setIntroductoryPost(feed);
             }
           }
         }
@@ -135,6 +128,11 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
 
     // setProfilePhoto
     profilePhoto = authCubit.state.authUser?.info?.profilePicPath;
+    onWidgetBindingComplete(onComplete: (){
+      if(widget.focusOnYourPosts) {
+        autoScrollController.scrollToIndex(aboutYouIndex, preferPosition: AutoScrollPosition.begin, duration: const Duration(milliseconds: 500));
+      }
+    });
 
 
   }
@@ -222,15 +220,25 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                 child: ColoredBox(
                                   color: AppColors.darkColorScheme.surface,
                                   child: Stack(
+                                    alignment: Alignment.center,
                                     children: [
-                                      if(authUser?.introductoryPost != null && introVideoPlayerController == null) ... {
-                                        CustomVideoPlayer(
-                                          videoSource: VideoSource.network,
-                                          networkUrl: AppConstants.videoMediaPath(mediaId: authUser?.introductoryPost),
-                                          fit: BoxFit.cover,
-                                          mute: true,
-                                          builder: (controller) => introVideoPlayerController = controller,
+                                      if(authUser?.introductoryPost?.mediaPath != null) ... {
+
+                                        AspectRatio(
+                                          aspectRatio: 9 / 16,
+                                          child: SizedBox(
+                                              width: double.maxFinite,
+                                              child: Image.network(AppConstants.thumbnailMediaPath(mediaId: authUser?.introductoryPost?.mediaPath ?? ""), fit: BoxFit.cover,)),
                                         )
+                                        // CustomVideoPlayer(
+                                        //   videoSource: VideoSource.network,
+                                        //   networkUrl: AppConstants.videoMediaPath(playbackId: authUser?.introductoryPost?.mediaPath ?? ""),
+                                        //   fit: BoxFit.contain,
+                                        //   mute: true,
+                                        //   hls: true,
+                                        //   autoPlay: false,
+                                        //   builder: (controller) => introVideoPlayerController = controller,
+                                        // )
                                       },
                                       Center(
                                         child: Column(

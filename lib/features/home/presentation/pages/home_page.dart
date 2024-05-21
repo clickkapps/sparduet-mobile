@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
+import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
-import 'package:sparkduet/features/feeds/presentation/pages/introduction_page.dart';
+import 'package:sparkduet/features/feeds/presentation/widgets/introduction_widget.dart';
 import 'package:sparkduet/features/home/data/enums.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
 
@@ -52,6 +54,9 @@ class _HomePageState extends State<HomePage> {
           }
         }
       }
+      if(event.status == FeedStatus.postFeedFailed) {
+        context.showSnackBar(event.message, appearance: NotificationAppearance.error);
+      }
     });
 
     // fetch and update user profile info
@@ -84,23 +89,22 @@ class _HomePageState extends State<HomePage> {
     // check if this is user's first feed. Then show introductory video page
     // context.pushScreen(const IntroductionPage());
     // Else show the list of options user can talk about
+    final authUser = context.read<AuthCubit>().state.authUser;
+    if(authUser?.introductoryPost != null) {
+      openFeedCamera(context);
+      return;
+    }
+
     final ch = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.35,
-          maxChildSize: 0.35,
-          minChildSize: 0.35,
-          builder: (_ , controller) {
-            return  ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              child: IntroductionPage(onAccept: (purpose) async{
-                context.popScreen();
-                openFeedCamera(context, purpose: purpose);
-              },),
-            );
-          }
-      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        child: IntroductionWidget(onAccept: (purpose) async{
+          context.popScreen();
+          openFeedCamera(context, purpose: purpose);
+        },),
+      )
     );
 
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
@@ -160,54 +164,67 @@ class _HomePageState extends State<HomePage> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
           ),
-          child: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            showSelectedLabels: true,
-            showUnselectedLabels: true,
-            backgroundColor: theme.colorScheme.surface,
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            elevation: 0,
-            items:  <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                // icon: Icon(FeatherIcons.home, color: theme.colorScheme.onBackground, size: 20),
-                icon: Icon(FeatherIcons.home, color: theme.colorScheme.onBackground, size: 20),
-                activeIcon: Icon(FeatherIcons.home, color: theme.colorScheme.primary, size: 20),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(FeatherIcons.messageCircle, color: theme.colorScheme.onBackground, size: 20),
-                  activeIcon: Icon(FeatherIcons.messageCircle, color: theme.colorScheme.primary, size: 20),
-                  label: 'Inbox'
-              ),
-              BottomNavigationBarItem(
-                  icon: UnconstrainedBox(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: theme.colorScheme.primary,
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 25,),
-                    ),
-                  ),
-                  label: ''
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(FeatherIcons.user, color: theme.colorScheme.onBackground, size: 20),
-                  activeIcon: Icon(FeatherIcons.user, color: theme.colorScheme.primary, size: 20),
-                  label: 'Profile'
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(FeatherIcons.moreHorizontal, color: theme.colorScheme.onBackground, size: 20),
-                  activeIcon: Icon(FeatherIcons.moreHorizontal, color: theme.colorScheme.primary, size: 20),
-                  label: 'More'
-              ),
-            ],
-            currentIndex: calculateSelectedIndex,
-            onTap: onItemTapped,
-            iconSize: 20,
-            selectedItemColor: theme.colorScheme.primary,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+             children: [
+               BlocBuilder<FeedsCubit, FeedState>(
+                 builder: (context, state) {
+                   if(state.status == FeedStatus.postFeedInProgress) {
+                     return LinearProgressIndicator(minHeight: 2, color: theme.colorScheme.primary,);
+                   }
+                   return const SizedBox.shrink();
+                 },
+               ),
+               BottomNavigationBar(
+                 type: BottomNavigationBarType.fixed,
+                 showSelectedLabels: true,
+                 showUnselectedLabels: true,
+                 backgroundColor: theme.colorScheme.surface,
+                 selectedFontSize: 12,
+                 unselectedFontSize: 12,
+                 elevation: 0,
+                 items:  <BottomNavigationBarItem>[
+                   BottomNavigationBarItem(
+                     // icon: Icon(FeatherIcons.home, color: theme.colorScheme.onBackground, size: 20),
+                     icon: Icon(FeatherIcons.home, color: theme.colorScheme.onBackground, size: 20),
+                     activeIcon: Icon(FeatherIcons.home, color: theme.colorScheme.primary, size: 20),
+                     label: 'Home',
+                   ),
+                   BottomNavigationBarItem(
+                       icon: Icon(FeatherIcons.messageCircle, color: theme.colorScheme.onBackground, size: 20),
+                       activeIcon: Icon(FeatherIcons.messageCircle, color: theme.colorScheme.primary, size: 20),
+                       label: 'Inbox'
+                   ),
+                   BottomNavigationBarItem(
+                       icon: UnconstrainedBox(
+                         child: Container(
+                           decoration: BoxDecoration(
+                             borderRadius: BorderRadius.circular(100),
+                             color: theme.colorScheme.primary,
+                           ),
+                           padding: const EdgeInsets.all(8),
+                           child: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 25,),
+                         ),
+                       ),
+                       label: ''
+                   ),
+                   BottomNavigationBarItem(
+                       icon: Icon(FeatherIcons.user, color: theme.colorScheme.onBackground, size: 20),
+                       activeIcon: Icon(FeatherIcons.user, color: theme.colorScheme.primary, size: 20),
+                       label: 'Profile'
+                   ),
+                   BottomNavigationBarItem(
+                       icon: Icon(FeatherIcons.moreHorizontal, color: theme.colorScheme.onBackground, size: 20),
+                       activeIcon: Icon(FeatherIcons.moreHorizontal, color: theme.colorScheme.primary, size: 20),
+                       label: 'More'
+                   ),
+                 ],
+                 currentIndex: calculateSelectedIndex,
+                 onTap: onItemTapped,
+                 iconSize: 20,
+                 selectedItemColor: theme.colorScheme.primary,
+               )
+             ],
           ),
         )
     );

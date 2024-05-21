@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:separated_column/separated_column.dart';
@@ -15,7 +14,7 @@ import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 class RequestPostFeedItem extends StatefulWidget {
 
   final int feedId;
-  final Function(BetterPlayerController?, AudioPlayer?)? builder;
+  final Function(BetterPlayerController?)? builder;
   final Function()? onTap;
   final Function()? onFeedEditorOpened;
   final Function()? onFeedEditorClosed;
@@ -27,22 +26,19 @@ class RequestPostFeedItem extends StatefulWidget {
 
 class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
 
-  final audioPlayer =  AudioPlayer();
-
   PostFeedPurpose get getRequestPostParameters {
-    String? title, subTitle, key, description;
     if (widget.feedId == -2) {
       return AppConstants.nextRelationshipExpectationPostFeedPurpose;
     }
-    // else if(feedId == -3) {
-    //
-    // }
-    // else if(feedId == -4) {
-    //
-    // }
-    // else if(feedId == -5) {
-    //
-    // }
+    else if(widget.feedId == -3) {
+      return AppConstants.previousRelationshipPostFeedPurpose;
+    }
+    else if(widget.feedId == -4) {
+      return AppConstants.yourCareerPostFeedPurpose;
+    }
+    else if(widget.feedId == -5) {
+      return AppConstants.otherPostFeedPurpose;
+    }
       // -1
 
     return AppConstants.introductoryPostFeedPurpose;
@@ -56,8 +52,7 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
 
   @override
   void dispose() {
-    widget.builder?.call(null, null);
-    audioPlayer.dispose();
+    widget.builder?.call(null);
     super.dispose();
   }
 
@@ -65,6 +60,7 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final params = getRequestPostParameters;
+    final networkUrl = AppConstants.videoMediaPath(playbackId: AppConstants.requestPostFeedVideoMediaId);
 
     // final url = AppConstants.cloudinary?.video('ttm9dhe1x7yr7dvfh2xn')?..transformation(
     //     Transformation()
@@ -79,9 +75,8 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
           behavior: HitTestBehavior.opaque,
           child: CustomVideoPlayer(
             videoSource: VideoSource.network,
-            // networkUrl: AppConstants.videoMediaPath(mediaId: AppConstants.requestPostFeedVideoMediaId),
-            networkUrl: AppConstants.testVideoUrl,
-            builder: (controller) => widget.builder?.call(controller, audioPlayer),
+            networkUrl: networkUrl,
+            builder: (controller) => widget.builder?.call(controller),
             autoPlay: false,
             hls: true,
             useCache: true,
@@ -101,9 +96,9 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
                 },
                 children: [
 
-                  Text(params.title ?? "", style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w300, fontSize: 18),),
+                  Text(params.title, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w300, fontSize: 18),),
 
-                  Text(params.subTitle ?? "", style: theme.textTheme.titleSmall,),
+                  Text(params.subTitle, style: theme.textTheme.titleSmall,),
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: CustomButtonWidget(text: "Create post", onPressed: () async {

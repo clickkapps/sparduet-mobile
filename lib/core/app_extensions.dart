@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:separated_column/separated_column.dart';
@@ -355,6 +356,19 @@ extension ContextExtension on BuildContext {
     //
     //   ),
     // );
+    if(fileType == FileType.image) {
+      // upload images / videos
+      final ImagePicker picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if(pickedFile == null) {
+        onError?.call("Oops!. Sorry try again");
+        return;
+      }
+      File file = File(pickedFile.path);
+      onSuccess?.call(file);
+      return;
+    }
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: fileType,
       allowCompression: false,

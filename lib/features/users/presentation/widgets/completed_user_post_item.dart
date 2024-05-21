@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
-import 'package:sparkduet/network/api_routes.dart';
-import 'package:sparkduet/utils/custom_chip_widget.dart';
-import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 
 class CompletedUserPostItem extends StatelessWidget {
 
@@ -14,7 +11,7 @@ class CompletedUserPostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final networkPath = AppConstants.videoMediaPath(mediaId: post.mediaPath);
+
     // debugPrint("CustomLog mediaPath: $networkPath");
     return GestureDetector(
       onTap: onTap,
@@ -22,12 +19,10 @@ class CompletedUserPostItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: Stack(
           children: [
-            CustomVideoPlayer(
-              networkUrl: networkPath,
-              autoPlay: false,
-              loop: false,
-              fit: BoxFit.cover,
-              videoSource: VideoSource.network,
+            SizedBox(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                child: Image.network(AppConstants.thumbnailMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,),
             ),
             Align(
               alignment: Alignment.bottomLeft,

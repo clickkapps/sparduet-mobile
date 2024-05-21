@@ -28,7 +28,7 @@ class CustomNoConnectionWidget extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(color: theme.colorScheme.onBackground, fontWeight: FontWeight.w800),),
         ),
-        const SizedBox(height: 15,),
+        const SizedBox(height: 5,),
         Text(subTitle ?? "Kindly reconnect and try again",
           textAlign: TextAlign.left,
           style: theme.textTheme.titleSmall,),

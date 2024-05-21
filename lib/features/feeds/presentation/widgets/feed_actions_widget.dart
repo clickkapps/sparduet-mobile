@@ -1,17 +1,20 @@
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/filter_feeds_widget.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
 
 class FeedActionsWidget extends StatefulWidget {
 
 
-  const FeedActionsWidget({super.key});
+  final FeedModel feed;
+  const FeedActionsWidget({super.key, required this.feed});
 
   @override
   State<FeedActionsWidget> createState() => _FeedActionsWidgetState();
@@ -52,13 +55,16 @@ class _FeedActionsWidgetState extends State<FeedActionsWidget> {
   @override
   Widget build(BuildContext context) {
 
+    final authUser = context.read<AuthCubit>().state.authUser;
+    final isCreator = authUser?.id == widget.feed.user?.id;
+    // const isCreator = false;
+
     return SeparatedColumn(
       mainAxisSize: MainAxisSize.min,
       separatorBuilder: (BuildContext context, int index) {
         return const SizedBox(height: 20,);
       },
       children: [
-
 
 
         Column(
@@ -79,41 +85,45 @@ class _FeedActionsWidgetState extends State<FeedActionsWidget> {
           ],
         ),
 
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () {
-                context.showSnackBar("coming soon");
-              },
-              child: const CustomHeartAnimationWidget(
-                  isAnimating: false,
-                  alwayAnimate: true,
-                  child: Icon(Icons.bookmark, size: 30, color: Colors.white,)
+        if(!isCreator) ... {
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  context.showSnackBar("coming soon");
+                },
+                child: const CustomHeartAnimationWidget(
+                    isAnimating: false,
+                    alwayAnimate: true,
+                    child: Icon(Icons.bookmark, size: 30, color: Colors.white,)
+                ),
               ),
-            ),
-            const SizedBox(width: 5,),
-            const Text("Bookmark", style: TextStyle(color: Colors.white, fontSize:11),),
-          ],
-        ),
+              const SizedBox(width: 5,),
+              const Text("Bookmark", style: TextStyle(color: Colors.white, fontSize:11),),
+            ],
+          ),
+        },
 
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () {
-                context.showSnackBar("coming soon");
-              },
-              child: const CustomHeartAnimationWidget(
-                  isAnimating: false,
-                  alwayAnimate: true,
-                  child: Icon(Icons.health_and_safety, size: 30, color: Colors.white,)
+        if(!isCreator) ... {
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  context.showSnackBar("coming soon");
+                },
+                child: const CustomHeartAnimationWidget(
+                    isAnimating: false,
+                    alwayAnimate: true,
+                    child: Icon(Icons.health_and_safety, size: 30, color: Colors.white,)
+                ),
               ),
-            ),
-            const SizedBox(width: 5,),
-            const Text("Inappropriate", style: TextStyle(color: Colors.white, fontSize:11),),
-          ],
-        ),
+              const SizedBox(width: 5,),
+              const Text("Inappropriate", style: TextStyle(color: Colors.white, fontSize:11),),
+            ],
+          ),
+        },
 
         Column(
           mainAxisSize: MainAxisSize.min,
@@ -133,23 +143,25 @@ class _FeedActionsWidgetState extends State<FeedActionsWidget> {
           ],
         ),
 
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () {
-                context.showSnackBar("coming soon");
-              },
-              child: const CustomHeartAnimationWidget(
-                  isAnimating: false,
-                  alwayAnimate: true,
-                  child: Icon(FontAwesomeIcons.solidComments, size: 27, color: AppColors.buttonBlue,)
+        if(!isCreator) ... {
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  context.showSnackBar("coming soon");
+                },
+                child: const CustomHeartAnimationWidget(
+                    isAnimating: false,
+                    alwayAnimate: true,
+                    child: Icon(FontAwesomeIcons.solidComments, size: 27, color: AppColors.buttonBlue,)
+                ),
               ),
-            ),
-            const SizedBox(width: 5,),
-            const Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
-          ],
-        ),
+              const SizedBox(width: 5,),
+              const Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
+            ],
+          ),
+        },
 
         /// Like
         ValueListenableBuilder(valueListenable: liked, builder: (_, val, __) {
