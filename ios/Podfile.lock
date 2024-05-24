@@ -1,5 +1,7 @@
 PODS:
-  - audioplayers_darwin (0.0.1):
+  - assets_audio_player (0.0.1):
+    - Flutter
+  - assets_audio_player_web (0.0.1):
     - Flutter
   - better_player (0.0.1):
     - Cache (~> 6.0.0)
@@ -64,6 +66,8 @@ PODS:
   - HLSCachingReverseProxyServer (0.1.0):
     - GCDWebServer (~> 3.5)
     - PINCache (>= 3.0.1-beta.3)
+  - image_picker_ios (0.0.1):
+    - Flutter
   - imgly_sdk (3.1.0):
     - Flutter
     - imglyKit (~> 11.4)
@@ -130,7 +134,8 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
+  - assets_audio_player (from `.symlinks/plugins/assets_audio_player/ios`)
+  - assets_audio_player_web (from `.symlinks/plugins/assets_audio_player_web/ios`)
   - better_player (from `.symlinks/plugins/better_player/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - ffmpeg_kit_flutter (from `.symlinks/plugins/ffmpeg_kit_flutter/ios`)
@@ -139,6 +144,7 @@ DEPENDENCIES:
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - flutter_video_info (from `.symlinks/plugins/flutter_video_info/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - imgly_sdk (from `.symlinks/plugins/imgly_sdk/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
@@ -172,8 +178,10 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
-  audioplayers_darwin:
-    :path: ".symlinks/plugins/audioplayers_darwin/ios"
+  assets_audio_player:
+    :path: ".symlinks/plugins/assets_audio_player/ios"
+  assets_audio_player_web:
+    :path: ".symlinks/plugins/assets_audio_player_web/ios"
   better_player:
     :path: ".symlinks/plugins/better_player/ios"
   camera_avfoundation:
@@ -190,6 +198,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   flutter_video_info:
     :path: ".symlinks/plugins/flutter_video_info/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
   imgly_sdk:
     :path: ".symlinks/plugins/imgly_sdk/ios"
   path_provider_foundation:
@@ -220,7 +230,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
-  audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
+  assets_audio_player: edee322b9cb625571b830b35872ead1a295fd917
+  assets_audio_player_web: 19826380c44375761aa0b9053665c1e3fbc3b86b
   better_player: 2406bfe8175203c7a46fa15f9d778d73b12e1646
   Cache: 4ca7e00363fca5455f26534e5607634c820ffc2d
   camera_avfoundation: 759172d1a77ae7be0de08fc104cfb79738b8a59e
@@ -235,6 +246,7 @@ SPEC CHECKSUMS:
   flutter_video_info: a932e1b0da369bba95c3a14b7f61d5f8b0d03280
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   HLSCachingReverseProxyServer: 59935e1e0244ad7f3375d75b5ef46e8eb26ab181
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   imgly_sdk: a1eb428ecbe210db5e089a06ee4e5a64d2f94c10
   imglyKit: 995728f23ab4ac78b7761f56f865d5bed657a25d
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009

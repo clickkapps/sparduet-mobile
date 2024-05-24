@@ -13,6 +13,8 @@ abstract class _$MediaModelCWProxy {
 
   MediaModel assetId(String? assetId);
 
+  MediaModel aspectRatio(String? aspectRatio);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `MediaModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -23,6 +25,7 @@ abstract class _$MediaModelCWProxy {
     String? path,
     FileType? type,
     String? assetId,
+    String? aspectRatio,
   });
 }
 
@@ -42,6 +45,9 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
   MediaModel assetId(String? assetId) => this(assetId: assetId);
 
   @override
+  MediaModel aspectRatio(String? aspectRatio) => this(aspectRatio: aspectRatio);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `MediaModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -53,6 +59,7 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
     Object? path = const $CopyWithPlaceholder(),
     Object? type = const $CopyWithPlaceholder(),
     Object? assetId = const $CopyWithPlaceholder(),
+    Object? aspectRatio = const $CopyWithPlaceholder(),
   }) {
     return MediaModel(
       path: path == const $CopyWithPlaceholder() || path == null
@@ -67,6 +74,10 @@ class _$MediaModelCWProxyImpl implements _$MediaModelCWProxy {
           ? _value.assetId
           // ignore: cast_nullable_to_non_nullable
           : assetId as String?,
+      aspectRatio: aspectRatio == const $CopyWithPlaceholder()
+          ? _value.aspectRatio
+          // ignore: cast_nullable_to_non_nullable
+          : aspectRatio as String?,
     );
   }
 }

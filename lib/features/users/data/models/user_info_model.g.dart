@@ -9,6 +9,8 @@ part of 'user_info_model.dart';
 abstract class _$UserInfoModelCWProxy {
   UserInfoModel bio(String? bio);
 
+  UserInfoModel race(String? race);
+
   UserInfoModel dob(DateTime? dob);
 
   UserInfoModel age(num? age);
@@ -40,6 +42,7 @@ abstract class _$UserInfoModelCWProxy {
   /// ````
   UserInfoModel call({
     String? bio,
+    String? race,
     DateTime? dob,
     num? age,
     String? gender,
@@ -62,6 +65,9 @@ class _$UserInfoModelCWProxyImpl implements _$UserInfoModelCWProxy {
 
   @override
   UserInfoModel bio(String? bio) => this(bio: bio);
+
+  @override
+  UserInfoModel race(String? race) => this(race: race);
 
   @override
   UserInfoModel dob(DateTime? dob) => this(dob: dob);
@@ -115,6 +121,7 @@ class _$UserInfoModelCWProxyImpl implements _$UserInfoModelCWProxy {
   /// ````
   UserInfoModel call({
     Object? bio = const $CopyWithPlaceholder(),
+    Object? race = const $CopyWithPlaceholder(),
     Object? dob = const $CopyWithPlaceholder(),
     Object? age = const $CopyWithPlaceholder(),
     Object? gender = const $CopyWithPlaceholder(),
@@ -132,6 +139,10 @@ class _$UserInfoModelCWProxyImpl implements _$UserInfoModelCWProxy {
           ? _value.bio
           // ignore: cast_nullable_to_non_nullable
           : bio as String?,
+      race: race == const $CopyWithPlaceholder()
+          ? _value.race
+          // ignore: cast_nullable_to_non_nullable
+          : race as String?,
       dob: dob == const $CopyWithPlaceholder()
           ? _value.dob
           // ignore: cast_nullable_to_non_nullable
@@ -196,6 +207,7 @@ extension $UserInfoModelCopyWith on UserInfoModel {
 UserInfoModel _$UserInfoModelFromJson(Map<String, dynamic> json) =>
     UserInfoModel(
       bio: json['bio'] as String?,
+      race: json['race'] as String?,
       dob: json['dob'] == null ? null : DateTime.parse(json['dob'] as String),
       age: json['age'] as num?,
       gender: json['gender'] as String?,
@@ -220,6 +232,7 @@ Map<String, dynamic> _$UserInfoModelToJson(UserInfoModel instance) =>
       'dob': instance.dob?.toIso8601String(),
       'age': instance.age,
       'gender': instance.gender,
+      'race': instance.race,
       'profile_pic_path': instance.profilePicPath,
       'requested_basic_info_update':
           instance.requestedBasicInfoUpdate?.toIso8601String(),

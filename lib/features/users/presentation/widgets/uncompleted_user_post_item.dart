@@ -4,10 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
+import 'package:sparkduet/utils/custom_image_player.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 
 class UncompletedUserPostItem extends StatelessWidget {
@@ -27,13 +29,31 @@ class UncompletedUserPostItem extends StatelessWidget {
           ignoring: true,
           child: Stack(
             children: [
-              CustomVideoPlayer(
-                file: File(post.mediaPath ?? ""),
-                autoPlay: false,
-                loop: false,
-                fit: BoxFit.cover,
-                videoSource: VideoSource.file,
-              ),
+
+              if(post.mediaType == FileType.video) ... {
+                CustomVideoPlayer(
+                  file: File(post.mediaPath ?? ""),
+                  autoPlay: false,
+                  loop: false,
+                  fit: BoxFit.cover,
+                  videoSource: VideoSource.file,
+                )
+              },
+
+              if(post.mediaType == FileType.image) ... {
+
+
+                CustomImagePlayerWidget(
+                  imageUrl: post.mediaPath ?? "",
+                  audioUrl: AppConstants.defaultAudioLink,
+                  autoPlay: false,
+                  loop: false,
+                  imageSource: ImageSource.file,
+                  fit: BoxFit.cover,
+                  animate: false,
+                  audioSource: AudioSource.network,
+                )
+              },
 
               if(post.status == "loading") ... {
                 Align(

@@ -38,8 +38,21 @@ mixin AuthUIMixin {
         ...AppConstants.genderList.map((gender) => ListItem(id: gender['key'] ?? "", title: gender['name'] ?? "",)),
       ], onItemTapped: (item) {
         final authCubit = context.read<AuthCubit>();
-        authCubit.updateAuthUserProfile(payload: {"gender": item.title},
-            authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(gender: item.title))// this will cause immediate update
+        authCubit.updateAuthUserProfile(payload: {"gender": item.id},
+            authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(gender: item.id))// this will cause immediate update
+        );
+      });
+
+    }
+
+    void showRaceSelectorListWidget(BuildContext context) {
+
+      context.showCustomListBottomSheet(items: [
+        ...AppConstants.races.map((race) => ListItem(id: race['key'] ?? "", title: race['name'] ?? "",)),
+      ], onItemTapped: (item) {
+        final authCubit = context.read<AuthCubit>();
+        authCubit.updateAuthUserProfile(payload: {"race": item.id},
+            authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(race: item.id))// this will cause immediate update
         );
       });
 

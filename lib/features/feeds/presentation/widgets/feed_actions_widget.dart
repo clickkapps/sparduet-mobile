@@ -1,4 +1,5 @@
 import 'package:feather_icons/feather_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -30,13 +31,14 @@ class _FeedActionsWidgetState extends State<FeedActionsWidget> {
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
       child: DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          maxChildSize: 0.7,
-          minChildSize: 0.6,
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          shouldCloseOnMinExtent: true,
           builder: (_ , controller) {
-            return const ClipRRect(
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: FilterFeedsWidget()
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: FilterFeedsWidget(scrollController: controller,)
             );
           }
       ),
@@ -67,120 +69,126 @@ class _FeedActionsWidgetState extends State<FeedActionsWidget> {
       children: [
 
 
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () {
-                filterPostsHandler(context);
-              },
-              child: const CustomHeartAnimationWidget(
+        GestureDetector(
+          onTap: () {
+            filterPostsHandler(context);
+          },
+          behavior: HitTestBehavior.opaque,
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomHeartAnimationWidget(
                   isAnimating: false,
                   alwayAnimate: true,
                   child: Icon(FeatherIcons.sliders, size: 25, color: Colors.white,)
               ),
-            ),
-            const SizedBox(width: 5,),
-            const Text("Filter posts", style: TextStyle(color: Colors.white, fontSize:11),),
-          ],
+              SizedBox(width: 5,),
+              Text("Filter posts", style: TextStyle(color: Colors.white, fontSize:11),),
+            ],
+          ),
         ),
 
         if(!isCreator) ... {
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  context.showSnackBar("coming soon");
-                },
-                child: const CustomHeartAnimationWidget(
+          GestureDetector(
+            onTap: () {
+              context.showSnackBar("coming soon");
+            },
+            behavior: HitTestBehavior.opaque,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomHeartAnimationWidget(
                     isAnimating: false,
                     alwayAnimate: true,
                     child: Icon(Icons.bookmark, size: 30, color: Colors.white,)
                 ),
-              ),
-              const SizedBox(width: 5,),
-              const Text("Bookmark", style: TextStyle(color: Colors.white, fontSize:11),),
-            ],
+                SizedBox(width: 5,),
+                Text("Bookmark", style: TextStyle(color: Colors.white, fontSize:11),),
+              ],
+            ),
           ),
         },
 
         if(!isCreator) ... {
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  context.showSnackBar("coming soon");
-                },
-                child: const CustomHeartAnimationWidget(
+          GestureDetector(
+            onTap: () {
+              context.showSnackBar("coming soon");
+            },
+            behavior: HitTestBehavior.opaque,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomHeartAnimationWidget(
                     isAnimating: false,
                     alwayAnimate: true,
                     child: Icon(Icons.health_and_safety, size: 30, color: Colors.white,)
                 ),
-              ),
-              const SizedBox(width: 5,),
-              const Text("Inappropriate", style: TextStyle(color: Colors.white, fontSize:11),),
-            ],
+                SizedBox(width: 5,),
+                Text("Inappropriate", style: TextStyle(color: Colors.white, fontSize:11),),
+              ],
+            ),
           ),
         },
 
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () {
-                context.showSnackBar("coming soon");
-              },
-              child: const CustomHeartAnimationWidget(
+        GestureDetector(
+          onTap: () {
+            context.showSnackBar("coming soon");
+          },
+          behavior: HitTestBehavior.opaque,
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomHeartAnimationWidget(
                   isAnimating: false,
                   alwayAnimate: true,
                   child: Icon(Icons.message, size: 27, color: Colors.white,)
               ),
-            ),
-            const SizedBox(width: 5,),
-            const Text("2.5k", style: TextStyle(color: Colors.white, fontSize:11),),
-          ],
+              SizedBox(width: 5,),
+              Text("2.5k", style: TextStyle(color: Colors.white, fontSize:11),),
+            ],
+          ),
         ),
 
         if(!isCreator) ... {
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  context.showSnackBar("coming soon");
-                },
-                child: const CustomHeartAnimationWidget(
+          GestureDetector(
+            onTap: () {
+              context.showSnackBar("coming soon");
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CustomHeartAnimationWidget(
                     isAnimating: false,
                     alwayAnimate: true,
                     child: Icon(FontAwesomeIcons.solidComments, size: 27, color: AppColors.buttonBlue,)
                 ),
-              ),
-              const SizedBox(width: 5,),
-              const Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
-            ],
+                const SizedBox(width: 5,),
+                const Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
+              ],
+            ),
           ),
         },
 
         /// Like
         ValueListenableBuilder(valueListenable: liked, builder: (_, val, __) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  liked.value = !liked.value;
-                },
-                child: CustomHeartAnimationWidget(
+          return GestureDetector(
+            onTap: () {
+              liked.value = !liked.value;
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomHeartAnimationWidget(
                     isAnimating: val,
                     alwayAnimate: true,
                     child: val ? const Icon(Icons.favorite, size: 32, color: Colors.red,) : const Icon(Icons.favorite, size: 32, color: Colors.white,)
                 ),
-              ),
-              const SizedBox(width: 5,),
-              Text(val ? "201" : "200", style: TextStyle(color: val ? Colors.red : Colors.white, fontSize: 12),),
-            ],
+                const SizedBox(width: 5,),
+                Text(val ? "201" : "200", style: TextStyle(color: val ? Colors.red : Colors.white, fontSize: 12),),
+              ],
+            ),
           );
         }),
 

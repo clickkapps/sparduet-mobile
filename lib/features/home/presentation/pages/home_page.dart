@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
+import 'package:sparkduet/core/app_audio_service.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
@@ -61,6 +63,7 @@ class _HomePageState extends State<HomePage> {
 
     // fetch and update user profile info
     context.read<AuthCubit>().fetchAuthUserInfo();
+    AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
     super.initState();
   }
 

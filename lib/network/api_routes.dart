@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class AppApiRoutes {
 
   // static const String  webApiUrl = 'https://api.sparkduet.com';
-  static const String  webApiUrl = kDebugMode ? "https://37b7-41-155-49-50.ngrok-free.app" : 'https://api.sparkduet.com';
+  static const String  webApiUrl = kDebugMode ? "http://localhost:8000" : 'https://api.sparkduet.com';
   static const String baseApiUrl = '$webApiUrl/api';
 
   static const String  signUp = '$baseApiUrl/auth/';
@@ -34,4 +34,6 @@ class AppApiRoutes {
   static const String createMuxUploadUrl = '$baseApiUrl/utils/mux-create-upload-url';
   static const String getUploadStatus = '$baseApiUrl/utils/mux-upload-status';
   static const String getVideoStatus = '$baseApiUrl/utils/mux-video-status';
+
+  static const String getCountries = 'https://restcountries.com/v3.1/all';
 }

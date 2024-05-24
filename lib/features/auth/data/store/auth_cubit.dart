@@ -76,10 +76,17 @@ class AuthCubit extends Cubit<AuthState> {
       return (l, null);
     }
 
-    final r = either.asRight();
-    setAuthUserInfo(updatedAuthUser: r);
+
+    if(authUser == null) {
+      final r = either.asRight();
+      setAuthUserInfo(updatedAuthUser: r);
+      emit(state.copyWith(status: AuthStatus.updateAuthUserProfileSuccessful));
+      return (null, r);
+    }
+
     emit(state.copyWith(status: AuthStatus.updateAuthUserProfileSuccessful));
-    return (null, r);
+    return (null, authUser);
+
 
   }
 

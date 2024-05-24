@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +23,7 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
 
   late int activeFeedIndex ;
   final Map<int, BetterPlayerController?> videoControllers = {};
+  final Map<int, AssetsAudioPlayer?> imageControllers = {};
   late StoriesPreviewsCubit storiesPreviewsCubit;
   late PreloadPageController preloadPageController;
   bool activeStoryPlaying = true;
@@ -65,22 +67,26 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
+    imageControllers[activeFeedIndex]?.pause();
     activeStoryPlaying = false;
   }
 
   Future<void> resetActiveStory() async {
     videoControllers[activeFeedIndex]?.seekTo(Duration.zero);
+    imageControllers[activeFeedIndex]?.seek(Duration.zero);
   }
 
   void resumeActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.play();
+    imageControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
 
   void playActiveStory() async {
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
+    imageControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
 
@@ -129,10 +135,16 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
                       final feed = feeds[i];
 
                       // Regular stories .....
-                      return StoryFeedItemWidget(videoBuilder: (controller) {
+                      return FeedItemWidget(
+                        videoBuilder: (controller) {
                         videoControllers[i] = controller;
                         playActiveStory();
-                      }, onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
+                      },
+                        imageBuilder: (controller) {
+                          imageControllers[i] = controller;
+                          playActiveStory();
+                        },
+                        onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
                         feed: feed, hls: true,);
 
                     },

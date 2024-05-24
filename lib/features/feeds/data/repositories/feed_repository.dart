@@ -1,8 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/files/data/models/media_model.dart';
-import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/network/network_provider.dart';
 
@@ -97,7 +95,6 @@ class FeedRepository {
       } else {
         return Left(response.statusMessage ?? "");
       }
-
 
     }catch(error) {
       return Left(error.toString());

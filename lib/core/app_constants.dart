@@ -19,7 +19,16 @@ abstract final class AppConstants {
   // static String imageMediaPath({required mediaId}) => "https://res.cloudinary.com/dhhyl4ygy/image/upload/f_auto,q_auto/v1/sparkduet/$mediaId";
   static String videoMediaPath({required String playbackId}) => "https://stream.mux.com/$playbackId.m3u8";
   static String imageMediaPath({required String mediaId}) => "https://d2e46virtl8cds.cloudfront.net/$mediaId";
+  static String audioMediaPath({required String mediaId}) => "https://d2e46virtl8cds.cloudfront.net/$mediaId";
   static String thumbnailMediaPath({required String mediaId}) => "https://image.mux.com/$mediaId/thumbnail.webp";
+  static String defaultAudioLink = "https://d2e46virtl8cds.cloudfront.net/track_1.mp3";
+  static List<String> audioLinks = <String>[
+    audioMediaPath(mediaId: "track_1.mp3"),
+    audioMediaPath(mediaId: "track_2.mp3"),
+    audioMediaPath(mediaId: "track_3.mp3"),
+    audioMediaPath(mediaId: "track_4.mp3"),
+    audioMediaPath(mediaId: "track_5.mp3"),
+  ];
   static PostFeedPurpose introductoryPostFeedPurpose = const PostFeedPurpose(
       title: "Hi✋, Let's get started",
       subTitle: "Introduce yourself to potential suitors. A good 30 sec video will attract the best suitors",
@@ -76,6 +85,100 @@ abstract final class AppConstants {
       "name": "Non-binary / non-conforming"
     }
   ];
+
+  static final List<Map<String, String>> races = [
+    {
+      "key": "american_indian_or_alaska_native",
+      "name": "American Indian or Alaska Native"
+    },
+    {
+      "key": "asian",
+      "name": "Asian"
+    },
+    {
+      "key": "black_or_african_american",
+      "name": "Black or African American"
+    },
+    {
+      "key": "middle_eastern_or_north_african",
+      "name": "Middle Eastern or North African"
+    },
+    {
+      "key": "native_hawaiian_or_other_pacific_islander",
+      "name": "Native Hawaiian or other Pacific Islander"
+    },
+    {
+      "key": "hispanic_latino_or_spanish_origin",
+      "name": "Hispanic, Latino, or Spanish origin"
+    },
+    {
+      "key": "white",
+      "name": "White"
+    },
+    {
+      "key": "other",
+      "name": "Other"
+    },
+  ];
+
+  static const List<Map<String, String>> preferredGenderList = [
+    {
+      "key": "men",
+      "name": "Men"
+    },
+    {
+      "key": "women",
+      "name": "Women"
+    },
+    {
+      "key": "transgenders",
+      "name": "Transgenders"
+    },
+    {
+      "key": "non_binary_or_non_conforming",
+      "name": "Non-binary / non-conforming"
+    },
+    {
+      "key": "any",
+      "name": "Any"
+    }
+  ];
+
+  static final List<Map<String, String>> preferredRaces = [
+    {
+      "key": "american_indian_or_alaska_native",
+      "name": "American Indian or Alaska Native"
+    },
+    {
+      "key": "asian",
+      "name": "Asian"
+    },
+    {
+      "key": "black_or_african_american",
+      "name": "Black or African American"
+    },
+    {
+      "key": "middle_eastern_or_north_african",
+      "name": "Middle Eastern or North African"
+    },
+    {
+      "key": "native_hawaiian_or_other_pacific_islander",
+      "name": "Native Hawaiian or other Pacific Islander"
+    },
+    {
+      "key": "hispanic_latino_or_spanish_origin",
+      "name": "Hispanic, Latino, or Spanish origin"
+    },
+    {
+      "key": "white",
+      "name": "White"
+    },
+    {
+      "key": "any",
+      "name": "Any"
+    },
+  ];
+
 
 }
 

@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
+import 'package:sparkduet/utils/custom_network_image_widget.dart';
 
 class CompletedUserPostItem extends StatelessWidget {
 
@@ -16,13 +19,14 @@ class CompletedUserPostItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(4),
         child: Stack(
           children: [
             SizedBox(
                 width: double.maxFinite,
                 height: double.maxFinite,
-                child: Image.network(AppConstants.thumbnailMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,),
+                child:post.mediaType == FileType.video ? CustomNetworkImageWidget(imageUrl: AppConstants.thumbnailMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,)
+                : CustomNetworkImageWidget(imageUrl: AppConstants.imageMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,),
             ),
             Align(
               alignment: Alignment.bottomLeft,

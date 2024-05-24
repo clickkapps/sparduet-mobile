@@ -7,6 +7,10 @@ import 'package:sparkduet/features/auth/data/repositories/auth_repository.dart';
 import 'package:sparkduet/features/auth/data/store/auth_bookmarked_feeds_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
+import 'package:sparkduet/features/chat/data/repositories/chat_repository.dart';
+import 'package:sparkduet/features/chat/data/store/chat_cubit.dart';
+import 'package:sparkduet/features/countries/data/repositories/countries_repository.dart';
+import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_repository.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
@@ -15,6 +19,8 @@ import 'package:sparkduet/features/feeds/data/store/stories_feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/store/stories_previews_cubit.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/search/data/repositories/search_repository.dart';
+import 'package:sparkduet/features/search/data/store/search_cubit.dart';
 import 'package:sparkduet/features/theme/data/repositories/theme_repository.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/features/theme/data/store/theme_state.dart';
@@ -35,6 +41,9 @@ class App extends StatelessWidget {
     final fileRepository = FileRepository(networkProvider: sl());
     final feedBroadcastRepository = sl<FeedBroadcastRepository>();
     final feedRepository = FeedRepository(networkProvider: sl());
+    final countriesRepository = CountriesRepository(networkProvider: sl());
+    final searchRepository = SearchRepository(networkProvider: sl());
+    final chatRepository = ChatRepository(networkProvider: sl());
 
     return MultiBlocProvider(
         providers: [
@@ -49,6 +58,9 @@ class App extends StatelessWidget {
           BlocProvider(create: (context) => FeedsPreviewsCubit(fileRepository, feedRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
           BlocProvider(create: (context) => StoriesPreviewsCubit(fileRepository, feedRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
           BlocProvider(create: (context) => NavCubit()),
+          BlocProvider(create: (context) => CountriesCubit(countriesRepository: countriesRepository)),
+          BlocProvider(create: (context) => SearchCubit(searchRepository: searchRepository)),
+          BlocProvider(create: (context) => ChatCubit(chatRepository: chatRepository)),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {

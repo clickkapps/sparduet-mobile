@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatPreviewPage extends StatefulWidget {
@@ -18,16 +16,8 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Chat(
-        theme: const DefaultChatTheme(
-          // inputBackgroundColor: Colors.transparent,
-        ),
-        messages: _messages,
-        onSendPressed: _handleSendPressed,
-        user: _user,
-        customBottomWidget: const SizedBox.shrink(),
-      ),
+    return const Scaffold(
+      body: SizedBox.shrink(),
     );
   }
 

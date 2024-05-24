@@ -150,41 +150,57 @@ class FeedsCubit extends Cubit<FeedState> {
     updatePostId(initialPostId);
 
 
-    File? postFile;
-    FileType? postMediaType;
+
     emit(state.copyWith(status: FeedStatus.postFeedProcessFileInProgress));
 
+    MediaModel? mediaFile;
 
-    //! Flip file if its front camera
-    if(flipFile) {
-      postFile = await AppPostConverter.flipVideo(file);
-    }
-
-    // convert image to music
     if(mediaType == FileType.image) {
-      postFile = await AppPostConverter.convertImageToVideoWithMusic(file.path, "https://d2e46virtl8cds.cloudfront.net/track_1.mp3");
-      if(postFile == null) {
-        setError("Unable to convert image to video");
+      ///! Image section
+
+      final imageFilesResponse = await fileRepository.uploadFilesToServer(files: <File>[file]);
+
+      if(imageFilesResponse.isLeft()){
+        final l = imageFilesResponse.asLeft();
+        setError(l);
+        return;
       }
+
+      final imagePath = imageFilesResponse.asRight().first;
+      mediaFile =  MediaModel(path: imagePath, type:  mediaType, assetId: imagePath);
+
+
+    } else {
+
+      ///! Video section
+      ///
+
+      File? postFile;
+
+      //! Flip file if its front camera
+      if(flipFile) {
+        postFile = await AppPostConverter.flipVideo(file);
+      }
+      final uploadResponse = await fileRepository.uploadVideoToServer(videoFile: postFile ?? file);
+
+      if(uploadResponse.isLeft()){
+        final l = uploadResponse.asLeft();
+        setError(l);
+        return;
+      }
+
+      final upld = uploadResponse.asRight();
+      final filePath = upld.$1;
+      final assetId = upld.$2;
+      final aspectRatio = upld.$3;
+      mediaFile =  MediaModel(path: filePath, type: mediaType, assetId: assetId, aspectRatio: aspectRatio);
+
+
     }
 
-    // start upload
-    final uploadResponse = await fileRepository.uploadVideoToServer(videoFile: postFile ?? file);
-
-    if(uploadResponse.isLeft()){
-      final l = uploadResponse.asLeft();
-      setError(l);
-      return;
-    }
-
-    final upld = uploadResponse.asRight();
-    final filePath = upld.$1;
-    final assetId = upld.$2;
-    final aspectRatio = upld.$3;
-    final media =  MediaModel(path: filePath, type: postMediaType ?? mediaType, assetId: assetId, aspectRatio: aspectRatio);
 
     // attach media file to server
-    final attachMediaResponse = await feedsRepository.attachMediaToPost(postId: initialPostId, media: media);
+    final attachMediaResponse = await feedsRepository.attachMediaToPost(postId: initialPostId, media: mediaFile);
     if(attachMediaResponse.isLeft()) {
       final l = attachMediaResponse.asLeft();
       setError(l);

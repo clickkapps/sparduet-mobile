@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
 import 'package:sparkduet/utils/custom_badge_icon.dart';
-import 'package:sparkduet/utils/custom_border_widget.dart';
-import 'package:sparkduet/utils/custom_card.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 class ChatConnectionsPage extends StatelessWidget {
   const ChatConnectionsPage({super.key});

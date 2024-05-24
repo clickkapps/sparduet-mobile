@@ -11,6 +11,7 @@ class UserInfoModel extends Equatable {
   final DateTime? dob;
   final num? age;
   final String? gender;
+  final String? race;
   @JsonKey(name: "profile_pic_path")
   final String? profilePicPath;
   @JsonKey(name: "requested_basic_info_update")
@@ -28,7 +29,10 @@ class UserInfoModel extends Equatable {
   @JsonKey(name: "preferred_nationalities")
   final String? preferredNationalities;
 
-  const UserInfoModel({this.bio, this.dob, this.age, this.gender, this.profilePicPath,
+  const UserInfoModel({
+    this.bio,
+    this.race,
+    this.dob, this.age, this.gender, this.profilePicPath,
     this.requestedBasicInfoUpdate,
     this.requestedPreferenceInfoUpdate,
     this.preferredGender,

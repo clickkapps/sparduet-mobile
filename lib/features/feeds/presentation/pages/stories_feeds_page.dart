@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:better_player/better_player.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
@@ -17,6 +18,7 @@ import 'package:sparkduet/features/feeds/presentation/widgets/request_post_feed_
 import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
 import 'package:sparkduet/features/home/data/enums.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/search/presentation/pages/top_search_page.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
@@ -157,7 +159,9 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
         ),),
         actions:  [
           // IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.sliders, color: Colors.white,)),
-          IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.search, color: Colors.white,)),
+          IconButton(onPressed: () {
+            context.pushScreen(const TopSearchPage());
+          }, icon: const Icon(FeatherIcons.search, color: Colors.white,)),
           const SizedBox(width: 18,)
         ],
       ),
@@ -211,7 +215,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                               }
 
                               // Regular stories .....
-                              return StoryFeedItemWidget(videoBuilder: (controller) {
+                              return FeedItemWidget(videoBuilder: (controller) {
                                 videoControllers[i] = controller;
                               }, onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
                                 feed: feed, autoPlay: i == 0, hls: true,);

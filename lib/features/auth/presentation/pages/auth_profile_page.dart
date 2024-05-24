@@ -402,7 +402,10 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                       dense: true,
                                       title: Text("Gender",
                                         style: theme.textTheme.bodyMedium,),
-                                      subtitle: (authUser?.info?.gender ?? "").isNotEmpty ? Text(authUser?.info?.gender ?? "") : null ,
+                                      subtitle: (authUser?.info?.gender ?? "").isNotEmpty ? Builder(builder: (_) {
+                                        final text = AppConstants.genderList.where((element) => element["key"] == (authUser?.info?.gender ?? "")).firstOrNull?["name"];
+                                        return Text(text ?? "");
+                                      }) : null ,
                                       // subTitle
                                       trailing: Icon(Icons.edit,
                                         color: theme.colorScheme.onBackground,
@@ -411,6 +414,24 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                       showGenderSelectorListWidget(context);
                                     },
                                   ),
+
+                                  ListTile(
+                                    dense: true,
+                                    title: Text("Race",
+                                      style: theme.textTheme.bodyMedium,),
+                                    subtitle: (authUser?.info?.race ?? "").isNotEmpty ? Builder(builder: (_) {
+                                      final text = AppConstants.races.where((element) => element["key"] == (authUser?.info?.race ?? "")).firstOrNull?["name"];
+                                      return Text(text ?? "");
+                                    }): null ,
+                                    // subTitle
+                                    trailing: Icon(Icons.edit,
+                                      color: theme.colorScheme.onBackground,
+                                      size: 14,),
+                                    onTap: () {
+                                      showRaceSelectorListWidget(context);
+                                    },
+                                  ),
+
                                 ],
                               ),),
                             ),
