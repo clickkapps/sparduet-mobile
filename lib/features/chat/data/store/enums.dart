@@ -1,3 +1,3 @@
 enum ChatStatus {
-  initial
+  initial, createChatConnectionFailed, createChatConnectionInProgress, createChatConnectionSuccessful, fetchChatConnectionsInProgress, fetchChatConnectionsFailed, fetchChatConnectionsSucessful
 }

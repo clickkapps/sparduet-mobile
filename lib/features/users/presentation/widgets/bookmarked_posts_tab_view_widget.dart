@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
@@ -40,8 +41,8 @@ class _BookmarkedPostsTabViewPageState<C extends FeedsCubit> extends State<Bookm
   }
 
   Future<(String?, List<FeedModel>?)> fetchData(int pageKey) async {
-    final path = AppApiRoutes.bookmarkedUserPosts(userId: widget.userId);
-    return feedsCubit.fetchFeeds(path: path, pageKey: pageKey);
+    final path = AppApiRoutes.bookmarkedUserPosts(userId: widget.userId,);
+    return feedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: {"limit": AppConstants.gridPageSize, "page": pageKey});
   }
 
   @override

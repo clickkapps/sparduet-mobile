@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:connectycube_sdk/connectycube_sdk.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
@@ -186,6 +187,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   void logout() async {
     emit(state.copyWith(status: AuthStatus.logOutInProgress));
+    CubeChatConnection.instance.logout();
     await authRepository.logout();
     emit(state.copyWith(status: AuthStatus.logOutCompleted, authUser: null));
   }

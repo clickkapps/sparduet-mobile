@@ -11,6 +11,8 @@ abstract class _$ChatStateCWProxy {
 
   ChatState message(String? message);
 
+  ChatState chatConnections(List<CubeDialog> chatConnections);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -20,6 +22,7 @@ abstract class _$ChatStateCWProxy {
   ChatState call({
     ChatStatus? status,
     String? message,
+    List<CubeDialog>? chatConnections,
   });
 }
 
@@ -36,6 +39,10 @@ class _$ChatStateCWProxyImpl implements _$ChatStateCWProxy {
   ChatState message(String? message) => this(message: message);
 
   @override
+  ChatState chatConnections(List<CubeDialog> chatConnections) =>
+      this(chatConnections: chatConnections);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -46,6 +53,7 @@ class _$ChatStateCWProxyImpl implements _$ChatStateCWProxy {
   ChatState call({
     Object? status = const $CopyWithPlaceholder(),
     Object? message = const $CopyWithPlaceholder(),
+    Object? chatConnections = const $CopyWithPlaceholder(),
   }) {
     return ChatState(
       status: status == const $CopyWithPlaceholder() || status == null
@@ -56,6 +64,11 @@ class _$ChatStateCWProxyImpl implements _$ChatStateCWProxy {
           ? _value.message
           // ignore: cast_nullable_to_non_nullable
           : message as String?,
+      chatConnections: chatConnections == const $CopyWithPlaceholder() ||
+              chatConnections == null
+          ? _value.chatConnections
+          // ignore: cast_nullable_to_non_nullable
+          : chatConnections as List<CubeDialog>,
     );
   }
 }

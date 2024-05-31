@@ -71,7 +71,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
 
     if(_email.isNullOrEmpty()){ return; }
 
-    _authCubit.submitEmail(email: _email!);
+    _authCubit.submitEmail(email: _email!.toLowerCase());
 
   }
 

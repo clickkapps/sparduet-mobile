@@ -1,4 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:sparkduet/core/app_chat_helper.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_storage.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/network/api_routes.dart';
@@ -110,7 +112,13 @@ class AuthRepository {
       await localStorageProvider.setAuthTokenVal(token);
 
       // fetch and update the current loggedIn user
-      return await fetchAuthUserProfile();
+      final either = await fetchAuthUserProfile();
+      if(either.isLeft()) {
+        return either;
+      }
+      final authUser = either.asRight();
+      await AppChatHelper.loginChatUser(authUser);
+      return either;
 
     } catch (e) {
       return Left(e.toString());

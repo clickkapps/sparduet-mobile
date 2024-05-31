@@ -15,6 +15,8 @@ PODS:
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
+  - device_info_plus (0.0.1):
+    - Flutter
   - DKImagePickerController/Core (4.3.4):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
@@ -63,6 +65,9 @@ PODS:
     - Flutter
   - flutter_video_info (1.1.0):
     - Flutter
+  - flutter_webrtc (0.9.36):
+    - Flutter
+    - WebRTC-SDK (= 114.5735.10)
   - GCDWebServer (3.5.4):
     - GCDWebServer/Core (= 3.5.4)
   - GCDWebServer/Core (3.5.4)
@@ -134,6 +139,7 @@ PODS:
     - libwebp
   - wakelock (0.0.1):
     - Flutter
+  - WebRTC-SDK (114.5735.10)
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
 
@@ -143,12 +149,14 @@ DEPENDENCIES:
   - better_player (from `.symlinks/plugins/better_player/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - ffmpeg_kit_flutter (from `.symlinks/plugins/ffmpeg_kit_flutter/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - flutter_video_info (from `.symlinks/plugins/flutter_video_info/ios`)
+  - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - imgly_sdk (from `.symlinks/plugins/imgly_sdk/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -182,6 +190,7 @@ SPEC REPOS:
     - ReachabilitySwift
     - SDWebImage
     - SwiftyGif
+    - WebRTC-SDK
 
 EXTERNAL SOURCES:
   assets_audio_player:
@@ -194,6 +203,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   ffmpeg_kit_flutter:
     :path: ".symlinks/plugins/ffmpeg_kit_flutter/ios"
   file_picker:
@@ -206,6 +217,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   flutter_video_info:
     :path: ".symlinks/plugins/flutter_video_info/ios"
+  flutter_webrtc:
+    :path: ".symlinks/plugins/flutter_webrtc/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   imgly_sdk:
@@ -244,6 +257,7 @@ SPEC CHECKSUMS:
   Cache: 4ca7e00363fca5455f26534e5607634c820ffc2d
   camera_avfoundation: 759172d1a77ae7be0de08fc104cfb79738b8a59e
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
+  device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   ffmpeg-kit-ios-https: f9c838aa5400a6c5ba12324c6b798f52197ba354
@@ -253,6 +267,7 @@ SPEC CHECKSUMS:
   flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   flutter_video_info: a932e1b0da369bba95c3a14b7f61d5f8b0d03280
+  flutter_webrtc: b33475c3a57d59ff05bf87b4f5d3feceac63f291
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   HLSCachingReverseProxyServer: 59935e1e0244ad7f3375d75b5ef46e8eb26ab181
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
@@ -277,6 +292,7 @@ SPEC CHECKSUMS:
   video_player_avfoundation: 02011213dab73ae3687df27ce441fbbcc82b5579
   video_thumbnail: c4e2a3c539e247d4de13cd545344fd2d26ffafd1
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
+  WebRTC-SDK: 8c0edd05b880a39648118192c252667ea06dea51
   webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
 
 PODFILE CHECKSUM: d6faa8ab35528bb9e7dee89338485a4a820538ed

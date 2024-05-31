@@ -109,6 +109,7 @@ dependencies:
   readmore: ^3.0.0
   connectivity_plus: ^5.0.1
   pull_to_refresh: 2.0.0
+  connectycube_sdk: ^2.13.1
 
 dependency_overrides:
   wakelock: 0.6.2

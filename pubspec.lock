@@ -314,6 +314,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.4"
+  connectycube_sdk:
+    dependency: "direct main"
+    description:
+      name: connectycube_sdk
+      sha256: fd8b5aaee5e470af2f4f383a876e15d2f1bf9ef75a7524e4f5149abd21938428
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.13.1"
+  console:
+    dependency: transitive
+    description:
+      name: console
+      sha256: e04e7824384c5b39389acdd6dc7d33f3efe6b232f6f16d7626f194f6a01ad69a
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   convert:
     dependency: transitive
     description:
@@ -362,6 +378,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  cryptoutils:
+    dependency: transitive
+    description:
+      name: cryptoutils
+      sha256: e7475f6e5e58f94b975dd537b30ee3507bf6b2370e1b868f381f928d3d4d524c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   csslib:
     dependency: transitive
     description:
@@ -386,6 +410,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.6"
+  dart_webrtc:
+    dependency: transitive
+    description:
+      name: dart_webrtc
+      sha256: fe4db21dc389b99e04cb7bf43bc927dba2e42768d4c28211b66a4b5a16e4d516
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.5"
   dartx:
     dependency: transitive
     description:
@@ -410,6 +442,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
+  device_info_plus:
+    dependency: transitive
+    description:
+      name: device_info_plus
+      sha256: eead12d1a1ed83d8283ab4c2f3fca23ac4082f29f25f29dff0f758f57d06ec91
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.1.0"
+  device_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_plus_platform_interface
+      sha256: d3b01d5868b50ae571cd1dc6e502fc94d956b665756180f7b16ead09e836fd64
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   dio:
     dependency: "direct main"
     description:
@@ -737,6 +785,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_webrtc:
+    dependency: transitive
+    description:
+      name: flutter_webrtc
+      sha256: "2852cd5758d01ce7761a56170ad64e79173624915100df53748e5f0dab3f19f7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.6"
   flutter_widget_from_html_core:
     dependency: transitive
     description:
@@ -1065,6 +1121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
+  objectid:
+    dependency: transitive
+    description:
+      name: objectid
+      sha256: fd4a0b9fe07df25c446948b786e7ab2f363b2f461afa78632cab179d7613b9b3
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   octo_image:
     dependency: transitive
     description:
@@ -1241,6 +1305,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.4"
+  platform_detect:
+    dependency: transitive
+    description:
+      name: platform_detect
+      sha256: "08f4ee79c0e1c4858d37e06b22352a3ebdef5466b613749a3adb03e703d4f5b0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.11"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -1313,6 +1385,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0+2"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.1"
   readmore:
     dependency: "direct main"
     description:
@@ -1590,6 +1670,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -1606,6 +1694,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.2"
+  unorm_dart:
+    dependency: transitive
+    description:
+      name: unorm_dart
+      sha256: "23d8bf65605401a6a32cff99435fed66ef3dab3ddcad3454059165df46496a3b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   url_launcher:
     dependency: "direct main"
     description:
@@ -1854,6 +1950,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.5"
+  webrtc_interface:
+    dependency: transitive
+    description:
+      name: webrtc_interface
+      sha256: abec3ab7956bd5ac539cf34a42fa0c82ea26675847c0966bb85160400eea9388
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   webview_flutter:
     dependency: "direct main"
     description:
@@ -1918,6 +2022,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.0"
+  win32_registry:
+    dependency: transitive
+    description:
+      name: win32_registry
+      sha256: "10589e0d7f4e053f2c61023a31c9ce01146656a70b7b7f0828c0b46d7da2a9bb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.3"
   xdg_directories:
     dependency: transitive
     description:
@@ -1934,6 +2046,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.5.0"
+  xmpp_stone:
+    dependency: transitive
+    description:
+      name: xmpp_stone
+      sha256: b898e55328cca95f2c3d8ebdd159909bc538ddad84c397a188ba6be92bab276e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.4-dev.5"
   yaml:
     dependency: transitive
     description:

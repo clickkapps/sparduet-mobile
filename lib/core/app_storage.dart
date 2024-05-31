@@ -35,7 +35,7 @@ class AppStorage {
   }
 
   Future<void> removeAuthUserFromLocalStorage() async {
-     removeFromPref(key: _authUserKey);
+     await removeFromPref(key: _authUserKey);
   }
 
   Future<void> saveToPref({required String key, required String value}) async{

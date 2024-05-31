@@ -144,7 +144,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget> {
                         behavior: HitTestBehavior.opaque,
                         child: Row(
                           children: [
-                            CustomUserAvatarWidget(imageUrl: widget.feed.user?.info?.profilePicPath,),
+                            CustomUserAvatarWidget(imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.user?.info?.profilePicPath ?? ""),),
                             const SizedBox(width: 10,),
                             Flexible(child: Text(widget.feed.user?.name ?? "", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),)),
                             const SizedBox(width: 10,),

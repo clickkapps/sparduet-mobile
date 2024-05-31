@@ -10,6 +10,13 @@ part 'auth_user_model.g.dart';
 @CopyWith()
 class AuthUserModel extends UserModel {
 
+  @JsonKey(name: "public_key")
+  final String? publicKey;
+  @JsonKey(name: "first_login_at")
+  final DateTime? firstLoginAt;
+  @JsonKey(name: "last_login_at")
+  final DateTime? lastLoginAt;
+
   const AuthUserModel({
     super.id,
     super.email,
@@ -18,8 +25,13 @@ class AuthUserModel extends UserModel {
     super.username,
     super.blocked,
     super.info,
-    super.introductoryPost
+    super.introductoryPost,
+    this.publicKey,
+    this.firstLoginAt,
+    this.lastLoginAt
   });
 
   factory AuthUserModel.fromJson(Map<String, dynamic> json) => _$AuthUserModelFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => _$AuthUserModelToJson(this);
 }

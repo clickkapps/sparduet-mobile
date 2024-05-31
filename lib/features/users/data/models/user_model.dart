@@ -20,7 +20,9 @@ class UserModel extends Equatable {
   @JsonKey(name: "display_age")
   final num? displayAge;
 
-  const UserModel({this.id, this.displayAge, this.name, this.email, this.username, this.blocked, this.info, this.introductoryPost});
+  const UserModel({this.id, this.displayAge, this.name, this.email, this.username,
+    this.blocked, this.info, this.introductoryPost,
+  });
 
   @override
   List<Object?> get props => [id, email, displayAge, name];

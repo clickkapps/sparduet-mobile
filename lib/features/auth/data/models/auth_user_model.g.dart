@@ -23,6 +23,12 @@ abstract class _$AuthUserModelCWProxy {
 
   AuthUserModel introductoryPost(FeedModel? introductoryPost);
 
+  AuthUserModel publicKey(String? publicKey);
+
+  AuthUserModel firstLoginAt(DateTime? firstLoginAt);
+
+  AuthUserModel lastLoginAt(DateTime? lastLoginAt);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AuthUserModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -38,6 +44,9 @@ abstract class _$AuthUserModelCWProxy {
     int? blocked,
     UserInfoModel? info,
     FeedModel? introductoryPost,
+    String? publicKey,
+    DateTime? firstLoginAt,
+    DateTime? lastLoginAt,
   });
 }
 
@@ -73,6 +82,17 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
       this(introductoryPost: introductoryPost);
 
   @override
+  AuthUserModel publicKey(String? publicKey) => this(publicKey: publicKey);
+
+  @override
+  AuthUserModel firstLoginAt(DateTime? firstLoginAt) =>
+      this(firstLoginAt: firstLoginAt);
+
+  @override
+  AuthUserModel lastLoginAt(DateTime? lastLoginAt) =>
+      this(lastLoginAt: lastLoginAt);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AuthUserModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -89,6 +109,9 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
     Object? blocked = const $CopyWithPlaceholder(),
     Object? info = const $CopyWithPlaceholder(),
     Object? introductoryPost = const $CopyWithPlaceholder(),
+    Object? publicKey = const $CopyWithPlaceholder(),
+    Object? firstLoginAt = const $CopyWithPlaceholder(),
+    Object? lastLoginAt = const $CopyWithPlaceholder(),
   }) {
     return AuthUserModel(
       id: id == const $CopyWithPlaceholder()
@@ -123,6 +146,18 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
           ? _value.introductoryPost
           // ignore: cast_nullable_to_non_nullable
           : introductoryPost as FeedModel?,
+      publicKey: publicKey == const $CopyWithPlaceholder()
+          ? _value.publicKey
+          // ignore: cast_nullable_to_non_nullable
+          : publicKey as String?,
+      firstLoginAt: firstLoginAt == const $CopyWithPlaceholder()
+          ? _value.firstLoginAt
+          // ignore: cast_nullable_to_non_nullable
+          : firstLoginAt as DateTime?,
+      lastLoginAt: lastLoginAt == const $CopyWithPlaceholder()
+          ? _value.lastLoginAt
+          // ignore: cast_nullable_to_non_nullable
+          : lastLoginAt as DateTime?,
     );
   }
 }
@@ -152,6 +187,13 @@ AuthUserModel _$AuthUserModelFromJson(Map<String, dynamic> json) =>
           ? null
           : FeedModel.fromJson(
               json['introductory_post'] as Map<String, dynamic>),
+      publicKey: json['public_key'] as String?,
+      firstLoginAt: json['first_login_at'] == null
+          ? null
+          : DateTime.parse(json['first_login_at'] as String),
+      lastLoginAt: json['last_login_at'] == null
+          ? null
+          : DateTime.parse(json['last_login_at'] as String),
     );
 
 Map<String, dynamic> _$AuthUserModelToJson(AuthUserModel instance) =>
@@ -164,4 +206,7 @@ Map<String, dynamic> _$AuthUserModelToJson(AuthUserModel instance) =>
       'info': instance.info?.toJson(),
       'introductory_post': instance.introductoryPost?.toJson(),
       'display_age': instance.displayAge,
+      'public_key': instance.publicKey,
+      'first_login_at': instance.firstLoginAt?.toIso8601String(),
+      'last_login_at': instance.lastLoginAt?.toIso8601String(),
     };

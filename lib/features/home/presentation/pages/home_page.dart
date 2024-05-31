@@ -1,15 +1,20 @@
 import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:connectycube_sdk/connectycube_sdk.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_audio_service.dart';
+import 'package:sparkduet/core/app_chat_helper.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/chat/data/store/chat_cubit.dart';
 import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
@@ -30,13 +35,15 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   int activeIndex = 0;
   late NavCubit navCubit;
   late FeedsCubit feedsCubit;
   StreamSubscription? navCubitStreamSubscription;
   StreamSubscription? feedsCubitStreamSubscription;
+  StreamSubscription? cubeChatConnectionStateStream;
+  AppLifecycleState? appState;
 
   @override
   void initState() {
@@ -66,6 +73,9 @@ class _HomePageState extends State<HomePage> {
 
     // fetch and update user profile info
     initialize();
+    establishChatConnection();
+    appState = WidgetsBinding.instance.lifecycleState;
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -73,6 +83,8 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     navCubitStreamSubscription?.cancel();
     feedsCubitStreamSubscription?.cancel();
+    cubeChatConnectionStateStream?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -83,6 +95,62 @@ class _HomePageState extends State<HomePage> {
     context.read<CountriesCubit>().fetchAllCountries();
     context.read<SearchCubit>().fetchPopularSearchTerms();
     context.read<SearchCubit>().fetchRecentSearchTerms();
+  }
+
+  void establishChatConnection() async {
+
+    final authUser = context.read<AuthCubit>().state.authUser;
+    await AppChatHelper.createChatUserSession(authUser);
+
+    if(mounted) {
+      context.read<ChatCubit>().fetchChatConnections();
+    }
+
+    // reconnect if connection is lost
+    cubeChatConnectionStateStream = Connectivity().onConnectivityChanged.listen((connectivityType) {
+
+      if (AppLifecycleState.resumed != appState) return;
+
+      if (connectivityType != ConnectivityResult.none) {
+        log("chatConnectionState = ${CubeChatConnection.instance
+            .chatConnectionState}");
+        bool isChatDisconnected =
+            CubeChatConnection.instance.chatConnectionState ==
+                CubeChatConnectionState.Closed ||
+                CubeChatConnection.instance.chatConnectionState ==
+                    CubeChatConnectionState.ForceClosed;
+
+        if (isChatDisconnected &&
+            CubeChatConnection.instance.currentUser != null) {
+          CubeChatConnection.instance.relogin();
+        }
+      }
+
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    log("Current app state: $state");
+    appState = state;
+
+    if (AppLifecycleState.paused == state) {
+      if (CubeChatConnection.instance.isAuthenticated()) {
+        CubeChatConnection.instance.markInactive();
+      }
+    } else if (AppLifecycleState.resumed == state) {
+      // just for an example user was saved in the local storage
+      final authUser = context.read<AuthCubit>().state.authUser;
+      if(authUser != null) {
+        if (!CubeChatConnection.instance.isAuthenticated()) {
+          String? token = CubeSessionManager.instance.activeSession?.token;
+          CubeUser user = CubeUser(id: authUser.id, password:token);
+          CubeChatConnection.instance.login(user);
+        } else {
+          CubeChatConnection.instance.markActive();
+        }
+      }
+    }
   }
 
   ///
