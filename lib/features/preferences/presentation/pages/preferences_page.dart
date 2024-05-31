@@ -91,6 +91,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
                  ],
                ),),
              ),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: CustomCard(padding: 5,child: SeparatedColumn(
@@ -98,6 +99,13 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
                      return const CustomBorderWidget();
                    },
                    children: [
+
+                     ListTile(
+                       dense: true,
+                       title: Text("Suggestions Box", style: theme.textTheme.bodyMedium,),
+                       trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
+                     ),
+
                      ListTile(
                        dense: true,
                        title: Text("Contact Support", style: theme.textTheme.bodyMedium,),

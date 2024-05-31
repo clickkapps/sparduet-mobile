@@ -24,7 +24,9 @@ import 'package:sparkduet/features/search/data/store/search_cubit.dart';
 import 'package:sparkduet/features/theme/data/repositories/theme_repository.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/features/theme/data/store/theme_state.dart';
+import 'package:sparkduet/features/users/data/repositories/user_repository.dart';
 import 'package:sparkduet/features/users/data/store/user_bookmarked_feeds_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_feeds_cubit.dart';
 
 /// Everyone deserves love
@@ -44,23 +46,25 @@ class App extends StatelessWidget {
     final countriesRepository = CountriesRepository(networkProvider: sl());
     final searchRepository = SearchRepository(networkProvider: sl());
     final chatRepository = ChatRepository(networkProvider: sl());
+    final userRepository = UserRepository(networkProvider: sl());
 
     return MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => AuthCubit(authRepository: authRepository, fileRepository: fileRepository)),
           BlocProvider(create: (context) => ThemeCubit(themeRepository: themeRepository)),
-          BlocProvider(create: (context) => FeedsCubit(fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
-          BlocProvider(create: (context) => StoriesFeedsCubit(fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
-          BlocProvider(create: (context) => AuthFeedsCubit(fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
-          BlocProvider(create: (context) => UserFeedsCubit(fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
-          BlocProvider(create: (context) => AuthBookmarkedFeedsCubit(fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
-          BlocProvider(create: (context) => UserBookmarkedFeedsCubit(fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
-          BlocProvider(create: (context) => FeedsPreviewsCubit(fileRepository, feedRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
-          BlocProvider(create: (context) => StoriesPreviewsCubit(fileRepository, feedRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => FeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => StoriesFeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => AuthFeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => UserFeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => AuthBookmarkedFeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => UserBookmarkedFeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => FeedsPreviewsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => StoriesPreviewsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
           BlocProvider(create: (context) => NavCubit()),
           BlocProvider(create: (context) => CountriesCubit(countriesRepository: countriesRepository)),
           BlocProvider(create: (context) => SearchCubit(searchRepository: searchRepository)),
           BlocProvider(create: (context) => ChatCubit(chatRepository: chatRepository)),
+          BlocProvider(create: (context) => UserCubit(userRepository: userRepository)),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {

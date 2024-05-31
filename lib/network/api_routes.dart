@@ -29,11 +29,22 @@ class AppApiRoutes {
   static String userPosts({int? userId}) => '$baseApiUrl/posts/user/$userId';
   static String bookmarkedUserPosts({int? userId}) => '$baseApiUrl/posts/bookmarked/user/$userId';
 
+  static String togglePostLikeAction({int? postId}) => '$baseApiUrl/posts/like/$postId';
+  static String togglePostBookmarkAction({int? postId}) => '$baseApiUrl/posts/bookmark/$postId';
+  static String viewPostAction({int? postId}) => '$baseApiUrl/posts/view/$postId';
+  static String reportPostAction({int? postId}) => '$baseApiUrl/posts/report/$postId';
+  // togglePostLikeAction
   // utils
   static const String uploadFiles = '$baseApiUrl/utils/upload-files';
   static const String createMuxUploadUrl = '$baseApiUrl/utils/mux-create-upload-url';
   static const String getUploadStatus = '$baseApiUrl/utils/mux-upload-status';
   static const String getVideoStatus = '$baseApiUrl/utils/mux-video-status';
 
-  static const String getCountries = 'https://restcountries.com/v3.1/all';
+  static const String getCountries = 'https://api.first.org/data/v1/countries';
+
+  static const String topSearch = '$baseApiUrl/search/top';
+  static const String usersSearch = '$baseApiUrl/search/users';
+  static const String storiesSearch = '$baseApiUrl/search/posts';
+  static const String userSearchTerms = '$baseApiUrl/search/user-search-terms';
+  static const String popularSearchTerms = '$baseApiUrl/search/popular-search-terms';
 }

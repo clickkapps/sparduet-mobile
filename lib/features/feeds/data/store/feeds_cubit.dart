@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/core/app_post_converter.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_broadcast_event.dart';
@@ -21,7 +22,7 @@ class FeedsCubit extends Cubit<FeedState> {
   final FileRepository fileRepository;
   final FeedBroadcastRepository feedBroadcastRepository;
   StreamSubscription<FeedBroadCastEvent>? feedBroadcastRepositoryStreamListener;
-  FeedsCubit(this.fileRepository, {required this.feedsRepository, required this.feedBroadcastRepository}): super(const FeedState()) {
+  FeedsCubit({required this.fileRepository, required this.feedsRepository, required this.feedBroadcastRepository}): super(const FeedState()) {
     listenForFeedUpdate();
   }
 
@@ -31,13 +32,14 @@ class FeedsCubit extends Cubit<FeedState> {
     await feedBroadcastRepositoryStreamListener?.cancel();
     feedBroadcastRepositoryStreamListener = feedBroadcastRepository.stream.listen((FeedBroadCastEvent event) {
 
+      emit(state.copyWith(status: FeedStatus.feedBroadcastActionInProgress));
       final copiedFeeds = [...state.feeds];
       // update the corresponding feed
       if(event.action == FeedBroadcastAction.update){
         final feedIndex = copiedFeeds.indexWhere((element) => element.id == event.feed!.id);
         if(feedIndex > -1){
           copiedFeeds[feedIndex] = event.feed!;
-          emit(state.copyWith(feeds: copiedFeeds));
+          emit(state.copyWith(feeds: copiedFeeds, status: FeedStatus.updateFeedCompleted));
         }
 
       }
@@ -47,7 +49,7 @@ class FeedsCubit extends Cubit<FeedState> {
         if(feedIndex > -1){
           copiedFeeds.removeAt(feedIndex);
         }
-        emit(state.copyWith( feeds: copiedFeeds));
+        emit(state.copyWith( feeds: copiedFeeds, status: FeedStatus.deleteFeedCompleted));
 
       }
 
@@ -246,6 +248,142 @@ class FeedsCubit extends Cubit<FeedState> {
     ));
 
     return (null, newItems);
+  }
+
+
+  /// Like / unlike post
+  /// actions - ["add", "remove"]
+  Future<void> togglePostLikeAction({required FeedModel feed, required String action}) async {
+
+    final existingFeed = feed;
+
+
+    // next thing is you need to broadcast so that every cubit with this post will know you have liked it
+    addLike() {
+      final updatedFeed = feed.copyWith(
+          totalLikes: (feed.totalLikes ?? 0) + 1,
+          hasLiked: (feed.hasLiked ?? 0) + 1
+      );
+      feedBroadcastRepository.updateFeed(feed: updatedFeed);
+      emit(state.copyWith(status: FeedStatus.togglePostLikeActionSuccessful));
+    }
+
+    removeLike() {
+      final updatedFeed = feed.copyWith(
+          totalLikes: (feed.totalLikes ?? 1) - 1,
+          hasLiked: 0 // reduce all likes to zero once user removes the likes
+      );
+      feedBroadcastRepository.updateFeed(feed: updatedFeed);
+      emit(state.copyWith(status: FeedStatus.togglePostLikeActionSuccessful));
+    }
+
+    failed(String reason) {
+      //update with existing feed
+      feedBroadcastRepository.updateFeed(feed: existingFeed);
+      emit(state.copyWith(status: FeedStatus.togglePostLikeActionFailed, message: reason));
+    }
+
+
+    emit(state.copyWith(status: FeedStatus.togglePostLikeActionInProgress));
+    //optimistic update feed
+    if(action == "add") {
+      addLike();
+    }else {
+      removeLike();
+    }
+
+    final either = await feedsRepository.togglePostLikeAction(postId: feed.id, action: action);
+    if(either.isLeft()){
+      final l = either.asLeft();
+      failed(l);
+      return;
+    }
+
+
+    // once its successful do nothing
+
+  }
+
+  /// bookmark / unBookmark post
+  Future<void> togglePostBookmarkAction({required FeedModel feed}) async {
+
+    final existingFeed = feed;
+
+    changeBookmark(bool status) {
+      final updatedFeed = feed.copyWith(
+          hasBookmarked: status,
+          totalBookmarks: status ? ((existingFeed.totalBookmarks ?? 0) + 1) : ((existingFeed.totalBookmarks ?? 1) - 1)
+      );
+      feedBroadcastRepository.updateFeed(feed: updatedFeed);
+      emit(state.copyWith(status: FeedStatus.togglePostBookmarkActionSuccessful));
+    }
+
+    failed(String reason) {
+      feedBroadcastRepository.updateFeed(feed: existingFeed);
+      emit(state.copyWith(status: FeedStatus.togglePostBookmarkActionFailed, message: reason));
+    }
+
+    emit(state.copyWith(status: FeedStatus.togglePostBookmarkActionInProgress));
+    changeBookmark(!(existingFeed.hasBookmarked ?? false)); // toggle bookmark
+
+    final either = await feedsRepository.togglePostBookmarkAction(postId: feed.id);
+    if(either.isLeft()){
+      final l = either.asLeft();
+      failed(l);
+      return;
+    }
+
+    // do nothing if its successful
+
+  }
+
+  /// report post
+  Future<void> reportPost({required int? postId, required String reason}) async {
+
+    failed(String message) {
+      emit(state.copyWith(status: FeedStatus.reportPostFailed, message: message));
+    }
+
+
+    emit(state.copyWith(status: FeedStatus.reportPostInProgress));
+
+    // once user is connected to the network, just assume post is successful
+    if(!(await isNetworkConnected())) {
+      failed("You're not connected to the internet");
+      return;
+    }
+
+    emit(state.copyWith(status: FeedStatus.reportPostSuccessful));
+    final either = await feedsRepository.reportPost(postId: postId, reason: reason);
+    if(either.isLeft()){
+      final l = either.asLeft();
+      failed(l);
+      return;
+    }
+
+    // successful do nothing
+
+  }
+
+  /// view post
+  /// actions -> ['seen', 'watched']
+  Future<void> viewPost({required int? postId, required String action}) async {
+
+    failed(String reason) {
+      emit(state.copyWith(status: FeedStatus.viewPostFailed, message: reason));
+    }
+
+    emit(state.copyWith(status: FeedStatus.viewPostActionInProgress));
+
+    final either = await feedsRepository.viewPost(postId: postId, action: action);
+    if(either.isLeft()){
+      final l = either.asLeft();
+      failed(l);
+      return;
+    }
+
+    emit(state.copyWith(status: FeedStatus.viewPostActionSuccessful));
+
   }
 
 

@@ -3,14 +3,16 @@ import 'dart:math';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:better_player/better_player.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:readmore/readmore.dart';
 import 'package:separated_column/separated_column.dart';
-import 'package:sparkduet/core/app_audio_service.dart';
 import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
+import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_actions_widget.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_image_player.dart';
@@ -61,8 +63,6 @@ class _FeedItemWidgetState extends State<FeedItemWidget> {
   @override
   Widget build(BuildContext context) {
 
-    final authUser = context.read<AuthCubit>().state.authUser;
-    final isCreator = authUser?.id == widget.feed.user?.id;
     final mediaQuery = MediaQuery.of(context);
     return  Stack(
       children: [
@@ -139,14 +139,18 @@ class _FeedItemWidgetState extends State<FeedItemWidget> {
                     },
                     children: [
                       /// Person name,
-                      Row(
-                        children: [
-                          CustomUserAvatarWidget(imageUrl: widget.feed.user?.info?.profilePicPath,),
-                          const SizedBox(width: 10,),
-                          Flexible(child: Text(widget.feed.user?.name ?? "", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),)),
-                          const SizedBox(width: 10,),
-                          Text("${widget.feed.user?.info?.age ?? ''}", style: const TextStyle(color: Colors.white),)
-                        ],
+                      GestureDetector(
+                        onTap: () => context.pushToProfile(widget.feed.user),
+                        behavior: HitTestBehavior.opaque,
+                        child: Row(
+                          children: [
+                            CustomUserAvatarWidget(imageUrl: widget.feed.user?.info?.profilePicPath,),
+                            const SizedBox(width: 10,),
+                            Flexible(child: Text(widget.feed.user?.name ?? "", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),)),
+                            const SizedBox(width: 10,),
+                            Text("${widget.feed.user?.info?.age ?? ''}", style: const TextStyle(color: Colors.white),)
+                          ],
+                        ),
                       ),
 
                       /// description

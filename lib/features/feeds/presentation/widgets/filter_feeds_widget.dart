@@ -11,7 +11,11 @@ import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
+import 'package:sparkduet/features/countries/data/models/country_model.dart';
+import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
+import 'package:sparkduet/features/countries/data/store/countries_state.dart';
 import 'package:sparkduet/features/countries/presentation/pages/countries_page.dart';
+import 'package:sparkduet/features/countries/presentation/widgets/selected_country_item_widget.dart';
 import 'package:sparkduet/features/users/data/models/user_info_model.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
@@ -45,11 +49,6 @@ class _FilterFeedsWidgetState extends State<FilterFeedsWidget> {
     }
 
     super.initState();
-  }
-
-  // final String gender ;
-  void onSubmitHandler(BuildContext ctx) {
-
   }
 
   void setPreferredGendersHandler(List<String> existingSelectedGenders, String gender) {
@@ -128,6 +127,15 @@ class _FilterFeedsWidgetState extends State<FilterFeedsWidget> {
     });
   }
 
+  void setPreferredNationalities(String key, List<String> values) {
+    final encoded = json.encode({
+      'key': key,
+      'values': values
+    });
+    authCubit.updateAuthUserProfile(payload: {"preferred_nationalities": encoded},
+        authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(preferredNationalities: encoded)));
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -163,7 +171,7 @@ class _FilterFeedsWidgetState extends State<FilterFeedsWidget> {
                 final authUser = authState.authUser;
                 List<String> preferredGenders = [];
                 List<String> preferredRaces = [];
-                Map<String, dynamic> preferredNationalities = {}; // { key: "All", values: [ { countryCode: "GH", countryName: "Ghana },  ... ]}
+                Map<String, dynamic> preferredNationalities = {}; // { key: "All", values: [ "GH", "US", "CA", ... ]}
                 if((authUser?.info?.preferredGender ?? "").isNotEmpty) {
                   final items = json.decode(authUser?.info?.preferredGender ?? "") as List<dynamic>;
                   preferredGenders.addAll(items.map((e) => e as String));
@@ -337,94 +345,187 @@ class _FilterFeedsWidgetState extends State<FilterFeedsWidget> {
                     ),
 
                     ///! Nationalities
-                    CustomCard(
-                      child: Builder(builder: (_) {
-                        final gender = authState.authUser?.info?.preferredGender;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 10,),
-                              child: Text("Your preferred nationalities",
-                                style: TextStyle(color: theme.colorScheme.onBackground, fontWeight: FontWeight.w700),),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(0),
-                              width: double.maxFinite,
-                              decoration: BoxDecoration(
-                                // border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
-                                  borderRadius: BorderRadius.circular(8)
-                              ),
-                              child: SeparatedColumn(
-                                separatorBuilder: (BuildContext context, int index) {
-                                  return const CustomBorderWidget();
-                                },
-                                children: [
+                    if(preferredNationalities.isNotEmpty) ... {
+                      BlocSelector<CountriesCubit, CountriesState, List<CountryModel>>(
+                        selector: (state) {
+                          return state.countries;
+                        },
+                        builder: (context, countries) {
+                          if(countries.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
 
-                                  GestureDetector(
-                                    onTap: () {
-                                    },
-                                    behavior: HitTestBehavior.opaque,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text("All"),
-                                          if(preferredNationalities["key"] == "all") ... {
-                                            const Icon(Icons.check_circle, size: 20, color: Colors.green,)
-                                          }
-
-                                        ],
-                                      ),
-                                    ),
+                          return CustomCard(
+                            child: Builder(builder: (_) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10,),
+                                    child: Text("Your preferred nationalities",
+                                      style: TextStyle(color: theme.colorScheme.onBackground, fontWeight: FontWeight.w700),),
                                   ),
-
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.pushScreen(const CountriesPage());
-                                    },
-                                    behavior: HitTestBehavior.opaque,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text("Only"),
-                                          if(preferredNationalities["key"] == "only") ... {
-                                            const Icon(Icons.check_circle, size: 20, color: Colors.green,)
-                                          }
-                                        ],
-                                      ),
+                                  Container(
+                                    padding: const EdgeInsets.all(0),
+                                    width: double.maxFinite,
+                                    decoration: BoxDecoration(
+                                      // border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+                                        borderRadius: BorderRadius.circular(8)
                                     ),
-                                  ),
+                                    child: SeparatedColumn(
+                                      separatorBuilder: (BuildContext context, int index) {
+                                        return const CustomBorderWidget();
+                                      },
+                                      children: [
 
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.pushScreen(const CountriesPage());
-                                    },
-                                    behavior: HitTestBehavior.opaque,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text("Except"),
-                                          if(preferredNationalities["key"] == "except") ... {
-                                            const Icon(Icons.check_circle, size: 20, color: Colors.green,)
-                                          }
-                                        ],
-                                      ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setPreferredNationalities("all", <String>[]);
+                                          },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 10),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                const Text("All"),
+                                                if(preferredNationalities["key"] == "all") ... {
+                                                  const Icon(Icons.check_circle, size: 20, color: Colors.green,)
+                                                }
+
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+
+                                        GestureDetector(
+                                          onTap: () {
+                                            List<CountryModel> selectedCountries = [];
+                                            if(preferredNationalities["key"] == "only") {
+                                              final list = preferredNationalities['values'] as List<dynamic>;
+                                              selectedCountries = countries.where((element) => list.contains(element.countryCode)).toList();
+                                            }
+                                            context.pushScreen(CountriesPage(selectedCountries: selectedCountries, onSelectionChanged: (selectedCountries) {
+                                              setPreferredNationalities("only", selectedCountries.map((e) => e.countryCode ?? "").toList());
+                                            },));
+                                          },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 10),
+                                            child: SeparatedColumn(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              separatorBuilder: (BuildContext context, int index) {
+                                                return const SizedBox(height: 10,);
+                                              },
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    const Text("Only"),
+                                                    if(preferredNationalities["key"] == "only") ... {
+                                                      const Icon(Icons.check_circle, size: 20, color: Colors.green,)
+                                                    }
+                                                  ],
+                                                ),
+                                                if(preferredNationalities['values'] is List<dynamic> && preferredNationalities["key"] == "only") ... {
+                                                  Builder(builder: (_) {
+                                                    final list = preferredNationalities['values'] as List<dynamic>;
+
+                                                    return Wrap(
+                                                      runSpacing: 8,
+                                                      spacing: 8,
+                                                      children: [
+                                                        ...list.map((element) {
+                                                          final countryCode = element as String;
+                                                          final country = countries.where((element) => element.countryCode == countryCode).firstOrNull;
+                                                          if(country == null) {
+                                                            return const SizedBox.shrink();
+                                                          }
+                                                          return IgnorePointer(
+                                                              ignoring: true,
+                                                              child: SelectedCountryItemWidget(country: country)
+                                                          );
+                                                        })
+                                                      ],
+                                                    );
+                                                  })
+                                                }
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+
+                                        GestureDetector(
+                                          onTap: () {
+
+                                            List<CountryModel> selectedCountries = [];
+                                            if(preferredNationalities["key"] == "except") {
+                                              final list = preferredNationalities['values'] as List<dynamic>;
+                                              selectedCountries = countries.where((element) => list.contains(element.countryCode)).toList();
+                                            }
+                                            context.pushScreen(CountriesPage(selectedCountries: selectedCountries, onSelectionChanged: (selectedCountries) {
+                                              setPreferredNationalities("except", selectedCountries.map((e) => e.countryCode ?? "").toList());
+                                            },));
+                                          },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 10),
+                                            child: SeparatedColumn(
+                                              separatorBuilder: (BuildContext context, int index) {
+                                                return const SizedBox(height: 10,);
+                                              },
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    const Text("Except"),
+                                                    if(preferredNationalities["key"] == "except") ... {
+                                                      const Icon(Icons.check_circle, size: 20, color: Colors.green,)
+                                                    }
+                                                  ],
+                                                ),
+                                                if(preferredNationalities['values'] is List<dynamic> && preferredNationalities["key"] == "except") ... {
+                                                  Builder(builder: (_) {
+                                                    final list = preferredNationalities['values'] as List<dynamic>;
+
+                                                    return Wrap(
+                                                      runSpacing: 8,
+                                                      spacing: 8,
+                                                      children: [
+                                                        ...list.map((element) {
+                                                          final countryCode = element as String;
+                                                          final country = countries.where((element) => element.countryCode == countryCode).firstOrNull;
+                                                          if(country == null) {
+                                                            return const SizedBox.shrink();
+                                                          }
+                                                          return IgnorePointer(
+                                                              ignoring: true,
+                                                              child: SelectedCountryItemWidget(country: country)
+                                                          );
+                                                        })
+                                                      ],
+                                                    );
+                                                  })
+                                                }
+                                              ],
+                                            ),
+                                          ),
+                                        )
+
+                                      ],
                                     ),
                                   )
-
                                 ],
-                              ),
-                            )
-                          ],
-                        );
-                      }),
-                    ),
+                              );
+                            }),
+                          );
+
+                        },
+                      )
+                      ,
+                    },
+
 
                   ],
                 );

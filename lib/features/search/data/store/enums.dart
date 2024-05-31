@@ -1,3 +1,3 @@
 enum SearchStatus {
-  initial
+  initial, topSearchSuccessful, topSearchInProgress, topSearchFailed, popularSearchTermsProgress, popularSearchTermsFailed, popularSearchTermsSuccessful, recentSearchTermsProgress, recentSearchTermsFailed, recentSearchTermsSuccessful, searchUsersInProgress, searchUsersFailed, searchUsersSuccessful, searchStoriesInProgress, searchStoriesFailed, searchStoriesSuccessful
 }

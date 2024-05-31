@@ -1,15 +1,23 @@
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
-import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
+import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
+import 'package:sparkduet/features/search/data/store/enums.dart';
+import 'package:sparkduet/features/search/data/store/search_cubit.dart';
+import 'package:sparkduet/features/search/data/store/search_state.dart';
 import 'package:sparkduet/features/search/presentation/pages/tab_search_page.dart';
 import 'package:sparkduet/features/search/presentation/widgets/search_field_widget.dart';
 import 'package:sparkduet/features/users/presentation/widgets/completed_user_post_item.dart';
+import 'package:sparkduet/features/users/presentation/widgets/user_list_item_widget.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
 class TopSearchPage extends StatefulWidget {
+
   const TopSearchPage({super.key});
 
   @override
@@ -17,6 +25,49 @@ class TopSearchPage extends StatefulWidget {
 }
 
 class _TopSearchPageState extends State<TopSearchPage> {
+
+  bool showFrequentSearchTerms = true;
+  final searchTextController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  late SearchCubit searchCubit;
+
+  @override
+  void initState() {
+    searchCubit = context.read<SearchCubit>();
+    searchCubit.fetchPopularSearchTerms();
+    searchCubit.fetchRecentSearchTerms();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    searchTextController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void onSearchTextChanged(String? value) {
+    EasyDebounce.debounce('top-country', const Duration(milliseconds: 1000), () {
+      if(value == '' || value == null){
+        searchCubit.fetchPopularSearchTerms();
+        searchCubit.fetchRecentSearchTerms();
+        setState(() {showFrequentSearchTerms = true;});
+      }else {
+        setState(() {showFrequentSearchTerms = false;});
+        searchCubit.topSearch(query: value, authUserId: context.read<AuthCubit>().state.authUser?.id);
+      }
+    });
+  }
+
+  void onFullSearchTapped(BuildContext context, String searchText) async {
+    searchFocusNode.unfocus();
+    final searchTerm = await context.pushScreen(TabSearchPage(searchText: searchText)) as String?;
+    if((searchTerm ?? "").isNotEmpty) {
+      searchTextController.text = searchText;
+      searchFocusNode.requestFocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -36,17 +87,46 @@ class _TopSearchPageState extends State<TopSearchPage> {
             elevation: 1,
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(40),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 15, right: 0, bottom: 10),
-                child: Row(
-                   children: [
-                      const Expanded(child: SearchFieldWidget()),
-                      const SizedBox(width: 0,),
-                      TextButton(onPressed: (){
-                        context.pushScreen(const TabSearchPage(searchText: "Love at its peak"));
-                      }, child: const Text("Search"))
-                   ],
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 0, bottom: 10),
+                    child: Row(
+                       children: [
+                          Expanded(child: SearchFieldWidget(
+                            focusNode: searchFocusNode,
+                            onChanged: onSearchTextChanged,
+                            onSubmitted: (value) {
+                              if(searchTextController.text.trim().isEmpty) {
+                                return;
+                              }
+                              onFullSearchTapped(context, searchTextController.text.trim());
+                            },
+                            controller: searchTextController,)),
+                          if(showFrequentSearchTerms) ... {
+                            const SizedBox(width: 15,),
+                          },
+                          if(!showFrequentSearchTerms) ... {
+                            TextButton(onPressed: (){
+                              if(searchTextController.text.trim().isEmpty) {
+                                return;
+                              }
+                              onFullSearchTapped(context, searchTextController.text.trim());
+                            }, child: const Text("Search"))
+                          }
+                       ],
+                    ),
+                  ),
+                  BlocBuilder<SearchCubit, SearchState>(
+                    builder: (context, state) {
+                      if(state.status == SearchStatus.topSearchInProgress) {
+                        return LinearProgressIndicator(minHeight: 2, color: theme.colorScheme.primary,);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  )
+                ],
               ),
             ),
           )
@@ -55,134 +135,218 @@ class _TopSearchPageState extends State<TopSearchPage> {
       }, body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 20, bottom: 20),
         child: SeparatedColumn(separatorBuilder: (BuildContext context, int index) {
-          return const SizedBox(height: 20,);
+          return const SizedBox(height: 0,);
         },
           children: [
 
             ///! Recent Searches
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
-                  child: Text("Recent"),
-                ),
-                SeparatedColumn(separatorBuilder: (_,__) {
-                  return const SizedBox(height: 1,);
-                }, children: List.generate(3, (index) {
-                  return GestureDetector(
-                    onTap: () {},
-                    behavior: HitTestBehavior.opaque,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          color: theme.colorScheme.surface
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                        child: Row(
-                          children: [
-                            // just icon
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: theme.colorScheme.outlineVariant,
-                                  borderRadius: BorderRadius.circular(50)
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              child: const Icon(FeatherIcons.search, size: 18,),
-                            ),
-                            const SizedBox(width: 10,),
-                            Expanded(child: Text("Love at its peak", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis,),),
-                            const SizedBox(width: 10,),
-                          ],
+            if(showFrequentSearchTerms) ... {
+              BlocBuilder<SearchCubit, SearchState>(
+                buildWhen: (_, state) {
+                  return state.status == SearchStatus.recentSearchTermsSuccessful;
+                },
+                builder: (context, state) {
+                  if(state.recentSearch.isEmpty){
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+                          child: Text("Recent"),
                         ),
-                      ),
+                        SeparatedColumn(separatorBuilder: (_,__) {
+                          return const SizedBox(height: 1,);
+                        }, children: List.generate(state.recentSearch.take(5).length, (index) {
+                          return GestureDetector(
+                            onTap: () {
+                              onFullSearchTapped(context, state.recentSearch[index]);
+                            },
+                            behavior: HitTestBehavior.opaque,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                  color: theme.colorScheme.surface
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                child: Row(
+                                  children: [
+                                    // just icon
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          color: theme.colorScheme.outlineVariant,
+                                          borderRadius: BorderRadius.circular(50)
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                      child: const Icon(FeatherIcons.search, size: 14,),
+                                    ),
+                                    const SizedBox(width: 10,),
+                                    Expanded(child: Text(state.recentSearch[index], style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.normal), maxLines: 1, overflow: TextOverflow.ellipsis,),),
+                                    const SizedBox(width: 10,),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }),)
+                      ],
                     ),
                   );
-                }),)
-              ],
-            ),
+                },
+              )
+            },
+
+            ///! Popular searches
+            if(showFrequentSearchTerms) ... {
+              BlocBuilder<SearchCubit, SearchState>(
+                buildWhen: (_, state) {
+                  return state.status == SearchStatus.popularSearchTermsSuccessful;
+                },
+                builder: (context, state) {
+                  if(state.popularSearch.isEmpty){
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+                          child: Text("Popular search"),
+                        ),
+                        SeparatedColumn(separatorBuilder: (_,__) {
+                          return const SizedBox(height: 1,);
+                        }, children: List.generate(state.popularSearch.take(5).length, (index) {
+                          return GestureDetector(
+                            onTap: () {
+                              onFullSearchTapped(context, state.popularSearch[index]);
+                            },
+                            behavior: HitTestBehavior.opaque,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                  color: theme.colorScheme.surface
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                child: Row(
+                                  children: [
+                                    // just icon
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          color: theme.colorScheme.outlineVariant,
+                                          borderRadius: BorderRadius.circular(50)
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                      child: const Icon(FeatherIcons.search, size: 14,),
+                                    ),
+                                    const SizedBox(width: 10,),
+                                    Expanded(child: Text(state.popularSearch[index], style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.normal, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis,),),
+                                    const SizedBox(width: 10,),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }),)
+                      ],
+                    ),
+                  );
+                },
+              )
+            },
 
             ///! Top People Search
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
-                  child: Text("People"),
-                ),
-                SeparatedColumn(separatorBuilder: (_,__) {
-                  return const SizedBox(height: 1,);
-                }, children: List.generate(3, (index) {
-                  return GestureDetector(
-                    onTap: () {},
-                    behavior: HitTestBehavior.opaque,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          color: theme.colorScheme.surface
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                        child: Row(
-                          children: [
-                            const CustomUserAvatarWidget(size: 55, showBorder: false, borderWidth: 1,),
-                            const SizedBox(width: 10,),
-                            Expanded(child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("John Doe", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),),
-                                Text("Hello this is a message to be handled", style: theme.textTheme.bodySmall,),
-                              ],
-                            )),
-                            const SizedBox(width: 10,),
-                          ],
+            if(!showFrequentSearchTerms) ... {
+              BlocBuilder<SearchCubit, SearchState>(
+                buildWhen: (_, state) {
+                  return state.status == SearchStatus.topSearchSuccessful;
+                },
+                builder: (context, state) {
+                  if(state.topSearch.$1.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+                          child: Text("People"),
                         ),
-                      ),
+                        SeparatedColumn(separatorBuilder: (_,__) {
+                          return const SizedBox(height: 1,);
+                        }, children: List.generate(state.topSearch.$1.length, (index) {
+                          final user = state.topSearch.$1[index];
+                          return UserListItemWidget(user: user);
+                        }),)
+                      ],
                     ),
                   );
-                }),)
-              ],
-            ),
+                },
+              )
+            },
 
             ///! Top Stories Search
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
-                  child: Text("Posts"),
-                ),
+            if(!showFrequentSearchTerms) ... {
+              BlocBuilder<SearchCubit, SearchState>(
+                buildWhen: (_, state) {
+                  return state.status == SearchStatus.topSearchSuccessful;
+                },
+                builder: (context, state) {
+                  if(state.topSearch.$2.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+                          child: Text("Posts"),
+                        ),
 
 
-                Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
-                  child: GridView.builder(
-                    padding: const EdgeInsets.only(top: 0),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: mediaQuery.size.width / 3,
-                      mainAxisSpacing: 5.0,
-                      crossAxisSpacing: 5.0,
-                      childAspectRatio: 100 / 150,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15, right: 15),
+                          child: GridView.builder(
+                            padding: const EdgeInsets.only(top: 0),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: mediaQuery.size.width / 3,
+                              mainAxisSpacing: 5.0,
+                              crossAxisSpacing: 5.0,
+                              childAspectRatio: 100 / 150,
+                            ),
+                            itemBuilder: (BuildContext ctx, int index) {
+
+                              final post = state.topSearch.$2[index];
+                              return CompletedUserPostItem(post: post, onTap: () {
+                                context.pushScreen(StoriesPreviewsPage(feeds: state.topSearch.$2, initialFeedIndex: index,));
+                              },);
+                            },
+                            itemCount: state.topSearch.$2.length,
+                          ),
+                        )
+
+
+
+                      ],
                     ),
-                    itemBuilder: (BuildContext ctx, int index) {
-
-                      const post = FeedModel(id: 1, mediaType: FileType.video, mediaPath: "PB7GFdH00Fm7nWT41xU8XU02R92v9rDqWkM5snMV01coHw");
-                      return CompletedUserPostItem(post: post, onTap: () {
-                        // context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
-                      },);
-                    },
-                    itemCount: 6,
-                  ),
-                )
-
-
-
-              ],
-            )
+                  );
+                },
+              )
+            }
 
           ],
 

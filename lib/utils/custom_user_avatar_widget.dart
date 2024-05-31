@@ -37,6 +37,9 @@ class CustomUserAvatarWidget extends StatelessWidget {
 
     final theme = Theme.of(context);
 
+    final imgSize = showBorder ? (size - borderWidth) : size;
+
+    debugPrint("customUserAvatar build");
 
     return Container(
         decoration: BoxDecoration(
@@ -48,11 +51,11 @@ class CustomUserAvatarWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
             child: avatarPlaceholder) :
         SizedBox(
-            width: size,
-            height: size,
+            width: imgSize,
+            height: imgSize,
             child: ClipRRect(
                 borderRadius: BorderRadius.circular(borderRadius),
-                child: CustomNetworkImageWidget(imageUrl: imageUrl ?? '', fit: fit,
+                child: CustomNetworkImageWidget(imageUrl: imageUrl ?? '', fit: fit, width:  imgSize, height:  imgSize,
                   errorChild: avatarPlaceholder,
                   progressChild: avatarPlaceholder,
                 )))

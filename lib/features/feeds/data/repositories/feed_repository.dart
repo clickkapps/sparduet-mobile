@@ -135,4 +135,132 @@ class FeedRepository {
 
   }
 
+
+  /// Like / unlike post
+  /// actions - ["add", "remove"]
+  Future<Either<String, void>> togglePostLikeAction({required int? postId, required String action}) async {
+    try{
+
+      final path = AppApiRoutes.togglePostLikeAction(postId: postId);
+      final body = {
+        "action": action,
+      };
+
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.post,
+        body: body,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }catch(error) {
+      return Left(error.toString());
+    }
+  }
+
+  /// bookmark / unBookmark post
+
+  Future<Either<String, void>> togglePostBookmarkAction({required int? postId}) async {
+
+    try{
+
+      final path = AppApiRoutes.togglePostBookmarkAction(postId: postId);
+
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.post,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }catch(error) {
+      return Left(error.toString());
+    }
+  }
+
+/// report post
+  Future<Either<String, void>> reportPost({required int? postId, required String reason}) async {
+    try{
+
+      final path = AppApiRoutes.reportPostAction(postId: postId);
+
+      final body = {
+        "reason": reason,
+      };
+
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.post,
+        body: body
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }catch(error) {
+      return Left(error.toString());
+    }
+  }
+
+
+/// view post
+  /// actions -> ['seen', 'watched']
+  Future<Either<String, void>> viewPost({required int? postId, required String action}) async {
+    try{
+
+      final path = AppApiRoutes.viewPostAction(postId: postId);
+
+      final body = {
+        "action": action,
+      };
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+          body: body
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }catch(error) {
+      return Left(error.toString());
+    }
+  }
+
 }

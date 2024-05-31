@@ -9,12 +9,16 @@ class CustomNetworkImageWidget extends StatelessWidget {
   final int? maxWidthDiskCache;
   final Widget? errorChild;
   final Widget? progressChild;
+  final double? width;
+  final double? height;
   const CustomNetworkImageWidget({
     required this.imageUrl,
     this.fit,
     this.maxWidthDiskCache,
     this.errorChild,
     this.progressChild,
+    this.width,
+    this.height,
     super.key});
 
   @override
@@ -26,6 +30,8 @@ class CustomNetworkImageWidget extends StatelessWidget {
       cacheKey: imageUrl,
       maxWidthDiskCache: maxWidthDiskCache,
       memCacheWidth: 500,
+      width: width,
+      height: height,
       progressIndicatorBuilder: (context, url, downloadProgress) => progressChild ??
           const Center(child: CupertinoActivityIndicator(),),
       errorWidget: (context, url, error) => errorChild ?? const Center(child: Icon(Icons.error_outline),),

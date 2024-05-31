@@ -27,7 +27,7 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel totalLikes(num? totalLikes);
 
-  FeedModel hasLiked(bool? hasLiked);
+  FeedModel hasLiked(num? hasLiked);
 
   FeedModel totalBookmarks(num? totalBookmarks);
 
@@ -37,7 +37,7 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel totalViews(num? totalViews);
 
-  FeedModel hasViewed(bool? hasViewed);
+  FeedModel userViewInfo(FeedViewInfo? userViewInfo);
 
   FeedModel deleteAt(DateTime? deleteAt);
 
@@ -66,12 +66,12 @@ abstract class _$FeedModelCWProxy {
     FileType? mediaType,
     String? assetId,
     num? totalLikes,
-    bool? hasLiked,
+    num? hasLiked,
     num? totalBookmarks,
     bool? hasBookmarked,
     num? totalComments,
     num? totalViews,
-    bool? hasViewed,
+    FeedViewInfo? userViewInfo,
     DateTime? deleteAt,
     VideoSource? videoSource,
     String? status,
@@ -119,7 +119,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
   FeedModel totalLikes(num? totalLikes) => this(totalLikes: totalLikes);
 
   @override
-  FeedModel hasLiked(bool? hasLiked) => this(hasLiked: hasLiked);
+  FeedModel hasLiked(num? hasLiked) => this(hasLiked: hasLiked);
 
   @override
   FeedModel totalBookmarks(num? totalBookmarks) =>
@@ -137,7 +137,8 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
   FeedModel totalViews(num? totalViews) => this(totalViews: totalViews);
 
   @override
-  FeedModel hasViewed(bool? hasViewed) => this(hasViewed: hasViewed);
+  FeedModel userViewInfo(FeedViewInfo? userViewInfo) =>
+      this(userViewInfo: userViewInfo);
 
   @override
   FeedModel deleteAt(DateTime? deleteAt) => this(deleteAt: deleteAt);
@@ -179,7 +180,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
     Object? hasBookmarked = const $CopyWithPlaceholder(),
     Object? totalComments = const $CopyWithPlaceholder(),
     Object? totalViews = const $CopyWithPlaceholder(),
-    Object? hasViewed = const $CopyWithPlaceholder(),
+    Object? userViewInfo = const $CopyWithPlaceholder(),
     Object? deleteAt = const $CopyWithPlaceholder(),
     Object? videoSource = const $CopyWithPlaceholder(),
     Object? status = const $CopyWithPlaceholder(),
@@ -230,7 +231,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
       hasLiked: hasLiked == const $CopyWithPlaceholder()
           ? _value.hasLiked
           // ignore: cast_nullable_to_non_nullable
-          : hasLiked as bool?,
+          : hasLiked as num?,
       totalBookmarks: totalBookmarks == const $CopyWithPlaceholder()
           ? _value.totalBookmarks
           // ignore: cast_nullable_to_non_nullable
@@ -247,10 +248,10 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
           ? _value.totalViews
           // ignore: cast_nullable_to_non_nullable
           : totalViews as num?,
-      hasViewed: hasViewed == const $CopyWithPlaceholder()
-          ? _value.hasViewed
+      userViewInfo: userViewInfo == const $CopyWithPlaceholder()
+          ? _value.userViewInfo
           // ignore: cast_nullable_to_non_nullable
-          : hasViewed as bool?,
+          : userViewInfo as FeedViewInfo?,
       deleteAt: deleteAt == const $CopyWithPlaceholder()
           ? _value.deleteAt
           // ignore: cast_nullable_to_non_nullable
@@ -282,6 +283,90 @@ extension $FeedModelCopyWith on FeedModel {
   _$FeedModelCWProxy get copyWith => _$FeedModelCWProxyImpl(this);
 }
 
+abstract class _$FeedViewInfoCWProxy {
+  FeedViewInfo seenAt(DateTime? seenAt);
+
+  FeedViewInfo watchedAt(DateTime? watchedAt);
+
+  FeedViewInfo lastWatchedAt(DateTime? lastWatchedAt);
+
+  FeedViewInfo watchedCount(num? watchedCount);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedViewInfo(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// FeedViewInfo(...).copyWith(id: 12, name: "My name")
+  /// ````
+  FeedViewInfo call({
+    DateTime? seenAt,
+    DateTime? watchedAt,
+    DateTime? lastWatchedAt,
+    num? watchedCount,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfFeedViewInfo.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfFeedViewInfo.copyWith.fieldName(...)`
+class _$FeedViewInfoCWProxyImpl implements _$FeedViewInfoCWProxy {
+  const _$FeedViewInfoCWProxyImpl(this._value);
+
+  final FeedViewInfo _value;
+
+  @override
+  FeedViewInfo seenAt(DateTime? seenAt) => this(seenAt: seenAt);
+
+  @override
+  FeedViewInfo watchedAt(DateTime? watchedAt) => this(watchedAt: watchedAt);
+
+  @override
+  FeedViewInfo lastWatchedAt(DateTime? lastWatchedAt) =>
+      this(lastWatchedAt: lastWatchedAt);
+
+  @override
+  FeedViewInfo watchedCount(num? watchedCount) =>
+      this(watchedCount: watchedCount);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedViewInfo(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// FeedViewInfo(...).copyWith(id: 12, name: "My name")
+  /// ````
+  FeedViewInfo call({
+    Object? seenAt = const $CopyWithPlaceholder(),
+    Object? watchedAt = const $CopyWithPlaceholder(),
+    Object? lastWatchedAt = const $CopyWithPlaceholder(),
+    Object? watchedCount = const $CopyWithPlaceholder(),
+  }) {
+    return FeedViewInfo(
+      seenAt: seenAt == const $CopyWithPlaceholder()
+          ? _value.seenAt
+          // ignore: cast_nullable_to_non_nullable
+          : seenAt as DateTime?,
+      watchedAt: watchedAt == const $CopyWithPlaceholder()
+          ? _value.watchedAt
+          // ignore: cast_nullable_to_non_nullable
+          : watchedAt as DateTime?,
+      lastWatchedAt: lastWatchedAt == const $CopyWithPlaceholder()
+          ? _value.lastWatchedAt
+          // ignore: cast_nullable_to_non_nullable
+          : lastWatchedAt as DateTime?,
+      watchedCount: watchedCount == const $CopyWithPlaceholder()
+          ? _value.watchedCount
+          // ignore: cast_nullable_to_non_nullable
+          : watchedCount as num?,
+    );
+  }
+}
+
+extension $FeedViewInfoCopyWith on FeedViewInfo {
+  /// Returns a callable class that can be used as follows: `instanceOfFeedViewInfo.copyWith(...)` or like so:`instanceOfFeedViewInfo.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$FeedViewInfoCWProxy get copyWith => _$FeedViewInfoCWProxyImpl(this);
+}
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
@@ -300,13 +385,16 @@ FeedModel _$FeedModelFromJson(Map<String, dynamic> json) => FeedModel(
       mediaPath: json['media_path'] as String?,
       mediaType: $enumDecodeNullable(_$FileTypeEnumMap, json['media_type']),
       assetId: json['asset_id'] as String?,
-      totalLikes: json['total_likes'] as num?,
-      hasLiked: json['has_liked'] as bool?,
-      totalBookmarks: json['total_bookmarks'] as num?,
-      hasBookmarked: json['has_bookmarked'] as bool?,
-      totalComments: json['total_comments'] as num?,
-      totalViews: json['total_views'] as num?,
-      hasViewed: json['hasViewed'] as bool?,
+      totalLikes: json['likes_count'] as num?,
+      hasLiked: json['story_likes_by_user'] as num?,
+      totalBookmarks: json['bookmarks_count'] as num?,
+      hasBookmarked: json['user_has_bookmarked'] as bool?,
+      totalComments: json['comments_count'] as num?,
+      totalViews: json['views_count'] as num?,
+      userViewInfo: json['user_view_info'] == null
+          ? null
+          : FeedViewInfo.fromJson(
+              json['user_view_info'] as Map<String, dynamic>),
       deleteAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
@@ -330,13 +418,13 @@ Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'asset_id': instance.assetId,
       'media_type': _$FileTypeEnumMap[instance.mediaType],
       'videoSource': _$VideoSourceEnumMap[instance.videoSource]!,
-      'total_likes': instance.totalLikes,
-      'has_liked': instance.hasLiked,
-      'total_bookmarks': instance.totalBookmarks,
-      'has_bookmarked': instance.hasBookmarked,
-      'total_comments': instance.totalComments,
-      'total_views': instance.totalViews,
-      'hasViewed': instance.hasViewed,
+      'likes_count': instance.totalLikes,
+      'story_likes_by_user': instance.hasLiked,
+      'bookmarks_count': instance.totalBookmarks,
+      'user_has_bookmarked': instance.hasBookmarked,
+      'comments_count': instance.totalComments,
+      'views_count': instance.totalViews,
+      'user_view_info': instance.userViewInfo?.toJson(),
       'deleted_at': instance.deleteAt?.toIso8601String(),
       'status': instance.status,
       'flipFile': instance.flipFile,
@@ -356,3 +444,24 @@ const _$VideoSourceEnumMap = {
   VideoSource.network: 'network',
   VideoSource.asset: 'asset',
 };
+
+FeedViewInfo _$FeedViewInfoFromJson(Map<String, dynamic> json) => FeedViewInfo(
+      seenAt: json['seen_at'] == null
+          ? null
+          : DateTime.parse(json['seen_at'] as String),
+      watchedAt: json['watched_created_at'] == null
+          ? null
+          : DateTime.parse(json['watched_created_at'] as String),
+      lastWatchedAt: json['watched_updated_at'] == null
+          ? null
+          : DateTime.parse(json['watched_updated_at'] as String),
+      watchedCount: json['watched_count'] as num?,
+    );
+
+Map<String, dynamic> _$FeedViewInfoToJson(FeedViewInfo instance) =>
+    <String, dynamic>{
+      'seen_at': instance.seenAt?.toIso8601String(),
+      'watched_created_at': instance.watchedAt?.toIso8601String(),
+      'watched_updated_at': instance.lastWatchedAt?.toIso8601String(),
+      'watched_count': instance.watchedCount,
+    };

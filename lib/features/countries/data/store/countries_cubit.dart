@@ -12,8 +12,9 @@ class CountriesCubit  extends Cubit<CountriesState> {
   void fetchAllCountries() async {
     emit(state.copyWith(status: CountryStatus.fetchAllCountriesInProgress));
 
-    if(state.filteredCountries.isNotEmpty) {
-
+    if(state.countries.isNotEmpty) {
+      emit(state.copyWith(status: CountryStatus.fetchAllCountriesSuccessful));
+      return;
     }
 
     final either = await countriesRepository.fetchCountries();
@@ -26,7 +27,7 @@ class CountriesCubit  extends Cubit<CountriesState> {
     final r = either.asRight();
     emit(state.copyWith(
       status: CountryStatus.fetchAllCountriesSuccessful,
-
+      countries: r
     ));
 
   }

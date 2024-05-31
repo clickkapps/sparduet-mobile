@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
-import 'package:sparkduet/features/feeds/data/store/feeds_previews_state.dart';
+import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/stories_previews_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_item_widget.dart';
 
@@ -91,7 +91,7 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
   }
 
 
-  void feedsPreviewsCubitListener(BuildContext ctx, FeedsPreviewsState event) {
+  void feedsPreviewsCubitListener(BuildContext ctx, FeedState event) {
     //videoControllers[activeFeedIndex]?.pause();
   }
 
@@ -109,14 +109,14 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
         ],
       ),
       extendBodyBehindAppBar: true,
-      body: BlocListener<StoriesPreviewsCubit, FeedsPreviewsState>(
+      body: BlocListener<StoriesPreviewsCubit, FeedState>(
         listener: feedsPreviewsCubitListener,
         child: ColoredBox(
           color: AppColors.darkColorScheme.background,
           child: Column(
             children: [
               Expanded(child:
-              BlocBuilder<StoriesPreviewsCubit, FeedsPreviewsState>(
+              BlocBuilder<StoriesPreviewsCubit, FeedState>(
                 // buildWhen: (_, state) {
                 //   return state.status == FeedStatus.fetchFeedsSuccessful
                 //       || (state.status == FeedStatus.fetchFeedsInProgress && pageKey == 1) // only show loading if we're fetch the first page
@@ -129,23 +129,29 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
                     itemCount: feeds.length,
                     itemBuilder: (_, i) {
 
-                      debugPrint("CustomLog: PreloadPageView called for i = $i");
-
                       ///! Item builder is called as many times as elements in the list
                       final feed = feeds[i];
 
                       // Regular stories .....
-                      return FeedItemWidget(
-                        videoBuilder: (controller) {
-                        videoControllers[i] = controller;
-                        playActiveStory();
-                      },
-                        imageBuilder: (controller) {
-                          imageControllers[i] = controller;
-                          playActiveStory();
+                      return BlocSelector<StoriesPreviewsCubit, FeedState, dynamic>(
+                        selector: (state) {
+                          return state.feeds.where((element) => element.id == feed.id).firstOrNull ?? feed;
                         },
-                        onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
-                        feed: feed, hls: true,);
+                        builder: (context, feed) {
+                          return FeedItemWidget(
+                            videoBuilder: (controller) {
+                              videoControllers[i] = controller;
+                              playActiveStory();
+                            },
+                            imageBuilder: (controller) {
+                              imageControllers[i] = controller;
+                              playActiveStory();
+                            },
+                            onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
+                            feed: feed, hls: true,);
+                        },
+                      )
+                      ;
 
                     },
                     onPageChanged: (int position) async  {

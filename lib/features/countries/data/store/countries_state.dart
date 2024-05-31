@@ -10,16 +10,14 @@ class CountriesState extends Equatable {
   final CountryStatus status;
   final String? message;
   final List<CountryModel> countries;
-  final List<CountryModel> filteredCountries;
 
   const CountriesState({
     this.status = CountryStatus.initial,
     this.message,
     this.countries = const [],
-    this.filteredCountries = const []
   });
 
   @override
-  List<Object?> get props => [status, message];
+  List<Object?> get props => [status, message, countries];
 
 }

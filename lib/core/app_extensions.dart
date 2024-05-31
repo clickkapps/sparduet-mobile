@@ -4,16 +4,21 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:separated_row/separated_row.dart';
+import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_classes.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
+import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/users/data/models/user_model.dart';
+import 'package:sparkduet/features/users/presentation/pages/user_profile_page.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_close_bar.dart';
@@ -148,6 +153,15 @@ extension ContextExtension on BuildContext {
               builder: (context) => classObject,
               fullscreenDialog: fullscreenDialog,
               settings: RouteSettings(arguments: args)));
+    }
+  }
+
+  void pushToProfile(UserModel? user) {
+    if(read<AuthCubit>().state.authUser?.id == user?.id) {
+      push(AppRoutes.authProfile);
+    }else {
+      if(user == null) { return; }
+      pushScreen(UserProfilePage(user: user,));
     }
   }
 

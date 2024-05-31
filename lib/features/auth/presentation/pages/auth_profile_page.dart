@@ -17,7 +17,9 @@ import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/auth/data/store/auth_bookmarked_feeds_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
 import 'package:sparkduet/features/auth/presentation/mixin/auth_profile_mixin.dart';
@@ -55,8 +57,9 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
   late PageController tabController;
   late List<Map<String, dynamic>> tabItems;
   PagingController<int, dynamic>? userPostsPagingController;
+  PagingController<int, dynamic>? userBookmarksPagingController;
   late AuthCubit authCubit;
-  late FeedsCubit feedsCubit;
+  late AuthFeedsCubit feedsCubit;
   StreamSubscription? feedCubitSubscription;
   StreamSubscription? authubitSubscription;
   ValueNotifier<int> activeTab = ValueNotifier(0);
@@ -74,7 +77,7 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
       axis: Axis.vertical,
     );
     authCubit = context.read<AuthCubit>();
-    feedsCubit = context.read<FeedsCubit>();
+    feedsCubit = context.read<AuthFeedsCubit>();
     feedCubitSubscription = feedsCubit.stream.listen((event) {
         if(event.status == FeedStatus.postFeedInProgress) {
             userPostsPagingController?.itemList = event.feeds;
@@ -116,11 +119,11 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
     tabItems = [
       {
         "key": "your-posts",
-        "page": UserPostsTabViewWidget(userId: authenticatedUser?.id, builder: (controller) => userPostsPagingController = controller,)
+        "page": UserPostsTabViewWidget<AuthFeedsCubit>(userId: authenticatedUser?.id, builder: (controller) => userPostsPagingController = controller,)
       },
       {
         "key": "bookmarked-posts",
-        "page": BookmarkedPostsTabViewPage(userId: authenticatedUser?.id,)
+        "page": BookmarkedPostsTabViewPage<AuthBookmarkedFeedsCubit>(userId: authenticatedUser?.id, builder: (controller) => userBookmarksPagingController = controller,)
       },
     ];
     tabController = PageController(initialPage: 0);
@@ -290,8 +293,8 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(100),
                                       child: SizedBox(
-                                        width: 70,
-                                        height: 70,
+                                        width: theme.brightness == Brightness.dark ? 75 : 70,
+                                        height: theme.brightness == Brightness.dark ? 75 : 70,
                                         child: Stack(
                                           children: [
                                             Column(
@@ -304,9 +307,13 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                                   )
                                                 }
                                                 else if(profilePhoto is String) ... {
-                                                  CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover,
-                                                    imageUrl: AppConstants.imageMediaPath(mediaId: profilePhoto),
+                                                  ClipRRect(
+                                                    borderRadius: BorderRadius.circular(100),
+                                                    child: CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover,
+                                                      imageUrl: AppConstants.imageMediaPath(mediaId: profilePhoto),
+                                                    ),
                                                   )
+
                                                 }else ... {
                                                   CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover)
                                                 }

@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 class SearchFieldWidget extends StatelessWidget {
 
   final Function(String?)? onChanged;
+  final Function(String?)? onSubmitted;
   final FocusNode? focusNode;
   final TextEditingController? controller;
   const SearchFieldWidget({super.key,
     this.onChanged,
+    this.onSubmitted,
     this.focusNode,
     this.controller
   });
@@ -28,10 +30,10 @@ class SearchFieldWidget extends StatelessWidget {
         focusNode: focusNode,
         style: TextStyle(color: theme.colorScheme.onBackground),
         // cursorColor: theme.colorScheme.onPrimary.withOpacity(0.5),
-        // onSubmitted: (value) => state._onSearchSubmitted(text: value),
+        onSubmitted: onSubmitted,
         borderRadius: BorderRadius.circular(100),
         controller: controller,
-        padding: const EdgeInsets.only(left: 5, top: 10, bottom: 10),
+        padding: const EdgeInsets.only(left: 5, top: 10, bottom: 10, right: 5),
 
       ),
     );

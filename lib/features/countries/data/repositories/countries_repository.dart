@@ -20,11 +20,17 @@ class CountriesRepository {
 
       if (response!.statusCode == 200) {
 
-        final dynamicList = response.data as List<dynamic>;
-        final list = List<CountryModel>.from(dynamicList.map((x) => CountryModel(
-            countryCode: x['cca2'],
-            countryName: x['country']['common']['name']
-        )));
+        final dynamicDataMap = response.data['data'] as Map<String, dynamic>;
+        final list = List<CountryModel>.from(dynamicDataMap.entries.map((x) {
+          // final map = x as Map<String, dynamic>;
+          final countryCode = x.key;
+          final value  = x.value as Map<String, dynamic>;
+          final countryName = value['country'] as String;
+          return CountryModel(
+            countryCode: countryCode,
+            countryName: countryName
+        );
+        }));
         return Right(list);
 
       } else {

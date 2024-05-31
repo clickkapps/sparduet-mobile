@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
+import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
 import 'package:sparkduet/features/users/presentation/widgets/completed_user_post_item.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_infinite_grid_view_widget.dart';
@@ -12,7 +14,8 @@ import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 class BookmarkedPostsTabViewPage<C extends FeedsCubit> extends StatefulWidget {
 
   final int? userId;
-  const BookmarkedPostsTabViewPage({super.key, this.userId});
+  final Function(PagingController<int, dynamic>)? builder;
+  const BookmarkedPostsTabViewPage({super.key, this.userId, this.builder});
 
   @override
   State<BookmarkedPostsTabViewPage> createState() => _BookmarkedPostsTabViewPageState<C>();
@@ -30,6 +33,12 @@ class _BookmarkedPostsTabViewPageState<C extends FeedsCubit> extends State<Bookm
     super.initState();
   }
 
+  @override
+  void dispose() {
+    pagingController?.dispose();
+    super.dispose();
+  }
+
   Future<(String?, List<FeedModel>?)> fetchData(int pageKey) async {
     final path = AppApiRoutes.bookmarkedUserPosts(userId: widget.userId);
     return feedsCubit.fetchFeeds(path: path, pageKey: pageKey);
@@ -40,8 +49,13 @@ class _BookmarkedPostsTabViewPageState<C extends FeedsCubit> extends State<Bookm
     super.build(context);
     return CustomInfiniteGridViewWidget<FeedModel>(fetchData: fetchData, itemBuilder: (_, dynamic item, index) {
       final post = item as FeedModel;
-      return CompletedUserPostItem(post: post);
-    }, builder: (controller) => pagingController = controller,
+      return CompletedUserPostItem(post: post, onTap: () {
+        context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
+      });
+    }, builder: (controller) {
+      widget.builder?.call(controller);
+      pagingController = controller;
+    },
       padding: const EdgeInsets.symmetric(horizontal: 15),
       crossAxisSpacing: 3,
       mainAxisSpacing: 3,

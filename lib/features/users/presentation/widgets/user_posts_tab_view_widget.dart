@@ -31,6 +31,12 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
     super.initState();
   }
 
+  @override
+  void dispose() {
+    pagingController?.dispose();
+    super.dispose();
+  }
+
   Future<(String?, List<FeedModel>?)> fetchData(int pageKey) async {
     final path = AppApiRoutes.userPosts(userId: widget.userId);
      return await feedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: {"page": pageKey, "limit": AppConstants.gridPageSize});
@@ -55,7 +61,7 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
         }
     }, builder: (controller) {
       widget.builder?.call(controller);
-      return pagingController = controller;
+      pagingController = controller;
     }, padding: const EdgeInsets.symmetric(horizontal: 15),
       crossAxisSpacing: 3,
       mainAxisSpacing: 3,

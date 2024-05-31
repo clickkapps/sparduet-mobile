@@ -5,6 +5,7 @@ abstract final class AppConstants {
   static const double maximumVideoDuration = 30;
   static const double minimumVideoDuration = 2;
   static const int gridPageSize = 9;
+  static const int listPageSize = 15;
   static const String website = "https://sparkduet.com";
   static const String blog = "$website/blog";
   static const String termsOfUse = "$website/terms-of-use";
@@ -33,26 +34,26 @@ abstract final class AppConstants {
       title: "Hi✋, Let's get started",
       subTitle: "Introduce yourself to potential suitors. A good 30 sec video will attract the best suitors",
       key: "introduction",
-      description: "Hey✋, let's connect and learn more about each other.",
+      description: "Hey✋, let's connect and know more about each other.",
       expectedFile: ExpectedFiles.video
   );
   static PostFeedPurpose nextRelationshipExpectationPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋! what are you looking for in your next relationship?",
-      subTitle: "A quick 30-second video sharing your expectations would be great for potential matches",
+      title: "Hi✋! Expectations in your next relationship",
+      subTitle: "You can share a quick 30-second video talking about your expectations in your next relationship",
       key: "expectations",
       description: "What I'm looking for in my next relationship",
       expectedFile: ExpectedFiles.video
   );
 
   static PostFeedPurpose previousRelationshipPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋! let's talk about your previous relationship.",
-      subTitle: "Share a quick 30-second video about your experience in your previous relationship",
+      title: "Hi✋! Your past relationships.",
+      subTitle: "You can share a quick 30-second video about your experience in your past relationships",
       key: "previousRelationship",
       description: "My experiences in my previous relationship",
       expectedFile: ExpectedFiles.video
   );
   static PostFeedPurpose yourCareerPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋! let's talk about your career",
+      title: "Hi✋! Your career",
       subTitle: "Share a quick 30-second video about what you currently do to potential matches. PS: DO NOT reveal confidential issues",
       key: "career",
       description: "What I do currently",

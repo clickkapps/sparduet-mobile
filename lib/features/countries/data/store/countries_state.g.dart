@@ -13,8 +13,6 @@ abstract class _$CountriesStateCWProxy {
 
   CountriesState countries(List<CountryModel> countries);
 
-  CountriesState filteredCountries(List<CountryModel> filteredCountries);
-
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `CountriesState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -25,7 +23,6 @@ abstract class _$CountriesStateCWProxy {
     CountryStatus? status,
     String? message,
     List<CountryModel>? countries,
-    List<CountryModel>? filteredCountries,
   });
 }
 
@@ -46,10 +43,6 @@ class _$CountriesStateCWProxyImpl implements _$CountriesStateCWProxy {
       this(countries: countries);
 
   @override
-  CountriesState filteredCountries(List<CountryModel> filteredCountries) =>
-      this(filteredCountries: filteredCountries);
-
-  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `CountriesState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -61,7 +54,6 @@ class _$CountriesStateCWProxyImpl implements _$CountriesStateCWProxy {
     Object? status = const $CopyWithPlaceholder(),
     Object? message = const $CopyWithPlaceholder(),
     Object? countries = const $CopyWithPlaceholder(),
-    Object? filteredCountries = const $CopyWithPlaceholder(),
   }) {
     return CountriesState(
       status: status == const $CopyWithPlaceholder() || status == null
@@ -76,11 +68,6 @@ class _$CountriesStateCWProxyImpl implements _$CountriesStateCWProxy {
           ? _value.countries
           // ignore: cast_nullable_to_non_nullable
           : countries as List<CountryModel>,
-      filteredCountries: filteredCountries == const $CopyWithPlaceholder() ||
-              filteredCountries == null
-          ? _value.filteredCountries
-          // ignore: cast_nullable_to_non_nullable
-          : filteredCountries as List<CountryModel>,
     );
   }
 }

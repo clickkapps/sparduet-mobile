@@ -26,20 +26,21 @@ class FeedModel extends Equatable{
   @JsonKey(name: "media_type")
   final FileType? mediaType; //video / image
   final VideoSource videoSource;
-  @JsonKey(name: "total_likes")
+  @JsonKey(name: "likes_count")
   final num? totalLikes;
-  @JsonKey(name: "has_liked")
-  final bool? hasLiked;
-  @JsonKey(name: "total_bookmarks")
+  @JsonKey(name: "story_likes_by_user")
+  final num? hasLiked;
+  @JsonKey(name: "bookmarks_count")
   final num? totalBookmarks;
-  @JsonKey(name: "has_bookmarked")
+  @JsonKey(name: "user_has_bookmarked")
   final bool? hasBookmarked;
-  @JsonKey(name: "total_comments")
+  @JsonKey(name: "comments_count")
   final num? totalComments;
-  @JsonKey(name: "total_views")
+  @JsonKey(name: "views_count")
   final num? totalViews;
-  @JsonKey(name: "hasViewed")
-  final bool? hasViewed;
+  @JsonKey(name: "user_view_info")
+  final FeedViewInfo? userViewInfo;
+
   @JsonKey(name: "deleted_at")
   final DateTime? deleteAt;
   final String? status;
@@ -61,7 +62,7 @@ class FeedModel extends Equatable{
     this.hasBookmarked,
     this.totalComments,
     this.totalViews,
-    this.hasViewed,
+    this.userViewInfo,
     this.deleteAt,
     this.videoSource = VideoSource.network,
     this.status,
@@ -70,9 +71,41 @@ class FeedModel extends Equatable{
   });
 
   @override
-  List<Object?> get props => [id, tempId, mediaPath, mediaType, assetId, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, hasViewed, user];
+  List<Object?> get props => [id, tempId, mediaPath, mediaType, assetId, totalLikes, hasLiked, totalBookmarks, hasBookmarked, totalComments, totalViews, userViewInfo, user, totalLikes, hasLiked];
 
   factory FeedModel.fromJson(Map<String, dynamic> json) => _$FeedModelFromJson(json);
   Map<String, dynamic> toJson() => _$FeedModelToJson(this);
+
+}
+
+
+@JsonSerializable(explicitToJson: true)
+@CopyWith()
+class FeedViewInfo extends Equatable {
+
+  @JsonKey(name: 'seen_at')
+  final DateTime? seenAt;
+
+  @JsonKey(name: 'watched_created_at')
+  final DateTime? watchedAt;
+
+  @JsonKey(name: 'watched_updated_at')
+  final DateTime? lastWatchedAt;
+
+  @JsonKey(name: 'watched_count')
+  final num? watchedCount;
+
+  const FeedViewInfo({
+    this.seenAt,
+    this.watchedAt,
+    this.lastWatchedAt,
+    this.watchedCount
+  });
+
+  @override
+  List<Object?> get props => [watchedCount, seenAt, lastWatchedAt];
+
+  factory FeedViewInfo.fromJson(Map<String, dynamic> json) => _$FeedViewInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$FeedViewInfoToJson(this);
 
 }

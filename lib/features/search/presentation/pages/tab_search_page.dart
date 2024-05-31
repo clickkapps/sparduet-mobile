@@ -1,8 +1,12 @@
 import 'package:feather_icons/feather_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:separated_row/separated_row.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/search/presentation/pages/people_tab_search_page.dart';
 import 'package:sparkduet/features/search/presentation/pages/post_tab_search_page.dart';
+import 'package:sparkduet/features/search/presentation/pages/top_search_page.dart';
 import 'package:sparkduet/utils/custom_chip_widget.dart';
 
 class TabSearchPage extends StatefulWidget {
@@ -54,21 +58,27 @@ class _TabSearchPageState extends State<TabSearchPage> with TickerProviderStateM
             title: Row(
                children: [
                   Expanded(
-                      child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    decoration: BoxDecoration(
-                        color: theme.colorScheme.outline.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(20)
-                    ),
-                    child:  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(FeatherIcons.search, size: 16,),
-                        const SizedBox(width: 5,),
-                        Text(widget.searchText, style: const TextStyle(fontSize: 14),)
-                      ],
-                    ),
-                  ),
+                      child: GestureDetector(
+                        onTap: (){
+                          context.popScreen(widget.searchText);
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                            decoration: BoxDecoration(
+                          color: theme.colorScheme.outline.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(20)
+                                            ),
+                                            child:  Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(FeatherIcons.search, size: 16,),
+                              const SizedBox(width: 5,),
+                              Text(widget.searchText, style: const TextStyle(fontSize: 14),)
+                        ],
+                                            ),
+                                          ),
+                      ),
                   ),
                   const CloseButton()
                ],

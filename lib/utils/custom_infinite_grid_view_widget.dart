@@ -48,7 +48,7 @@ class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridView
       if(newItems == null) {
         return;
       }
-      final isLastPage = newItems.isEmpty || newItems.length < AppConstants.gridPageSize;  //correct
+      final isLastPage = newItems.isEmpty;  //correct
       // final isLastPage = newItems.length < 20; // wrong
       if (isLastPage) {
         pagingController.appendLastPage(newItems);

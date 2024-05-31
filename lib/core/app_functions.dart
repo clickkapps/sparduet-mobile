@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -70,4 +69,81 @@ Future<void> disableFullScreen() async {
 
 Future<void> enableFullScreen() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky, overlays: []);
+}
+
+Future<bool> isNetworkConnected () async {
+
+  final connectivityResult = await (Connectivity().checkConnectivity());
+  if (connectivityResult == ConnectivityResult.mobile) {
+    // I am connected to a mobile network.
+    return true;
+  } else if (connectivityResult == ConnectivityResult.wifi) {
+    // I am connected to a wifi network.
+    return true;
+  } else if (connectivityResult == ConnectivityResult.ethernet) {
+    // I am connected to a ethernet network.
+    return true;
+  } else if (connectivityResult == ConnectivityResult.vpn) {
+    // I am connected to a vpn network.
+    // Note for iOS and macOS:
+    // There is no separate network interface type for [vpn].
+    // It returns [other] on any device (also simulator)
+    return true;
+  } else if (connectivityResult == ConnectivityResult.bluetooth) {
+    // I am connected to a bluetooth.
+    return false;
+  } else if (connectivityResult == ConnectivityResult.other) {
+    // I am connected to a network which is not in the above mentioned networks.
+    return true;
+  } else if (connectivityResult == ConnectivityResult.none) {
+    // I am not connected to any network.
+    return false;
+  }
+
+  return false;
+}
+
+bool containsPhoneNumber(String text) {
+  return containsDigitPhoneNumber(text) || containsWordPhoneNumber(text);
+}
+
+bool containsDigitPhoneNumber(String text) {
+  final regex = RegExp(
+    r'(\+?\d[\d\s-]{8,}\d)',
+    caseSensitive: false,
+  );
+
+  // Find all matches and count them
+  final matches = regex.allMatches(text).length;
+
+  // A single number word is usually fine, but multiple could indicate a phone number
+  return matches > 2; // Adjust this threshold as needed
+}
+
+bool containsWordPhoneNumber(String text) {
+  final regex = RegExp(
+    r'(zero|one|two|three|four|five|six|seven|eight|nine)',
+    caseSensitive: false,
+  );
+
+  // Find all matches and count them
+  final matches = regex.allMatches(text).length;
+
+  // A single number word is usually fine, but multiple could indicate a phone number
+  return matches > 2; // Adjust this threshold as needed
+}
+
+/// convert figures in 1000s into k
+String convertToCompactFigure(int n) {
+  if (n < 1000) {
+    return n.toString();
+  } else if (n < 1000000) {
+    if (n % 1000 == 0) {
+      return "${(n ~/ 1000)}k"; // Using integer division to ensure no decimals
+    } else {
+      return "${(n / 1000).toStringAsFixed(1)}k";
+    }
+  } else {
+    return "${(n / 1000000).toStringAsFixed(1)}M";
+  }
 }

@@ -3,12 +3,14 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_audio_service.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
@@ -17,6 +19,7 @@ import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_c
 import 'package:sparkduet/features/feeds/presentation/widgets/introduction_widget.dart';
 import 'package:sparkduet/features/home/data/enums.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/search/data/store/search_cubit.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -62,8 +65,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     // fetch and update user profile info
-    context.read<AuthCubit>().fetchAuthUserInfo();
-    AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
+    initialize();
     super.initState();
   }
 
@@ -72,6 +74,15 @@ class _HomePageState extends State<HomePage> {
     navCubitStreamSubscription?.cancel();
     feedsCubitStreamSubscription?.cancel();
     super.dispose();
+  }
+
+  // this is called when app initializes and as well as when there a change in network connection
+  void initialize() {
+    context.read<AuthCubit>().fetchAuthUserInfo();
+    AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
+    context.read<CountriesCubit>().fetchAllCountries();
+    context.read<SearchCubit>().fetchPopularSearchTerms();
+    context.read<SearchCubit>().fetchRecentSearchTerms();
   }
 
   ///

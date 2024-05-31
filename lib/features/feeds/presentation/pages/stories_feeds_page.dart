@@ -9,6 +9,7 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
@@ -138,12 +139,18 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     activeStoryPlaying = true;
   }
 
-  void playActiveStory() async {
+  void playActiveStory({FeedModel? feed}) async {
     // "request post feed"
+
+
     requestPostFeedVideoControllers[activeFeedIndex]?.play();
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
+    //mark video as seen
+    if(feed != null) {
+      context.read<FeedsCubit>().viewPost(postId: feed.id, action: "seen");
+    }
   }
   
 
@@ -198,27 +205,35 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                               ///! Item builder is called as many times as elements in the list
                               final feed = feeds[i];
 
-                              // negative ids are meant to request the user to create a post
-                              if((feed.id  ?? 0) < 0) {
-                                return RequestPostFeedItem(feedId: feed.id!, builder: (videoController) {
-                                   requestPostFeedVideoControllers[i] = videoController;
-                                   // play first after initializing
-                                   if(i == 0) { playActiveStory(); }
+                              return BlocSelector<StoriesFeedsCubit, FeedState, FeedModel>(
+                                selector: (state) {
+                                  return state.feeds.where((element) => element.id == feed.id).firstOrNull ?? feed;
                                 },
-                                  onTap: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
-                                  onFeedEditorOpened: () {
-                                    storyPlayingBeforeLeavingPage = activeStoryPlaying;
-                                    pauseActiveStory();
-                                  }, onFeedEditorClosed: () {
-                                    if(storyPlayingBeforeLeavingPage) { resumeActiveStory();}
-                                  },);
-                              }
+                                builder: (context, feed) {
+                                  // negative ids are meant to request the user to create a post
+                                  if((feed.id  ?? 0) < 0) {
+                                    return RequestPostFeedItem(feedId: feed.id!, builder: (videoController) {
+                                      requestPostFeedVideoControllers[i] = videoController;
+                                      // play first after initializing
+                                      if(i == 0) { playActiveStory(); }
+                                    },
+                                      onTap: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
+                                      onFeedEditorOpened: () {
+                                        storyPlayingBeforeLeavingPage = activeStoryPlaying;
+                                        pauseActiveStory();
+                                      }, onFeedEditorClosed: () {
+                                        if(storyPlayingBeforeLeavingPage) { resumeActiveStory();}
+                                      },);
+                                  }
 
-                              // Regular stories .....
-                              return FeedItemWidget(videoBuilder: (controller) {
-                                videoControllers[i] = controller;
-                              }, onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
-                                feed: feed, autoPlay: i == 0, hls: true,);
+                                  // Regular stories .....
+                                  return FeedItemWidget(videoBuilder: (controller) {
+                                    videoControllers[i] = controller;
+                                  }, onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
+                                    feed: feed, autoPlay: i == 0, hls: true,);
+                                },
+                              );
+
 
                             },
                             onPageChanged: (int position) async  {
@@ -226,7 +241,8 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                               pauseActiveStory();
                               resetActiveStory();
                               activeFeedIndex = position;
-                              playActiveStory();
+
+                              playActiveStory(feed: feeds[position]);
 
                             },
                             preloadPagesCount: 2,

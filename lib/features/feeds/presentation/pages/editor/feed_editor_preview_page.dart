@@ -196,10 +196,10 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
 
   void validateAndPostFeedHandler(BuildContext ctx) {
 
-    // if(!additionalInfoSeen) {
-    //   showVideoInfoHandler(context);
-    //   return;
-    // }
+    if(!additionalInfoSeen) {
+      showVideoInfoHandler(context);
+      return;
+    }
 
     if(widget.fileType == FileType.video) {
       // get the trimmed video. We always do this cus the user can always change the start and end duration even if the video is less than 30secs
