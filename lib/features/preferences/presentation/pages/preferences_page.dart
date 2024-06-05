@@ -8,6 +8,9 @@ import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/preferences/presentation/pages/display_settings_page.dart';
+import 'package:sparkduet/features/preferences/presentation/pages/feedback_page.dart';
+import 'package:sparkduet/features/preferences/presentation/pages/notifications_settings_page.dart';
 import 'package:sparkduet/features/preferences/presentation/widgets/delete_account_widget.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/mixin/launch_external_app_mixin.dart';
@@ -17,6 +20,64 @@ import 'package:sparkduet/utils/custom_card.dart';
 class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
 
   const PreferencesPage({super.key});
+
+
+  void  showCreateFeedbackHandler(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: FeedbackPage(controller: controller)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+  }
+
+  void  showDisplaySettingsHandler(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: DisplaySettingsPage(controller: controller)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+  }
+
+  void  showNotificationSettingsHandler(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: NotificationsSettingsPage(controller: controller)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -63,7 +124,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
                      title: Text("Dating Blog", style: theme.textTheme.bodyMedium,),
                      trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
                      onTap: () {
-                       launchBrowser(AppConstants.blog, context);
+                       launchBrowser(AppConstants.blog);
                      },
                    ),
                  ],
@@ -82,11 +143,17 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
                      dense: true,
                      title: Text("Notification Settings", style: theme.textTheme.bodyMedium,),
                      trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
+                     onTap: () {
+                       showNotificationSettingsHandler(context);
+                     },
                    ),
                    ListTile(
                        dense: true,
                        title: Text("Display Settings", style: theme.textTheme.bodyMedium,),
-                       trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,)
+                       trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
+                       onTap: () {
+                         showDisplaySettingsHandler(context);
+                       },
                    ),
                  ],
                ),),
@@ -102,21 +169,27 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
 
                      ListTile(
                        dense: true,
-                       title: Text("Suggestions Box", style: theme.textTheme.bodyMedium,),
+                       title: Text("Feedback", style: theme.textTheme.bodyMedium,),
                        trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
+                       onTap: () {
+                         showCreateFeedbackHandler(context);
+                       },
                      ),
 
                      ListTile(
                        dense: true,
-                       title: Text("Contact Support", style: theme.textTheme.bodyMedium,),
+                       title: Text("Website / Live support", style: theme.textTheme.bodyMedium,),
                        trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
+                       onTap: () {
+                         launchBrowser(AppConstants.website);
+                       },
                      ),
                      ListTile(
                          dense: true,
                        title: Text("FAQ", style: theme.textTheme.bodyMedium,),
                          trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
                        onTap: () {
-                         launchBrowser(AppConstants.faq, context);
+                         launchBrowser(AppConstants.faq);
                        },
                      ),
                      ListTile(
@@ -124,7 +197,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
                        title: Text("Privacy Policy", style: theme.textTheme.bodyMedium,),
                          trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
                        onTap: () {
-                         launchBrowser(AppConstants.privacyPolicy, context);
+                         launchBrowser(AppConstants.privacyPolicy);
                        }
                      ),
                      ListTile(
@@ -132,7 +205,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
                        title: Text("Terms Of Use", style: theme.textTheme.bodyMedium,),
                          trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
                        onTap: () {
-                         launchBrowser(AppConstants.termsOfUse, context);
+                         launchBrowser(AppConstants.termsOfUse);
                        },
                      ),
                      ListTile(

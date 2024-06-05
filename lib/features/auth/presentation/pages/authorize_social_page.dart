@@ -12,7 +12,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 class AuthorizeSocialPage extends StatefulWidget {
 
   final String loginType ;
-  final Function(String) onSuccess;
+  final Function(String, String) onSuccess;
   const AuthorizeSocialPage({super.key, required this.loginType, required this.onSuccess});
 
   @override
@@ -23,7 +23,6 @@ class _AuthorizeSocialPageState extends State<AuthorizeSocialPage> {
 
   bool isLoading = true;
   final _key = UniqueKey();
-  late String token ;
   late String url;
   // here we checked the url state if it loaded or start Load or abort Load
   late WebViewController _webViewController;
@@ -77,10 +76,17 @@ class _AuthorizeSocialPageState extends State<AuthorizeSocialPage> {
   }
 
   void _tokenRetrieved(String tokenUrl){
-    var encoded = Uri.decodeFull(tokenUrl);
-    List<String> urlSplit = encoded.split('=');
-    token = urlSplit[1];
-    widget.onSuccess(token);
+    final encoded = Uri.decodeFull(tokenUrl);
+
+    Uri uri = Uri.parse(encoded);
+    // Extracting query parameters
+    Map<String, String> queryParams = uri.queryParameters;
+
+    // Accessing values by keys
+    String accessToken = queryParams['access_token'] ?? '';
+    String customToken = queryParams['custom_token'] ?? '';
+
+    widget.onSuccess(accessToken, customToken);
     if(mounted) {
       context.popScreen();
     }

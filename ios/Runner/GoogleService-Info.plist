@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDvxg4M-0eUbwDRDtqBiMoVCAA5UTXvo68</string>
+	<key>GCM_SENDER_ID</key>
+	<string>482953519423</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.sparkduet.ios</string>
+	<key>PROJECT_ID</key>
+	<string>sparkduet-live</string>
+	<key>STORAGE_BUCKET</key>
+	<string>sparkduet-live.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:482953519423:ios:838ca01862e3013b96338a</string>
+</dict>
+</plist>

@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// In this mix all methods related to launch applications including browser, tel, email can be here
 mixin LaunchExternalAppMixin {
-  launchBrowser(String url, BuildContext context) async{
+  launchBrowser(String url) async{
     final launchUri = Uri.encodeFull(url);
     try{
 
@@ -13,6 +13,22 @@ mixin LaunchExternalAppMixin {
     }catch (error){
       debugPrint(error.toString());
     }
-
   }
+
+  Future<void> makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
+
+  Future<void> openEmail(String email) async {
+    final Uri launchUri = Uri(
+      scheme: 'mailto',
+      path: email,
+    );
+    await launchUrl(launchUri);
+  }
+
 }

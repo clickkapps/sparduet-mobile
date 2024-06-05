@@ -1,4 +1,4 @@
-package com.clickkapps.sparkduet
+package com.sparkduet.android
 
 import io.flutter.embedding.android.FlutterActivity
 

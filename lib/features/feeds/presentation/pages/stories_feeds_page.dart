@@ -217,7 +217,9 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                                       // play first after initializing
                                       if(i == 0) { playActiveStory(); }
                                     },
-                                      onTap: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
+                                      onTap: () {
+                                        activeStoryPlaying ? pauseActiveStory() : resumeActiveStory();
+                                      },
                                       onFeedEditorOpened: () {
                                         storyPlayingBeforeLeavingPage = activeStoryPlaying;
                                         pauseActiveStory();

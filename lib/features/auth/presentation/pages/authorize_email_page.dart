@@ -19,7 +19,7 @@ class AuthorizeEmailPage extends StatefulWidget {
 
   final String email;
   final ScrollController? scrollController;
-  final Function(String) onSuccess;
+  final Function(String, String) onSuccess;
   const AuthorizeEmailPage({super.key, required this.email, this.scrollController, required this.onSuccess});
 
   @override
@@ -65,7 +65,8 @@ class _AuthorizeEmailPageState extends State<AuthorizeEmailPage> with FormMixin 
     }
 
     if (authState.status == AuthStatus.authorizeEmailSuccessful) {
-       widget.onSuccess(authState.data as String) ;// the data will be the token
+      final tokens = authState.data as (String, String);
+       widget.onSuccess(tokens.$1, tokens.$2) ;// the data will be the token
        if(mounted) {
          context.popScreen();
        }

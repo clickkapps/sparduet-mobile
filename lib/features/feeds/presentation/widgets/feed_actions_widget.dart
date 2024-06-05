@@ -2,7 +2,9 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
@@ -13,11 +15,13 @@ import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/filter_feeds_widget.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
+import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
 
 class FeedActionsWidget extends StatelessWidget {
 
   final FeedModel feed;
+
   const FeedActionsWidget({super.key, required this.feed});
 
 
@@ -168,7 +172,7 @@ class FeedActionsWidget extends StatelessWidget {
         if(!isCreator) ... {
           GestureDetector(
             onTap: () {
-              context.showSnackBar("coming soon");
+              context.push(AppRoutes.chatPreview, extra: feed.user );
             },
             behavior: HitTestBehavior.opaque,
             child: const Column(

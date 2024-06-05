@@ -23,6 +23,8 @@ abstract class _$UserModelCWProxy {
 
   UserModel introductoryPost(FeedModel? introductoryPost);
 
+  UserModel chatId(String? chatId);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -38,6 +40,7 @@ abstract class _$UserModelCWProxy {
     int? blocked,
     UserInfoModel? info,
     FeedModel? introductoryPost,
+    String? chatId,
   });
 }
 
@@ -73,6 +76,9 @@ class _$UserModelCWProxyImpl implements _$UserModelCWProxy {
       this(introductoryPost: introductoryPost);
 
   @override
+  UserModel chatId(String? chatId) => this(chatId: chatId);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -89,6 +95,7 @@ class _$UserModelCWProxyImpl implements _$UserModelCWProxy {
     Object? blocked = const $CopyWithPlaceholder(),
     Object? info = const $CopyWithPlaceholder(),
     Object? introductoryPost = const $CopyWithPlaceholder(),
+    Object? chatId = const $CopyWithPlaceholder(),
   }) {
     return UserModel(
       id: id == const $CopyWithPlaceholder()
@@ -123,6 +130,10 @@ class _$UserModelCWProxyImpl implements _$UserModelCWProxy {
           ? _value.introductoryPost
           // ignore: cast_nullable_to_non_nullable
           : introductoryPost as FeedModel?,
+      chatId: chatId == const $CopyWithPlaceholder()
+          ? _value.chatId
+          // ignore: cast_nullable_to_non_nullable
+          : chatId as String?,
     );
   }
 }
@@ -151,6 +162,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
           ? null
           : FeedModel.fromJson(
               json['introductory_post'] as Map<String, dynamic>),
+      chatId: json['chat_id'] as String?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -162,4 +174,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'info': instance.info?.toJson(),
       'introductory_post': instance.introductoryPost?.toJson(),
       'display_age': instance.displayAge,
+      'chat_id': instance.chatId,
     };

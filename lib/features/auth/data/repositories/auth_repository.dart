@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:sparkduet/core/app_chat_helper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sparkduet/core/app_storage.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/network/api_routes.dart';
@@ -59,7 +60,7 @@ class AuthRepository {
 
   }
 
-  Future<Either<String, String>> authorizeEmail({
+  Future<Either<String, (String, String)>> authorizeEmail({
     required String email,
     required String code}) async {
 
@@ -83,9 +84,11 @@ class AuthRepository {
           return Left(response.data["message"]);
         }
 
-        final token = response.data["extra"] as String;
+        final tokens = response.data["extra"] as Map<String, dynamic>;
+        final accessToken = tokens['access_token'] as String;
+        final customToken = tokens['custom_token'] as String;
 
-        return Right(token);
+        return Right((accessToken, customToken));
 
       }else {
         return Left(response.statusMessage ?? "");
@@ -104,25 +107,36 @@ class AuthRepository {
   /// this method gets information about the current user
   /// and saves to local storage
 
-  Future<Either<String, AuthUserModel>> login({required String token}) async {
+  Future<Either<String, AuthUserModel>> login({required String token, required String customToken}) async {
 
     try {
 
       // set the token in local storage for subsequent requests
+      await FirebaseAuth.instance.signInWithCustomToken(customToken);
       await localStorageProvider.setAuthTokenVal(token);
 
       // fetch and update the current loggedIn user
       final either = await fetchAuthUserProfile();
-      if(either.isLeft()) {
-        return either;
-      }
-      final authUser = either.asRight();
-      await AppChatHelper.loginChatUser(authUser);
       return either;
 
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "invalid-custom-token":
+          debugPrint("The supplied token is not a Firebase custom auth token.");
+          return const Left("The supplied token is not a Firebase custom auth token.");
+        case "custom-token-mismatch":
+          debugPrint("The supplied token is for a different Firebase project.");
+          return const Left("The supplied token is for a different Firebase project.");
+        default:
+          return Left(e.toString());
+      }
     } catch (e) {
       return Left(e.toString());
     }
+
+  }
+
+  Future<void> setChatId() async {
 
   }
 

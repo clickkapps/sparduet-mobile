@@ -19,9 +19,12 @@ class UserModel extends Equatable {
   final FeedModel? introductoryPost;
   @JsonKey(name: "display_age")
   final num? displayAge;
+  @JsonKey(name: "chat_id")
+  final String? chatId;
 
   const UserModel({this.id, this.displayAge, this.name, this.email, this.username,
     this.blocked, this.info, this.introductoryPost,
+    this.chatId
   });
 
   @override

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sparkduet/core/app_enums.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 
 /// Use this method to execute code that requires context in init state
 onWidgetBindingComplete(
@@ -101,6 +103,29 @@ Future<bool> isNetworkConnected () async {
   }
 
   return false;
+}
+
+bool isContainingAnyLink(String? text) {
+  RegExp exp = RegExp(r"(?:(?:(?:ftp|http)[s]*:\/\/|www\.)[^\.]+\.[^ \n]+)");
+  Iterable<RegExpMatch> matches = exp.allMatches(text ?? '');
+  return matches.isNotEmpty ? true : false;
+}
+
+bool isPhoneNumber(String? text) {
+  RegExp exp = RegExp(r'[+0]\d+[\d-]+\d');
+  Iterable<RegExpMatch> matches = exp.allMatches(text ?? '');
+  return matches.isNotEmpty ? true : false;
+}
+
+bool isEmail(String? text) {
+  RegExp exp = RegExp(r'[^@\s]+@([^@\s]+\.)+[^@\W]+');
+  Iterable<RegExpMatch> matches = exp.allMatches(text ?? '');
+  return matches.isNotEmpty ? true : false;
+}
+
+void copyTextToClipBoard(BuildContext context, String text, {String? toastMessage}) {
+  Clipboard.setData(ClipboardData(text: text));
+  context.showSnackBar(toastMessage ?? 'Copied!', appearance: NotificationAppearance.info);
 }
 
 bool containsPhoneNumber(String text) {

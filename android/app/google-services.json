@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "482953519423",
+    "project_id": "sparkduet-live",
+    "storage_bucket": "sparkduet-live.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482953519423:android:c67ae2648c4df67196338a",
+        "android_client_info": {
+          "package_name": "com.sparkduet.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfs0uDZ4OCix02yPewPcRWR8nomSH4BfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

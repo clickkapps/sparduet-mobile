@@ -23,6 +23,8 @@ abstract class _$AuthUserModelCWProxy {
 
   AuthUserModel introductoryPost(FeedModel? introductoryPost);
 
+  AuthUserModel chatId(String? chatId);
+
   AuthUserModel publicKey(String? publicKey);
 
   AuthUserModel firstLoginAt(DateTime? firstLoginAt);
@@ -44,6 +46,7 @@ abstract class _$AuthUserModelCWProxy {
     int? blocked,
     UserInfoModel? info,
     FeedModel? introductoryPost,
+    String? chatId,
     String? publicKey,
     DateTime? firstLoginAt,
     DateTime? lastLoginAt,
@@ -82,6 +85,9 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
       this(introductoryPost: introductoryPost);
 
   @override
+  AuthUserModel chatId(String? chatId) => this(chatId: chatId);
+
+  @override
   AuthUserModel publicKey(String? publicKey) => this(publicKey: publicKey);
 
   @override
@@ -109,6 +115,7 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
     Object? blocked = const $CopyWithPlaceholder(),
     Object? info = const $CopyWithPlaceholder(),
     Object? introductoryPost = const $CopyWithPlaceholder(),
+    Object? chatId = const $CopyWithPlaceholder(),
     Object? publicKey = const $CopyWithPlaceholder(),
     Object? firstLoginAt = const $CopyWithPlaceholder(),
     Object? lastLoginAt = const $CopyWithPlaceholder(),
@@ -146,6 +153,10 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
           ? _value.introductoryPost
           // ignore: cast_nullable_to_non_nullable
           : introductoryPost as FeedModel?,
+      chatId: chatId == const $CopyWithPlaceholder()
+          ? _value.chatId
+          // ignore: cast_nullable_to_non_nullable
+          : chatId as String?,
       publicKey: publicKey == const $CopyWithPlaceholder()
           ? _value.publicKey
           // ignore: cast_nullable_to_non_nullable
@@ -187,6 +198,7 @@ AuthUserModel _$AuthUserModelFromJson(Map<String, dynamic> json) =>
           ? null
           : FeedModel.fromJson(
               json['introductory_post'] as Map<String, dynamic>),
+      chatId: json['chat_id'] as String?,
       publicKey: json['public_key'] as String?,
       firstLoginAt: json['first_login_at'] == null
           ? null
@@ -206,6 +218,7 @@ Map<String, dynamic> _$AuthUserModelToJson(AuthUserModel instance) =>
       'info': instance.info?.toJson(),
       'introductory_post': instance.introductoryPost?.toJson(),
       'display_age': instance.displayAge,
+      'chat_id': instance.chatId,
       'public_key': instance.publicKey,
       'first_login_at': instance.firstLoginAt?.toIso8601String(),
       'last_login_at': instance.lastLoginAt?.toIso8601String(),

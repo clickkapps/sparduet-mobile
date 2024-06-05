@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,8 @@ import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/presentation/pages/auth_profile_page.dart';
 import 'package:sparkduet/features/auth/presentation/pages/login_page.dart';
+import 'package:sparkduet/features/chat/data/models/chat_model.dart';
+import 'package:sparkduet/features/chat/data/models/chat_user_model.dart';
 import 'package:sparkduet/features/chat/presentation/pages/chat_connections_page.dart';
 import 'package:sparkduet/features/chat/presentation/pages/chat_preview_page.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
@@ -15,6 +16,7 @@ import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_c
 import 'package:sparkduet/features/feeds/presentation/pages/stories_feeds_page.dart';
 import 'package:sparkduet/features/home/presentation/pages/home_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/preferences_page.dart';
+import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/features/users/presentation/pages/user_profile_page.dart';
 import 'package:sparkduet/utils/custom_photo_gallery_page.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
@@ -92,6 +94,39 @@ final router = GoRouter(
       },
     ),
 
+
+    // Chate preview page
+    GoRoute(
+      path: AppRoutes.chatPreview,
+      parentNavigatorKey: _rootNavigator,
+      pageBuilder: (context, state) {
+        late ChatUserModel otherParticipant;
+        ChatModel? chatConnection;
+        if(state.extra is Map<String, dynamic>) {
+          final map = state.extra as Map<String, dynamic>;
+          chatConnection = map["chatConnection"];
+          final user = map["user"] as dynamic;
+          if(user is UserModel) {
+            otherParticipant = ChatUserModel.fromJson(user.toJson());
+          }else {
+            otherParticipant = user as ChatUserModel;
+          }
+        }else {
+
+          if(state.extra is UserModel){
+            final user = state.extra as UserModel;
+            otherParticipant = ChatUserModel.fromJson(user.toJson());
+          }else  {
+            otherParticipant = state.extra as ChatUserModel;
+          }
+        }
+
+        return  MaterialPage(name: state.path, arguments: state.extra,
+            child: ChatPreviewPage(otherParticipant: otherParticipant, chatConnection: chatConnection,)
+        );
+      },
+    ),
+
     /// Home page shell
     StatefulShellRoute.indexedStack(
       // navigatorKey: _shellNavigatorKey,
@@ -119,12 +154,6 @@ final router = GoRouter(
             GoRoute(
               path: AppRoutes.inbox,
               pageBuilder: (ctx, state) => NoTransitionPage(child: const ChatConnectionsPage(), name: state.path, arguments: state.extra),
-              routes: [
-                GoRoute(
-                  path: ":id",
-                  pageBuilder: (ctx, state) => NoTransitionPage(child: const ChatPreviewPage(), name: state.path, arguments: state.extra),
-                )
-              ]
             ),
           ],
         ),

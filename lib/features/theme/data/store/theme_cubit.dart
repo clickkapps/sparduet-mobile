@@ -110,13 +110,15 @@ class ThemeCubit extends Cubit<ThemeState> {
   void setFont(AppFont font) {
     final inDarkMode = state.themeData?.brightness == Brightness.dark;
     if (font == AppFont.spaceMono) {
-      emit(state.copyWith(themeData: state.themeData?.copyWith(textTheme: inDarkMode ? _spaceMonoDarkTextTheme : _spaceMonoLightTextTheme)));
+      emit(state.copyWith(themeData: state.themeData?.copyWith(textTheme: inDarkMode ? _spaceMonoDarkTextTheme : _spaceMonoLightTextTheme,), appFont: AppFont.spaceMono));
     }else if (font == AppFont.robotoSlab) {
-      emit(state.copyWith(themeData: state.themeData?.copyWith(textTheme: inDarkMode ? _robotoSlabDarkTextTheme : _robotoSlabLightTextTheme)));
+      emit(state.copyWith(themeData: state.themeData?.copyWith(textTheme: inDarkMode ? _robotoSlabDarkTextTheme : _robotoSlabLightTextTheme), appFont: AppFont.robotoSlab));
     }else {
-      emit(state.copyWith(themeData: state.themeData?.copyWith(textTheme: inDarkMode ? _quicksandDarkTextTheme : _quicksandLightTextTheme)));
+      emit(state.copyWith(themeData: state.themeData?.copyWith(textTheme: inDarkMode ? _quicksandDarkTextTheme : _quicksandLightTextTheme), appFont: AppFont.quicksand));
     }
     themeRepository.saveAppFont(appFont: font);
+    // emit(state.copyWith(status: ThemeStatus.setFontInProgress));
+    // emit(state.copyWith(status: ThemeStatus.setFontCompleted));
   }
 
   void setSystemUIOverlaysToDark({Color? androidSystemNavigationBarColor,}) {
@@ -214,7 +216,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
 
   static TextTheme get _robotoSlabLightTextTheme {
-    final textTheme = GoogleFonts.robotoSlabTextTheme();
+    final textTheme = GoogleFonts.dancingScriptTextTheme();
     return textTheme.copyWith(
         titleLarge: textTheme.titleLarge?.copyWith(color:_titleLargeColors.$1),
         titleMedium: textTheme.titleMedium?.copyWith(color: _titleMediumColors.$1),
@@ -227,7 +229,7 @@ class ThemeCubit extends Cubit<ThemeState> {
   }
 
   static TextTheme get _robotoSlabDarkTextTheme {
-    final textTheme = GoogleFonts.robotoSlabTextTheme();
+    final textTheme = GoogleFonts.dancingScriptTextTheme();
     return textTheme.copyWith(
         titleLarge: textTheme.titleLarge?.copyWith(color: _titleLargeColors.$2),
         titleMedium: textTheme.titleMedium?.copyWith(color: _titleMediumColors.$2),

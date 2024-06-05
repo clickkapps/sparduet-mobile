@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:sparkduet/core/app_storage.dart';
+import 'package:sparkduet/features/chat/data/repositories/chat_broadcast_repository.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
 import 'package:sparkduet/network/network_provider.dart';
 
@@ -14,7 +15,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => NetworkProvider());
   sl.registerLazySingleton(() => AppStorage());
   sl.registerLazySingleton(() => FeedBroadcastRepository());
-  // sl.registerLazySingleton(() => ChatBroadcastRepository());
+  sl.registerLazySingleton(() => ChatBroadcastRepository());
   // sl.registerLazySingleton(() => EngagedFeedBroadcastRepository());
 
 

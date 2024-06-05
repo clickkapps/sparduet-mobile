@@ -37,6 +37,12 @@ class _ReportFeedPageState extends State<ReportFeedPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    messageController.dispose();
+    super.dispose();
+  }
+
   void submitReportHandler(BuildContext context) {
     bool validated = true;
     if(messageController.text.trim().isEmpty) {

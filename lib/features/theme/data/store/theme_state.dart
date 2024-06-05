@@ -21,6 +21,6 @@ class ThemeState extends Equatable {
   });
 
   @override
-  List<Object?> get props => [status, themeData];
+  List<Object?> get props => [status, themeData, appFont];
 
 }

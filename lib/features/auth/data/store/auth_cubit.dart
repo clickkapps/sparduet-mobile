@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:connectycube_sdk/connectycube_sdk.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
@@ -118,11 +116,11 @@ class AuthCubit extends Cubit<AuthState> {
 
   }
 
-  void login({required String token}) async {
+  void login({required String token, required String customToken}) async {
 
     emit(state.copyWith(status: AuthStatus.logInInProgress));
 
-    final either = await authRepository.login(token: token);
+    final either = await authRepository.login(token: token,customToken: customToken);
 
     if(either.isLeft()) {
       final l = either.asLeft();
@@ -180,14 +178,13 @@ class AuthCubit extends Cubit<AuthState> {
       return;
     }
 
-    final r = either.asRight(); // token
+    final r = either.asRight(); // tokens
     emit(state.copyWith( status: AuthStatus.authorizeEmailSuccessful, data: r ));
 
   }
 
   void logout() async {
     emit(state.copyWith(status: AuthStatus.logOutInProgress));
-    CubeChatConnection.instance.logout();
     await authRepository.logout();
     emit(state.copyWith(status: AuthStatus.logOutCompleted, authUser: null));
   }

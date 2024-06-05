@@ -29,11 +29,22 @@ class $AssetsImgGen {
   List<AssetGenImage> get values => [appIcon, avatarJpg, avatarPng, splashImg];
 }
 
+class $AssetsJsonGen {
+  const $AssetsJsonGen();
+
+  /// File path: assets/json/empty_chat.json
+  String get emptyChat => 'assets/json/empty_chat.json';
+
+  /// List of all assets
+  List<String> get values => [emptyChat];
+}
+
 class Assets {
   Assets._();
 
   static const String env = 'assets/.env';
   static const $AssetsImgGen img = $AssetsImgGen();
+  static const $AssetsJsonGen json = $AssetsJsonGen();
 
   /// List of all assets
   static List<String> get values => [env];

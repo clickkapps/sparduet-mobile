@@ -3,11 +3,12 @@ import 'dart:math';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:better_player/better_player.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:readmore/readmore.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
@@ -67,10 +68,12 @@ class _FeedItemWidgetState extends State<FeedItemWidget> {
     return  Stack(
       children: [
 
+
         /// Video
         if(widget.feed.mediaType == FileType.video) ... {
           Builder(
               builder: (_) {
+                final networkUrl = widget.feed.tempId != null ? null : AppConstants.videoMediaPath(playbackId: widget.feed.mediaPath ?? "");
                 return GestureDetector(
                   onTap: () => widget.onItemTapped?.call() ,
                   behavior: HitTestBehavior.opaque,
@@ -85,7 +88,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget> {
                       useCache: widget.useCache,
                       builder: widget.videoBuilder,
                       // The understanding here is, if tempId is not null, then the media source is file
-                      networkUrl: widget.feed.tempId != null ? null : AppConstants.videoMediaPath(playbackId: widget.feed.mediaPath ?? ""),
+                      networkUrl: networkUrl,
                       file: widget.feed.tempId != null ? File(widget.feed.mediaPath ?? "") : null,
                       videoSource: widget.feed.tempId != null ? VideoSource.file : VideoSource.network, // the post will
                     ),
@@ -170,6 +173,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget> {
 
                       if((widget.feed.id ?? 0) > 1) ... {
                         CustomButtonWidget(text: "Show interest", onPressed: () {
+                          context.push(AppRoutes.chatPreview, extra: widget.feed.user );
                           // send user clicks predefine and initial message for user.
                           // eg. Hey!. I'm interested in you. Can I get to know you
                         }, padding: const EdgeInsets.only(left: 10, right: 15, top: 7, bottom: 7),

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:easy_debounce/easy_debounce.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:sparkduet/core/app_constants.dart';
@@ -522,8 +520,7 @@ class _FilterFeedsWidgetState extends State<FilterFeedsWidget> {
                           );
 
                         },
-                      )
-                      ,
+                      ),
                     },
 
 

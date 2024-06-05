@@ -7,6 +7,7 @@ import 'package:sparkduet/features/auth/data/repositories/auth_repository.dart';
 import 'package:sparkduet/features/auth/data/store/auth_bookmarked_feeds_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
+import 'package:sparkduet/features/chat/data/repositories/chat_broadcast_repository.dart';
 import 'package:sparkduet/features/chat/data/repositories/chat_repository.dart';
 import 'package:sparkduet/features/chat/data/store/chat_cubit.dart';
 import 'package:sparkduet/features/countries/data/repositories/countries_repository.dart';
@@ -19,6 +20,8 @@ import 'package:sparkduet/features/feeds/data/store/stories_feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/store/stories_previews_cubit.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/preferences/data/repositories/preferences_repository.dart';
+import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
 import 'package:sparkduet/features/search/data/repositories/search_repository.dart';
 import 'package:sparkduet/features/search/data/store/search_cubit.dart';
 import 'package:sparkduet/features/theme/data/repositories/theme_repository.dart';
@@ -28,6 +31,8 @@ import 'package:sparkduet/features/users/data/repositories/user_repository.dart'
 import 'package:sparkduet/features/users/data/store/user_bookmarked_feeds_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_feeds_cubit.dart';
+
+import '../features/chat/data/store/chat_preview_cubit.dart';
 
 /// Everyone deserves love
 class App extends StatelessWidget {
@@ -47,6 +52,8 @@ class App extends StatelessWidget {
     final searchRepository = SearchRepository(networkProvider: sl());
     final chatRepository = ChatRepository(networkProvider: sl());
     final userRepository = UserRepository(networkProvider: sl());
+    final preferencesRepository = PreferencesRepository(networkProvider: sl());
+    final chatBroadcastRepository = sl<ChatBroadcastRepository>();
 
     return MultiBlocProvider(
         providers: [
@@ -63,8 +70,10 @@ class App extends StatelessWidget {
           BlocProvider(create: (context) => NavCubit()),
           BlocProvider(create: (context) => CountriesCubit(countriesRepository: countriesRepository)),
           BlocProvider(create: (context) => SearchCubit(searchRepository: searchRepository)),
-          BlocProvider(create: (context) => ChatCubit(chatRepository: chatRepository)),
+          BlocProvider(create: (context) => ChatCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository)),
+          BlocProvider(create: (context) => ChatPreviewCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository)),
           BlocProvider(create: (context) => UserCubit(userRepository: userRepository)),
+          BlocProvider(create: (context) => PreferencesCubit(preferencesRepository: preferencesRepository)),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {

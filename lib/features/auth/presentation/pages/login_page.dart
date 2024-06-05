@@ -120,8 +120,8 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
           builder: (_ , controller) {
             return ClipRRect(
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-              child: AuthorizeEmailPage(email: email, onSuccess: (token) {
-                _authCubit.login(token: token);
+              child: AuthorizeEmailPage(email: email, onSuccess: (token, customToken) {
+                _authCubit.login(token: token, customToken: customToken);
               },),
             );
           }
@@ -144,8 +144,8 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
           builder: (_ , controller) {
             return ClipRRect(
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(20)),
-              child: AuthorizeSocialPage(loginType: loginType, onSuccess: (token) {
-                _authCubit.login(token: token);
+              child: AuthorizeSocialPage(loginType: loginType, onSuccess: (token, customToken) {
+                _authCubit.login(token: token, customToken: customToken);
               },),
             );
           }

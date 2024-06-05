@@ -26,6 +26,7 @@ class AuthUserModel extends UserModel {
     super.blocked,
     super.info,
     super.introductoryPost,
+    super.chatId,
     this.publicKey,
     this.firstLoginAt,
     this.lastLoginAt

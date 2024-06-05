@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 
 class AppApiRoutes {
 
-  // static const String  webApiUrl = 'https://api.sparkduet.com';
-  static const String  webApiUrl = kDebugMode ? "http://localhost:8000" : 'https://api.sparkduet.com';
+  static const String  webApiUrl = 'https://api.sparkduet.com';
+  // static const String  webApiUrl = kDebugMode ? "https://09e3-41-155-34-9.ngrok-free.app" : 'https://api.sparkduet.com';
   static const String baseApiUrl = '$webApiUrl/api';
 
   static const String  signUp = '$baseApiUrl/auth/';
@@ -47,4 +47,9 @@ class AppApiRoutes {
   static const String storiesSearch = '$baseApiUrl/search/posts';
   static const String userSearchTerms = '$baseApiUrl/search/user-search-terms';
   static const String popularSearchTerms = '$baseApiUrl/search/popular-search-terms';
+
+  static const String  suggestedChatUsers = '$baseApiUrl/chat/suggested';
+  static const String  fetchSettings = '$baseApiUrl/preferences/settings';
+  static const String  updateSettings = '$baseApiUrl/preferences/update-settings';
+  static const String  createFeedback = '$baseApiUrl/preferences/create-feedback';
 }

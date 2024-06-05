@@ -18,6 +18,7 @@ class CompletedUserPostItem extends StatelessWidget {
   Widget build(BuildContext context) {
 
     // debugPrint("CustomLog mediaPath: $networkPath");
+    final thumbnailPath = AppConstants.thumbnailMediaPath(mediaId: post.mediaPath ?? "");
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(
@@ -27,7 +28,7 @@ class CompletedUserPostItem extends StatelessWidget {
             SizedBox(
                 width: double.maxFinite,
                 height: double.maxFinite,
-                child:post.mediaType == FileType.video ? CustomNetworkImageWidget(imageUrl: AppConstants.thumbnailMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,)
+                child:post.mediaType == FileType.video ? CustomNetworkImageWidget(imageUrl: thumbnailPath, fit: BoxFit.cover,)
                 : CustomNetworkImageWidget(imageUrl: AppConstants.imageMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,),
             ),
             Align(

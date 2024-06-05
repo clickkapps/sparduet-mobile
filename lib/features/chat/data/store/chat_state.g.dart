@@ -7,11 +7,15 @@ part of 'chat_state.dart';
 // **************************************************************************
 
 abstract class _$ChatStateCWProxy {
+  ChatState message(String message);
+
   ChatState status(ChatStatus status);
 
-  ChatState message(String? message);
+  ChatState chatConnections(List<ChatModel> chatConnections);
 
-  ChatState chatConnections(List<CubeDialog> chatConnections);
+  ChatState unreadMessages(int unreadMessages);
+
+  ChatState suggestedChatUsers(List<UserModel> suggestedChatUsers);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -20,9 +24,11 @@ abstract class _$ChatStateCWProxy {
   /// ChatState(...).copyWith(id: 12, name: "My name")
   /// ````
   ChatState call({
-    ChatStatus? status,
     String? message,
-    List<CubeDialog>? chatConnections,
+    ChatStatus? status,
+    List<ChatModel>? chatConnections,
+    int? unreadMessages,
+    List<UserModel>? suggestedChatUsers,
   });
 }
 
@@ -33,14 +39,22 @@ class _$ChatStateCWProxyImpl implements _$ChatStateCWProxy {
   final ChatState _value;
 
   @override
+  ChatState message(String message) => this(message: message);
+
+  @override
   ChatState status(ChatStatus status) => this(status: status);
 
   @override
-  ChatState message(String? message) => this(message: message);
+  ChatState chatConnections(List<ChatModel> chatConnections) =>
+      this(chatConnections: chatConnections);
 
   @override
-  ChatState chatConnections(List<CubeDialog> chatConnections) =>
-      this(chatConnections: chatConnections);
+  ChatState unreadMessages(int unreadMessages) =>
+      this(unreadMessages: unreadMessages);
+
+  @override
+  ChatState suggestedChatUsers(List<UserModel> suggestedChatUsers) =>
+      this(suggestedChatUsers: suggestedChatUsers);
 
   @override
 
@@ -51,24 +65,36 @@ class _$ChatStateCWProxyImpl implements _$ChatStateCWProxy {
   /// ChatState(...).copyWith(id: 12, name: "My name")
   /// ````
   ChatState call({
-    Object? status = const $CopyWithPlaceholder(),
     Object? message = const $CopyWithPlaceholder(),
+    Object? status = const $CopyWithPlaceholder(),
     Object? chatConnections = const $CopyWithPlaceholder(),
+    Object? unreadMessages = const $CopyWithPlaceholder(),
+    Object? suggestedChatUsers = const $CopyWithPlaceholder(),
   }) {
     return ChatState(
+      message: message == const $CopyWithPlaceholder() || message == null
+          ? _value.message
+          // ignore: cast_nullable_to_non_nullable
+          : message as String,
       status: status == const $CopyWithPlaceholder() || status == null
           ? _value.status
           // ignore: cast_nullable_to_non_nullable
           : status as ChatStatus,
-      message: message == const $CopyWithPlaceholder()
-          ? _value.message
-          // ignore: cast_nullable_to_non_nullable
-          : message as String?,
       chatConnections: chatConnections == const $CopyWithPlaceholder() ||
               chatConnections == null
           ? _value.chatConnections
           // ignore: cast_nullable_to_non_nullable
-          : chatConnections as List<CubeDialog>,
+          : chatConnections as List<ChatModel>,
+      unreadMessages: unreadMessages == const $CopyWithPlaceholder() ||
+              unreadMessages == null
+          ? _value.unreadMessages
+          // ignore: cast_nullable_to_non_nullable
+          : unreadMessages as int,
+      suggestedChatUsers: suggestedChatUsers == const $CopyWithPlaceholder() ||
+              suggestedChatUsers == null
+          ? _value.suggestedChatUsers
+          // ignore: cast_nullable_to_non_nullable
+          : suggestedChatUsers as List<UserModel>,
     );
   }
 }

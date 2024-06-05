@@ -71,16 +71,21 @@ class _RequestPostFeedItemState extends State<RequestPostFeedItem> {
     return Stack(
       children: [
         GestureDetector(
-          onTap: () {widget.onTap?.call();},
+          onTap: () {
+            widget.onTap?.call();
+            },
           behavior: HitTestBehavior.opaque,
-          child: CustomVideoPlayer(
-            videoSource: VideoSource.network,
-            networkUrl: networkUrl,
-            builder: (controller) => widget.builder?.call(controller),
-            autoPlay: false,
-            hls: true,
-            useCache: true,
-            backgroundColor: AppColors.darkColorScheme.background,
+          child: IgnorePointer(
+            ignoring: true,
+            child: CustomVideoPlayer(
+              videoSource: VideoSource.network,
+              networkUrl: networkUrl,
+              builder: (controller) => widget.builder?.call(controller),
+              autoPlay: false,
+              hls: true,
+              useCache: true,
+              backgroundColor: AppColors.darkColorScheme.background,
+            ),
           ),
         ),
         Align(

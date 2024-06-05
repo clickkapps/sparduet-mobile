@@ -1,0 +1,3 @@
+enum PreferencesStatus {
+  initial, createFeedbackFailed, createFeedbackInProgress, createFeedbackSuccessful, fetchUserSettingsInProgress, fetchUserSettingsFailed, fetchUserSettingsSuccessful, updateUserSettingsInProgress, saveSettingsInProgress, saveSettingsCompleted, updateUserSettingsFailed, updateUserSettingsSuccessful
+}
