@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:open_store/open_store.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_audio_service.dart';
 import 'package:sparkduet/core/app_constants.dart';
@@ -26,6 +31,9 @@ import 'package:sparkduet/features/home/data/enums.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
 import 'package:sparkduet/features/search/data/store/search_cubit.dart';
+import 'package:sparkduet/network/api_routes.dart';
+import 'package:notification_permissions/notification_permissions.dart' as n_permission;
+import 'package:new_version_plus/new_version_plus.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -45,6 +53,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   StreamSubscription? feedsCubitStreamSubscription;
   StreamSubscription? cubeChatConnectionStateStream;
   AppLifecycleState? appState;
+  final newVersion = NewVersionPlus();
 
   @override
   void initState() {
@@ -102,7 +111,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     context.read<ChatCubit>().fetchChatConnections();
     context.read<ChatCubit>().fetchSuggestedChatUsers();
     context.read<PreferencesCubit>().fetchUserSettings();
+    promptUserToSubscribeToPushNotification(authUser?.username ?? "");
   }
+
 
   void establishConnection() async {
 
@@ -111,6 +122,249 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (AppLifecycleState.resumed != appState) return;
 
     });
+  }
+
+  void promptUserToSubscribeToPushNotification(String userId) async {
+
+
+    // open prompt for user to enable notification
+    n_permission.PermissionStatus permissionStatus = await n_permission.NotificationPermissions.getNotificationPermissionStatus();
+
+    if( permissionStatus != n_permission.PermissionStatus.granted) {
+
+      if(!mounted) return;
+
+      context.showConfirmDialog(
+        title: "Enable notification alerts",
+        subtitle: "Sparkduet would like to send you push notifications for new activities on your account",
+        confirmAction: "Accept",
+        cancelAction: "Decline",
+        onCancelTapped: () {
+          /// User still decided to deny push notification after explanation
+          //! prompt user to update app even if push notifcation is cancelled
+          promptUserToUpdateApp();
+        },
+        onConfirmTapped: () async {
+
+          // The promptForPushNotificationsWithUserResponse function will show the iOS or Android push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+          await OneSignal.Notifications.requestPermission(true);
+
+        },
+
+      );
+
+    }else {
+      registerUserForPushNotification(userId);
+    }
+
+  }
+
+  /// Listen for push notifications section -----
+  void listenForPushNotifications() {
+
+    // When the app is already opened
+    OneSignal.Notifications.addForegroundWillDisplayListener(foregroundWillDisplayListener);
+
+    // When the app is opened from external push notification alert
+    OneSignal.Notifications.addClickListener(pushNotificationTappedListener);
+
+
+    OneSignal.User.pushSubscription.addObserver((state) {
+      debugPrint("customLog -> Onesignal: pushSubscription-> ${state.current.jsonRepresentation()}");
+      // context.showSnackBar("pushNotificationTappedListener called");
+      if(state.current.optedIn) {
+        final currentUser = context.read<AuthCubit>().state.authUser;
+        if(currentUser?.username != null) {
+          registerUserForPushNotification(currentUser!.username!);
+        }
+      }
+
+    });
+
+  }
+
+  void registerUserForPushNotification(String userId) async {
+
+    debugPrint("customLog: userId for push notification: $userId");
+    if(userId.isNotEmpty) {
+      await OneSignal.login(userId);
+    }
+    promptUserToUpdateApp();
+
+  }
+
+  ///! push
+  //! Onesignal notification listeners
+  // When the app is already opened
+  foregroundWillDisplayListener(OSNotificationWillDisplayEvent event) {
+
+    final data = event.notification.additionalData;
+
+    // don't show chat push notification if user is already in the app
+    if((data?.containsKey("pushType") ?? false) && data!['pushType'] == "chat") {
+      event.preventDefault();
+    }
+
+    debugPrint('customLog -> Onesignal: NOTIFICATION Received in foreground: $event');
+
+    EasyDebounce.debounce(
+        'foregroundWillDisplayListener-home',                 // <-- An ID for this particular debouncer
+        const Duration(milliseconds: 1000),    // <-- The debounce duration
+            () {
+
+          /// preventDefault to not display the notification
+          // if((data?.containsKey("type") ?? false) && (data!['type'] as String).contains("interest")) {
+          //   if(data.containsKey("id")){
+          //     final id = data["id"] as String;
+          //     // fetch interest and navigate user to interest preview
+          //   }
+          // }
+
+
+        }            // <-- The target method
+    );
+
+
+
+  }
+
+  //  When the app is opened from external push notification alert
+  pushNotificationTappedListener(OSNotificationClickEvent event) async {
+    debugPrint('customLog -> Onesignal: NOTIFICATION CLICK LISTENER CALLED WITH EVENT: $event');
+
+    EasyDebounce.debounce(
+        'pushNotificationTappedListener-home',                 // <-- An ID for this particular debouncer
+        const Duration(milliseconds: 1000),    // <-- The debounce duration
+            () async {
+
+          final data = event.notification.additionalData;
+
+          if((data?.containsKey("pushType") ?? false) && data!['pushType'] == "chat") {
+
+            final currentUser = context.read<AuthCubit>().state.authUser;
+            if(currentUser == null) {return;}
+            // go to chat preview page
+            final chatId = data["chatConnectionId"] as String;
+            final chatConnection = await context.read<ChatCubit>().getChatConnectionById(chatConnectionId: chatId);
+            if(chatConnection == null) {return;}
+            final otherParticipant = chatConnection.participants?.where((participant) => participant.id != currentUser.id).firstOrNull;
+            if(otherParticipant == null) {return;}
+
+            if(mounted) {
+              context.push(AppRoutes.chatPreview, extra: {
+                "user": otherParticipant,
+                "chatConnection": chatConnection
+              });
+            }
+
+          }
+
+
+        }            // <-- The target method
+    );
+
+
+
+
+  }
+
+  void promptUserToUpdateApp() async {
+    final versionStatus = await newVersion.getVersionStatus();
+    debugPrint("versionStatus?.canUpdate ${versionStatus?.canUpdate}"); // (true)
+    debugPrint("versionStatus?.localVersion ${versionStatus?.localVersion}"); // // (1.2.1)
+    debugPrint("versionStatus?.storeVersion ${versionStatus?.storeVersion}"); // (1.2.3)
+    debugPrint("versionStatus?.appStoreLink ${versionStatus?.appStoreLink}"); // (https://itunes.apple.com/us/app/google/id284815942?mt=8)
+
+    //&& versionStatus.canUpdate
+    if(versionStatus != null && versionStatus.canUpdate) {
+
+      final remoteConfig = FirebaseRemoteConfig.instance;
+      await remoteConfig.setConfigSettings(RemoteConfigSettings(
+        fetchTimeout: const Duration(minutes: 1),
+        // minimumFetchInterval: kReleaseMode ? const Duration(hours: 1) : const Duration(seconds: 1),
+        minimumFetchInterval: const Duration(hours: 1),
+      ));
+
+      var storeVersionAndroid = versionStatus.storeVersion;
+      var storeVersionIOS = versionStatus.storeVersion;
+      var  releaseNotesAndroid ="Get the latest version of the app";
+      var releaseNotesIOS = "Get the latest version of the app";
+      var forceUpdateAndroid = false;
+      var forceUpdateIOS = false;
+
+      await remoteConfig.setDefaults( {
+        "storeVersionAndroid": storeVersionAndroid,
+        "storeVersionIOS": storeVersionIOS,
+        "releaseNotesAndroid": releaseNotesAndroid,
+        "releaseNotesIOS": releaseNotesIOS,
+        "forceUpdateAndroid": forceUpdateAndroid,
+        "forceUpdateIOS": forceUpdateIOS
+      });
+
+      await remoteConfig.ensureInitialized();
+      await remoteConfig.fetchAndActivate();
+
+      if(!mounted){
+        return;
+      }
+
+      storeVersionAndroid = remoteConfig.getString("storeVersionAndroid");
+      storeVersionIOS = remoteConfig.getString("storeVersionIOS");
+      releaseNotesAndroid = remoteConfig.getString("releaseNotesAndroid");
+      releaseNotesIOS = remoteConfig.getString("releaseNotesIOS");
+      forceUpdateAndroid = remoteConfig.getBool("forceUpdateAndroid");
+      forceUpdateIOS = remoteConfig.getBool("forceUpdateIOS");
+
+      if(Platform.isAndroid) {
+
+        if(storeVersionAndroid == versionStatus.storeVersion) {
+          // remote config for the latest update and description
+          context.showConfirmDialog(title: 'Update available',
+            subtitle: releaseNotesAndroid,
+            showCancelButton: forceUpdateAndroid ? false : true,
+            isDismissible: forceUpdateAndroid ? false : true,
+            showCloseButton: forceUpdateAndroid ? false : true,
+            confirmAction: "Update",
+            onConfirmTapped: () async {
+
+              _openStore();
+
+            },
+          );
+        }
+
+      }else if(Platform.isIOS) {
+
+        if(storeVersionIOS == versionStatus.storeVersion) {
+
+          // remote config for the latest update and description
+          context.showConfirmDialog(title: 'Update available',
+            subtitle: releaseNotesIOS,
+            isDismissible: forceUpdateIOS ? false : true,
+            showCancelButton: forceUpdateIOS ? false : true,
+            showCloseButton: forceUpdateIOS ? false : true,
+            confirmAction: "Update",
+            onConfirmTapped: () async {
+
+              _openStore();
+
+            },
+          );
+
+        }
+
+
+      }
+
+
+    }
+
+  }
+  void _openStore(){
+    OpenStore.instance.open(
+      appStoreId: '6473719700', // AppStore id of your app for iOS
+      androidAppBundleId: 'com.sparkduet.android', // Android app bundle package name
+    );
   }
 
   @override

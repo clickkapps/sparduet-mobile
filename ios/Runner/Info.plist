@@ -24,6 +24,12 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>sms</string>
+		<string>tel</string>
+		<string>https</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -31,8 +37,22 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow access to camera to upload photos from your library</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app does not access your location. Feel free to deny any location permission request</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow access to microphone to capture your voice in the camera</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Allow access to photos to upload photos from your library</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to photos to upload photos from your library </string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -54,23 +74,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow access to photos to upload photos from your library </string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Allow access to photos to upload photos from your library</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>This app does not access your microphone and will not request microphone usage permissions.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app does not access your location. Feel free to deny any location permission request</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Allow access to camera to upload photos from your library</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Allow access to microphone to capture your voice in the camera</string>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-      <string>sms</string>
-      <string>tel</string>
-      <string>https</string>
-    </array>
 </dict>
 </plist>

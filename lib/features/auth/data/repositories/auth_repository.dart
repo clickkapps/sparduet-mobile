@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sparkduet/core/app_storage.dart';
@@ -229,6 +230,9 @@ class AuthRepository {
 
     // clear user details
     await localStorageProvider.removeAuthUserFromLocalStorage();
+
+    OneSignal.logout();
+    FirebaseAuth.instance.signOut();
 
   }
 

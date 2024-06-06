@@ -666,6 +666,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.17.0"
+  firebase_remote_config:
+    dependency: "direct main"
+    description:
+      name: firebase_remote_config
+      sha256: "653bd94b68e2c4e89eca10db90576101f1024151f39f2d4e7c64ae6a90a5f9c5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.4.7"
+  firebase_remote_config_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_remote_config_platform_interface
+      sha256: "24a2c445b15de3af7e4582ebceb2aa9a1e3731d0202cb3e7a1e03012440fa07d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.35"
+  firebase_remote_config_web:
+    dependency: transitive
+    description:
+      name: firebase_remote_config_web
+      sha256: "525aa3000fd27cd023841c802010a06515e564aab2f147aa964b35f54abbf449"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.6.7"
   fixnum:
     dependency: transitive
     description:
@@ -1185,6 +1209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  new_version_plus:
+    dependency: "direct main"
+    description:
+      name: new_version_plus
+      sha256: e0d8027223488cc7f7c78f6ff286f1b5d9808f88814aecfa0bb12254d25f48ca
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.11"
   nm:
     dependency: transitive
     description:
@@ -1193,6 +1225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
+  notification_permissions:
+    dependency: "direct main"
+    description:
+      name: notification_permissions
+      sha256: e62e7fbd4b64941764778fc957224567aff10cdc8b0227046bd0a4b9db7b47a6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.1"
   octo_image:
     dependency: transitive
     description:
@@ -1201,6 +1241,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  onesignal_flutter:
+    dependency: "direct main"
+    description:
+      name: onesignal_flutter
+      sha256: f3940387d6c7033a9c341aa0548f24d98217fce9182f9ad80bf2554b9dd3dc1a
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.0"
+  open_store:
+    dependency: "direct main"
+    description:
+      name: open_store
+      sha256: "3d9f6a364a817235b779a23ba1bfcca220ab770c89e3b1f4974429e7a32b6cad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   package_config:
     dependency: transitive
     description:
@@ -1209,6 +1265,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  package_info_plus:
+    dependency: transitive
+    description:
+      name: package_info_plus
+      sha256: "7e76fad405b3e4016cd39d08f455a4eb5199723cf594cd1b8916d47140d93017"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.0"
+  package_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: package_info_plus_platform_interface
+      sha256: "9bc8ba46813a4cc42c66ab781470711781940780fd8beddd0c3da62506d3a6c6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   path:
     dependency: "direct main"
     description:

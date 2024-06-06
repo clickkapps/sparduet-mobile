@@ -7,6 +7,7 @@ import 'package:sparkduet/app/app.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/firebase_options.dart';
 import 'core/app_injector.dart' as di;
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 void main() async {
 
@@ -30,6 +31,11 @@ void main() async {
   await di.init();
 
   await dotenv.load(fileName: "assets/.env");
+
+  //Remove this method to stop OneSignal Debugging
+  OneSignal.Debug.setLogLevel(OSLogLevel.debug);
+  final onesignalAppID = dotenv.env['ONESIGNAL_APP_ID'] ?? '';
+  OneSignal.initialize(onesignalAppID);
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

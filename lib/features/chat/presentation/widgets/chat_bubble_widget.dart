@@ -52,7 +52,7 @@ class ChatBubbleWidget extends StatelessWidget with LaunchExternalAppMixin {
   Widget build(BuildContext context) {
 
     final theme = Theme.of(context);
-    final timeWidget = Text(getFormattedDateWithIntl(timeStamp ?? DateTime.now(), format: "hh:mm a"), style: theme.textTheme.titleSmall?.copyWith(color: isSender ? Colors.white70 : theme.textTheme.titleSmall?.color, fontSize: 11),);
+    final timeWidget = Text(getFormattedDateWithIntl(timeStamp ?? DateTime.now(), format: "hh:mm a"), style: theme.textTheme.titleSmall?.copyWith(color: isSender ? Colors.white70 : Colors.black45, fontSize: 11),);
     // final timeWidget = Text(getFormattedDateWithIntl(timeStamp ?? DateTime.now(), format: "hh:mm a"), style: theme.textTheme.titleSmall?.copyWith(color: theme.textTheme.titleSmall?.color, fontSize: 11),);
 
     bool stateTick = false;
@@ -115,50 +115,7 @@ class ChatBubbleWidget extends StatelessWidget with LaunchExternalAppMixin {
                          crossAxisAlignment: isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                          mainAxisSize: MainAxisSize.min,
                          children: [
-                           // Padding(padding: (stateTick && isSender) ? const EdgeInsets.only(left: 0, right: 10): EdgeInsets.zero,
-                           //   child: SelectableAutoLinkText(
-                           //                              text,
-                           //                              style: textStyle,
-                           //                              linkStyle: textStyle.copyWith(color: kLuckyPointBlue),
-                           //                              highlightedLinkStyle: textStyle.copyWith(
-                           //                                color: Colors.purpleAccent,
-                           //                              ),
-                           //                              linkRegExpPattern: '(@[\\w]+|#[\\w]+|${AutoLinkUtils.defaultLinkRegExpPattern})',
-                           //                              // onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
-                           //                              // enableInteractiveSelection: false,
-                           //                              onTap: (url) async {
-                           //
-                           //                                if (isContainingAnyLink(text)) {
-                           //                                  await launchBrowser(url);
-                           //                                  return;
-                           //                                }
-                           //
-                           //                                if (isPhoneNumber(text)) {
-                           //                                  makePhoneCall(text);
-                           //                                  return;
-                           //                                }
-                           //
-                           //                                if (isEmail(text)) {
-                           //                                  openEmail(text);
-                           //                                  return;
-                           //                                }
-                           //
-                           //                                if (await canLaunchUrl(Uri.parse(url))) {
-                           //                                  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                           //                                }
-                           //
-                           //                              },
-                           //                              onLongPress: (url) {
-                           //                                copyTextToClipBoard(context, url);
-                           //                              },
-                           //                              onTapOther: (a,b) {
-                           //                                onTap?.call();
-                           //                              },
-                           //                              onLongPressOther: (a, b) {
-                           //                                onLongPress?.call();
-                           //                              },
-                           //                            ),
-                           // ),
+
                            SelectableAutoLinkText(
                              text,
                              style: textStyle,
