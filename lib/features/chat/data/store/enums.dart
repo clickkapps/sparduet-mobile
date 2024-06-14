@@ -1,13 +1,9 @@
-enum ChatStatus {
-  initial, fetchChatsError, fetchChatsLoading, fetchChatsSuccessful, createChatConnectionLoading, createChatConnectionError, createChatConnectionSuccessful, getChatConnectionLoading, getChatConnectionError,
-  refreshChatConnectionCompleted, refreshChatConnectionInProgress,
-  getChatConnectionRefreshing, sendMessageError, sendMessageLoading, sendMessageSuccessful, refreshChatMessagesInProgress, refreshChatMessagesSuccessful, listenToChatConnectionError, listenToChatConnectionInProgress, listenToMessagesInProgress, listenToMessagesError, listenToMessagesCompleted, listenToChatConnectionCompleted, fetchSuggestedChatUsersLoading, fetchSuggestedChatUsersError, fetchSuggestedChatUsersSuccessful
+enum ChatConnectionStatus {
+  initial, fetchSuggestedChatUsersLoading, fetchSuggestedChatUsersError, fetchSuggestedChatUsersSuccessful, createChatConnectionLoading, createChatConnectionError, createChatConnectionSuccessful, fetchChatConnectionLoading, refreshChatConnectionsCompleted, fetchChatConnectionError
 }
 
-
 enum ChatPreviewStatus {
-  initial, addNewMessageInProgress, addNewMessageCompleted, sendMessageLoading, sendMessageError, sendMessageSuccessful, refreshChatMessagesSuccessful, refreshChatMessagesInProgress, fetchChatMessagesInProgress, fetchChatMessagesError, fetchChatMessagesSuccessful, updateMessageInProgress, updateMessageCompleted, listenToMessagesInProgress, listenToMessagesError,
-  listenToMessagesCompleted, deleteMessageInProgress, deleteMessageCompleted, markChatConnectionAsReadInProgress, markChatConnectionAsReadSuccessful, markChatConnectionAsReadFailed, markOtherParticipantMessageAsReadInProgress, markOtherParticipantMessageAsReadFailed, markOtherParticipantMessageAsReadSuccessful,
+  initial
 }
 
 enum ChatBroadcastAction {

@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'package:better_player/better_player.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_animator/widgets/fading_entrances/fade_in.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
@@ -20,6 +24,7 @@ import 'package:sparkduet/mixin/form_mixin.dart';
 import 'package:sparkduet/utils/custom_animated_column_widget.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
+import 'package:sparkduet/utils/custom_network_image_widget.dart';
 import 'package:sparkduet/utils/custom_page_loading_overlay.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 import 'package:sparkduet/utils/custom_text_field_widget.dart';
@@ -32,7 +37,7 @@ class AuthLoginPage extends StatefulWidget {
   State<AuthLoginPage> createState() => _AuthLoginPageState();
 }
 
-class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
+class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin, WidgetsBindingObserver {
 
   late AuthCubit _authCubit;
   late ThemeCubit _themeCubit;
@@ -40,6 +45,8 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
   late TextEditingController _emailController;
   final FocusNode emailFocusNode = FocusNode();
   ValueNotifier<bool> showSubmitEmailIcon = ValueNotifier(false);
+  bool _isKeyboardVisible = false;
+  BetterPlayerController? betterPlayerController;
 
   @override
   void initState() {
@@ -50,7 +57,30 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
       // _themeCubit.setLightMode();
       _themeCubit.setSystemUIOverlaysToPrimary();
     });
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = bottomInset > 0.0;
+    if (isKeyboardVisible != _isKeyboardVisible) {
+      setState(() {
+        _isKeyboardVisible = isKeyboardVisible;
+      });
+      // debugPrint(_isKeyboardVisible ? "Keyboard is visible" : "Keyboard is hidden");
+      // if(!_isKeyboardVisible) {
+      //   betterPlayerController?.play();
+      // }
+    }
   }
 
 
@@ -155,6 +185,12 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) =>  _themeCubit.setSystemUIOverlaysToPrimary());
   }
 
+  Widget placeholder(MediaQueryData mediaQuery) {
+    return SizedBox(width: mediaQuery.size.width, height: mediaQuery.size.height,
+      child: CustomNetworkImageWidget(imageUrl: AppConstants.thumbnailMediaPath(mediaId: "hq1Q5Iw2CqQf01tld01lnBmaHu1AEh7fpDmgCXDxqmFDk"), fit: BoxFit.cover,),
+    );
+  }
+
   /// Build UI
   @override
   Widget build(BuildContext context) {
@@ -171,23 +207,29 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
             backgroundColor: theme.colorScheme.primary,
             body: Stack(
               children: [
-                CustomVideoPlayer(
-                  // networkUrl: "https://clickkapps-518052896.imgix.net/3700456-uhd_2160_3840_30fps.mp4",
-                  // networkUrl: "https://stream.mux.com/GQ8byRrKCj2ooo5fZtV8R6TBO202t9YCO01FnkWNMWvgQ.m3u8",
-                  // networkUrl: "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/hl6is7u3aksdcg2gptgs.mp4",
-                  networkUrl: "https://stream.mux.com/hq1Q5Iw2CqQf01tld01lnBmaHu1AEh7fpDmgCXDxqmFDk.m3u8",
-                  autoPlay: true,
-                  loop: true,
-                  aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
-                  hls: true,
-                  useCache: true,
-                  fit: BoxFit.cover,
-                  videoSource: VideoSource.network,
-                ),
-                Container(
+                SizedBox(
                   width: mediaQuery.size.width,
-                  height: mediaQuery.size.height,
-                  color: Colors.black.withOpacity(0.1),
+                  child: CustomVideoPlayer(
+                    // networkUrl: "https://clickkapps-518052896.imgix.net/3700456-uhd_2160_3840_30fps.mp4",
+                    // networkUrl: "https://stream.mux.com/GQ8byRrKCj2ooo5fZtV8R6TBO202t9YCO01FnkWNMWvgQ.m3u8",
+                    // networkUrl: "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/hl6is7u3aksdcg2gptgs.mp4",
+                    // networkUrl: "https://stream.mux.com/hq1Q5Iw2CqQf01tld01lnBmaHu1AEh7fpDmgCXDxqmFDk.m3u8",
+                    networkUrl: AppConstants.videoMediaPath(playbackId: "hq1Q5Iw2CqQf01tld01lnBmaHu1AEh7fpDmgCXDxqmFDk"),
+                    autoPlay: true,
+                    loop: true,
+                    aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
+                    hls: true,
+                    useCache: false,
+                    fit: BoxFit.cover,
+                    videoSource: VideoSource.network,
+                    builder: (controller) => betterPlayerController = controller,
+                    placeholder: placeholder(mediaQuery),
+                  ),
+                ),
+                AnimatedContainer(duration: const Duration(milliseconds: 400),
+                  color: Colors.black.withOpacity(_isKeyboardVisible ? 1 : 0.1),
+                    width: mediaQuery.size.width,
+                    height: mediaQuery.size.height,
                 ),
                 SafeArea(child: Align(
                     alignment: Alignment.topCenter,
@@ -304,9 +346,12 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin {
 
                               const SizedBox(height:20,),
 
-                              AnimatedContainer(duration: const Duration(seconds: 3),
-                                child: FadeIn(
-                                  child: const TermsPrivacyWidget(),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 15),
+                                child: AnimatedContainer(duration: const Duration(seconds: 3),
+                                  child: FadeIn(
+                                    child: const TermsPrivacyWidget(),
+                                  ),
                                 ),
                               )
 

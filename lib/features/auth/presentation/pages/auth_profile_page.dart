@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:better_player/better_player.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -29,6 +32,8 @@ import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
+import 'package:sparkduet/features/users/presentation/pages/unread_viewers_page.dart';
 import 'package:sparkduet/features/users/presentation/widgets/bookmarked_posts_tab_view_widget.dart';
 import 'package:sparkduet/features/users/presentation/widgets/user_posts_tab_view_widget.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
@@ -80,7 +85,7 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
     feedsCubit = context.read<AuthFeedsCubit>();
     feedCubitSubscription = feedsCubit.stream.listen((event) {
         if(event.status == FeedStatus.postFeedInProgress) {
-            userPostsPagingController?.itemList = event.feeds;
+            userPostsPagingController?.itemList = <FeedModel>[...event.feeds];
             tabController.jumpToPage(0);
             autoScrollController.scrollToIndex(aboutYouIndex, preferPosition: AutoScrollPosition.begin, duration: const Duration(milliseconds: 500));
         }
@@ -158,6 +163,26 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
 
   void changeIntroductionVideoHandler(BuildContext context) {
     openFeedCamera(context, purpose: AppConstants.introductoryPostFeedPurpose);
+  }
+
+
+  void profileViewersHandler(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: UnreadViewersPage(controller: controller)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
 
 
@@ -247,15 +272,18 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const PulseIcon(
-                                              icon: Icons.play_circle,
-                                              pulseColor: Colors.red,
-                                              iconColor: Colors.white,
-                                              iconSize: 24,
-                                              innerSize: 30,
-                                              pulseSize: 70,
-                                              pulseCount: 4,
-                                              pulseDuration: Duration(seconds: 4),
+                                            const IgnorePointer(
+                                              ignoring: true,
+                                              child: PulseIcon(
+                                                icon: Icons.play_circle,
+                                                pulseColor: Colors.red,
+                                                iconColor: Colors.white,
+                                                iconSize: 24,
+                                                innerSize: 30,
+                                                pulseSize: 70,
+                                                pulseCount: 4,
+                                                pulseDuration: Duration(seconds: 4),
+                                              ),
                                             ),
                                             if(authUser?.introductoryPost == null) ... {
                                               Text("Introduce yourself here", style: TextStyle(
@@ -293,8 +321,8 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(100),
                                       child: SizedBox(
-                                        width: theme.brightness == Brightness.dark ? 75 : 70,
-                                        height: theme.brightness == Brightness.dark ? 75 : 70,
+                                        width: theme.brightness == Brightness.dark ? 77 : 70,
+                                        height: theme.brightness == Brightness.dark ? 77 : 70,
                                         child: Stack(
                                           children: [
                                             Column(
@@ -342,15 +370,81 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                       ),
                     ),
 
+                    const SliverToBoxAdapter(child: SizedBox(height: 10,),),
+
                     SliverToBoxAdapter(
-                      child: AutoScrollTag(
-                          key: ValueKey(aboutYouIndex),
-                          controller: autoScrollController,
-                          index: aboutYouIndex,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 0, left: 15, right: 15),
-                            child: Text("About you", style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),),
-                          )
+                      child: SeparatedColumn(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(height: 10,);
+                        },
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+
+                            child: GestureDetector(
+                              onTap: () => profileViewersHandler(context),
+                              behavior: HitTestBehavior.opaque,
+                              child: CustomCard(
+                                padding: 10,
+                                child: SizedBox(
+                                  width: double.maxFinite,
+                                  child: Row(
+                                     children: [
+
+                                       Stack(
+                                         clipBehavior: Clip.none,
+                                         children: [
+                                           ClipRRect(
+                                             child: Stack(
+                                               children: [
+                                                 const CustomUserAvatarWidget(size: 35,),
+                                                 Positioned.fill(
+                                                   child: ClipRRect(
+                                                     borderRadius: BorderRadius.circular(35),
+                                                     child: BackdropFilter(
+                                                       filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                                                       child: Container(
+                                                         color: Colors.transparent,
+                                                       ),
+                                                     ),
+                                                   ),
+                                                 ),
+                                               ],
+                                             ),
+                                           ),
+                                           Positioned( left: 35 * 0.5,child: Stack(children: [
+                                             const CustomUserAvatarWidget(size: 35,),
+                                             Positioned.fill(
+                                               child: ClipRRect(
+                                                 borderRadius: BorderRadius.circular(35),
+                                                 child: BackdropFilter(
+                                                   filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                                                   child: Container(
+                                                     color: Colors.transparent,
+                                                   ),
+                                                 ),
+                                               ),
+                                             ),
+                                           ],)),
+                                           // Positioned(left: (35 + 35 * 0.5) * , child: CustomUserAvatarWidget(size: 35,)),
+                                         ],),
+                                        const SizedBox(width: (35 * 0.5) + 10,),
+                                        Expanded(child: Text("2+ people viewed your profile", style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.normal, color: theme.colorScheme.secondary),))
+                                     ],
+                                  ),),
+                                                        ),
+                            ),),
+                          AutoScrollTag(
+                              key: ValueKey(aboutYouIndex),
+                              controller: autoScrollController,
+                              index: aboutYouIndex,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 0, left: 15, right: 15),
+                                child: Text("About you", style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),),
+                              )
+                          ),
+                        ],
                       ),
                     ),
 

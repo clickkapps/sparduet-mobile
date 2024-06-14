@@ -16,8 +16,9 @@ import 'package:sparkduet/core/app_audio_service.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_injector.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
-import 'package:sparkduet/features/chat/data/store/chat_cubit.dart';
+import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_cubit.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/chat_icon_widget.dart';
 import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
@@ -29,11 +30,15 @@ import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_c
 import 'package:sparkduet/features/feeds/presentation/widgets/introduction_widget.dart';
 import 'package:sparkduet/features/home/data/enums.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
+import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
 import 'package:sparkduet/features/search/data/store/search_cubit.dart';
+import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:notification_permissions/notification_permissions.dart' as n_permission;
 import 'package:new_version_plus/new_version_plus.dart';
+import '../../../../core/app_injector.dart' as di;
 
 class HomePage extends StatefulWidget {
 
@@ -66,15 +71,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
     feedsCubitStreamSubscription = feedsCubit.stream.listen((event) {
       if(event.status == FeedStatus.postFeedSuccessful) {
-        final feed = event.data as FeedModel;
+        final data = event.data as Map<String, dynamic>;
         // Post has just been created by he user
 
         //! if the purpose of the video is introduction, fetch the updated user detail.
-        if(feed.purpose == "introduction") {
-          if(mounted) {
-            context.read<AuthCubit>().fetchAuthUserInfo();
+        if(data.containsKey("feed")) {
+          final feed = data["feed"] as FeedModel;
+          if(feed.purpose == "introduction") {
+            if(mounted) {
+              context.read<AuthCubit>().fetchAuthUserInfo();
+            }
           }
         }
+
       }
       if(event.status == FeedStatus.postFeedFailed) {
         context.showSnackBar(event.message, appearance: NotificationAppearance.error);
@@ -99,19 +108,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   // this is called when app initializes and as well as when there a change in network connection
-  void initialize() {
+  void initialize() async {
     context.read<AuthCubit>().fetchAuthUserInfo();
     AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
     context.read<CountriesCubit>().fetchAllCountries();
     context.read<SearchCubit>().fetchPopularSearchTerms();
     context.read<SearchCubit>().fetchRecentSearchTerms();
     final authUser = context.read<AuthCubit>().state.authUser;
-    context.read<ChatCubit>().setAuthenticatedUser(authUser);
+    context.read<ChatConnectionsCubit>().setAuthenticatedUser(authUser);
     context.read<ChatPreviewCubit>().setAuthenticatedUser(authUser);
-    context.read<ChatCubit>().fetchChatConnections();
-    context.read<ChatCubit>().fetchSuggestedChatUsers();
+    context.read<ChatConnectionsCubit>().fetchChatConnections();
+    context.read<ChatConnectionsCubit>().fetchSuggestedChatUsers();
     context.read<PreferencesCubit>().fetchUserSettings();
     promptUserToSubscribeToPushNotification(authUser?.username ?? "");
+    context.read<NotificationsCubit>().listenToNotificationsCount(authUser);
+    context.read<SubscriptionCubit>().initializeSubscription(authUser?.publicKey ?? "").then((value) {
+      context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
+    });
+
   }
 
 
@@ -244,8 +258,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             final currentUser = context.read<AuthCubit>().state.authUser;
             if(currentUser == null) {return;}
             // go to chat preview page
-            final chatId = data["chatConnectionId"] as String;
-            final chatConnection = await context.read<ChatCubit>().getChatConnectionById(chatConnectionId: chatId);
+            final chatId = data["chatConnectionId"] as int;
+            final chatConnection = await context.read<ChatConnectionsCubit>().getChatConnectionById(chatConnectionId: chatId);
             if(chatConnection == null) {return;}
             final otherParticipant = chatConnection.participants?.where((participant) => participant.id != currentUser.id).firstOrNull;
             if(otherParticipant == null) {return;}
@@ -435,6 +449,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   /// Switch between pages when user taps on any of the bottom navigation bar menus
   void onItemTapped(int index) {
+
+    if(!context.mounted) {
+      return;
+    }
 
     // an existing active index has been tapped again
     context.read<NavCubit>().onTabChange(index);

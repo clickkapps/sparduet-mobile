@@ -16,7 +16,7 @@ class CustomImagePlayerWidget extends StatefulWidget {
   final BoxFit? fit;
   final bool loop;
   final bool animate;
-  final Function(AssetsAudioPlayer)? builder;
+  final Function(AssetsAudioPlayer?)? builder;
   final bool autoPlay;
   const CustomImagePlayerWidget({super.key, required this.imageUrl, this.builder,
     required this.audioUrl,

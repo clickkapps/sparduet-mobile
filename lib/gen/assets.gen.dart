@@ -21,12 +21,17 @@ class $AssetsImgGen {
   /// File path: assets/img/avatar.png
   AssetGenImage get avatarPng => const AssetGenImage('assets/img/avatar.png');
 
+  /// File path: assets/img/premium_header_image.jpg
+  AssetGenImage get premiumHeaderImage =>
+      const AssetGenImage('assets/img/premium_header_image.jpg');
+
   /// File path: assets/img/splash_img.png
   AssetGenImage get splashImg =>
       const AssetGenImage('assets/img/splash_img.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [appIcon, avatarJpg, avatarPng, splashImg];
+  List<AssetGenImage> get values =>
+      [appIcon, avatarJpg, avatarPng, premiumHeaderImage, splashImg];
 }
 
 class $AssetsJsonGen {
@@ -35,8 +40,11 @@ class $AssetsJsonGen {
   /// File path: assets/json/empty_chat.json
   String get emptyChat => 'assets/json/empty_chat.json';
 
+  /// File path: assets/json/sub_success.json
+  String get subSuccess => 'assets/json/sub_success.json';
+
   /// List of all assets
-  List<String> get values => [emptyChat];
+  List<String> get values => [emptyChat, subSuccess];
 }
 
 class Assets {

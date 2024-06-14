@@ -10,9 +10,16 @@ class UserState extends Equatable {
   final String? message;
   final UserModel? user;
   final UserStatus status;
+  final num unreadViewersCount;
+  final List<UserModel> unreadViewers;
 
-  const UserState({this.message, this.user, this.status = UserStatus.initial});
+  const UserState({this.message,
+    this.user,
+    this.status = UserStatus.initial,
+    this.unreadViewersCount = 0,
+    this.unreadViewers = const []
+  });
 
   @override
-  List<Object?> get props => [status, message, user];
+  List<Object?> get props => [status, message, user, unreadViewersCount];
 }

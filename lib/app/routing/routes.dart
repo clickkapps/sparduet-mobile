@@ -7,8 +7,7 @@ import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/presentation/pages/auth_profile_page.dart';
 import 'package:sparkduet/features/auth/presentation/pages/login_page.dart';
-import 'package:sparkduet/features/chat/data/models/chat_model.dart';
-import 'package:sparkduet/features/chat/data/models/chat_user_model.dart';
+import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
 import 'package:sparkduet/features/chat/presentation/pages/chat_connections_page.dart';
 import 'package:sparkduet/features/chat/presentation/pages/chat_preview_page.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
@@ -100,29 +99,13 @@ final router = GoRouter(
       path: AppRoutes.chatPreview,
       parentNavigatorKey: _rootNavigator,
       pageBuilder: (context, state) {
-        late ChatUserModel otherParticipant;
-        ChatModel? chatConnection;
-        if(state.extra is Map<String, dynamic>) {
-          final map = state.extra as Map<String, dynamic>;
-          chatConnection = map["chatConnection"];
-          final user = map["user"] as dynamic;
-          if(user is UserModel) {
-            otherParticipant = ChatUserModel.fromJson(user.toJson());
-          }else {
-            otherParticipant = user as ChatUserModel;
-          }
-        }else {
 
-          if(state.extra is UserModel){
-            final user = state.extra as UserModel;
-            otherParticipant = ChatUserModel.fromJson(user.toJson());
-          }else  {
-            otherParticipant = state.extra as ChatUserModel;
-          }
-        }
+        final map = state.extra as Map<String, dynamic>;
+        final chatConnection = map["connection"] as ChatConnectionModel?;
+        final opponent = map["opponent"] as UserModel;
 
         return  MaterialPage(name: state.path, arguments: state.extra,
-            child: ChatPreviewPage(otherParticipant: otherParticipant, chatConnection: chatConnection,)
+            child: ChatPreviewPage(opponent: opponent, connection: chatConnection,)
         );
       },
     ),

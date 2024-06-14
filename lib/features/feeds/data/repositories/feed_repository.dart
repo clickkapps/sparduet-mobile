@@ -116,7 +116,7 @@ class FeedRepository {
 
       if (response!.statusCode == 200) {
 
-        if(!(response.data["status"] as bool)){
+        if(!(response.data["status"] as bool)) {
           return Left(response.data["message"] as String);
         }
 

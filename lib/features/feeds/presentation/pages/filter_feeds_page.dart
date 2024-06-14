@@ -20,16 +20,16 @@ import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 import 'package:sparkduet/utils/custom_text_field_widget.dart';
 
-class FilterFeedsWidget extends StatefulWidget {
+class FilterFeedsPage extends StatefulWidget {
 
   final ScrollController? scrollController;
-  const FilterFeedsWidget({super.key, this.scrollController});
+  const FilterFeedsPage({super.key, this.scrollController});
 
   @override
-  State<FilterFeedsWidget> createState() => _FilterFeedsWidgetState();
+  State<FilterFeedsPage> createState() => _FilterFeedsPageState();
 }
 
-class _FilterFeedsWidgetState extends State<FilterFeedsWidget> {
+class _FilterFeedsPageState extends State<FilterFeedsPage> {
 
   final minAgeController = TextEditingController();
   final maxAgeController = TextEditingController();

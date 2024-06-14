@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +10,7 @@ import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_image_preview_widget.dart';
@@ -55,12 +55,18 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
     super.initState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void showVideoInfoHandler(BuildContext context) {
     final theme = Theme.of(context);
     if(widget.appTheme.brightness == Brightness.light) {
       context.read<ThemeCubit>().setSystemUIOverlaysToLight();
     }
     additionalInfoSeen = true;
+    trimmer.videoPlayerController?.pause();
     final ch = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
@@ -80,34 +86,34 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Post settings", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),),
-                            const SizedBox(height: 30,),
+                            // Text("Post settings", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),),
+                            // const SizedBox(height: 30,),
                             CustomCard(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
 
-                                  ValueListenableBuilder<bool>(valueListenable: enableComments, builder: (_, val, __) {
-                                    return Row(
-                                      children: [
-                                        Expanded(child: Text(val ? "Comments enabled" : "Comments disabled", style: theme.textTheme.bodySmall?.copyWith(fontSize: 14),)),
-                                        SizedBox(
-                                          width: 40,
-                                          child: FittedBox(
-                                            fit: BoxFit.contain,
-                                            child: CupertinoSwitch(
-                                              value: val,
-                                              onChanged: (bool value) {
-                                                enableComments.value = value;
-                                              },
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    );
-                                  }),
+                                  // ValueListenableBuilder<bool>(valueListenable: enableComments, builder: (_, val, __) {
+                                  //   return Row(
+                                  //     children: [
+                                  //       Expanded(child: Text(val ? "Comments enabled" : "Comments disabled", style: theme.textTheme.bodySmall?.copyWith(fontSize: 14),)),
+                                  //       SizedBox(
+                                  //         width: 40,
+                                  //         child: FittedBox(
+                                  //           fit: BoxFit.contain,
+                                  //           child: CupertinoSwitch(
+                                  //             value: val,
+                                  //             onChanged: (bool value) {
+                                  //               enableComments.value = value;
+                                  //             },
+                                  //           ),
+                                  //         ),
+                                  //       )
+                                  //     ],
+                                  //   );
+                                  // }),
 
-                                  const SizedBox(height: 30,),
+                                  // const SizedBox(height: 30,),
 
                                   CustomTextFieldWidget(
                                     controller: descriptionTextEditingController,
@@ -131,7 +137,14 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
           }
       ),
     );
-    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
+      if(context.mounted) {
+        context.read<ThemeCubit>().setSystemUIOverlaysToDark();
+      }
+      if(mounted) {
+        trimmer.videoPlayerController?.play();
+      }
+    });
   }
 
   void videoEditorHandler(BuildContext context) {
@@ -217,7 +230,7 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
   ///! Post / Sumbit Feed
   submitFeed({required File file, required FileType fileType}) {
     final authUser = context.read<AuthCubit>().state.authUser;
-    context.read<FeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key, flipFile: widget.frontCameraVideo, user: authUser);
+    context.read<AuthFeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key, flipFile: widget.frontCameraVideo, user: authUser);
     if(widget.appTheme.brightness == Brightness.light) {
       context.read<ThemeCubit>().setSystemUIOverlaysToLight();
     }
@@ -293,12 +306,14 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
                   color: AppColors.darkColorScheme.surface
               ),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(child: CustomButtonWidget(onPressed: () => showVideoInfoHandler(context), text: "Add info", appearance: ButtonAppearance.secondary, expand: true,)),
-                  const SizedBox(width: 10,),
-                  Expanded(child: CustomButtonWidget(onPressed: () => validateAndPostFeedHandler(context), text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', appearance: ButtonAppearance.primary, expand: true,)),
-                ],
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(child: CustomButtonWidget(onPressed: () => showVideoInfoHandler(context), text: "Add info", appearance: ButtonAppearance.secondary, expand: true,)),
+                    const SizedBox(width: 10,),
+                    Expanded(child: CustomButtonWidget(onPressed: () => validateAndPostFeedHandler(context), text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', appearance: ButtonAppearance.primary, expand: true,)),
+                  ],
+                ),
               ),
             ),
           )

@@ -30,6 +30,7 @@ class _FeedEditorVideoPreviewWidgetState extends State<FeedEditorVideoPreviewWid
 
   void _loadVideo() async {
     await widget.trimmer.loadVideo(videoFile: widget.file);
+    widget.trimmer.videoPlayerController?.setLooping(true);
     widget.builder?.call(_startValue, _endValue);
     await widget.trimmer.videoPlaybackControl(
       startValue: _startValue,

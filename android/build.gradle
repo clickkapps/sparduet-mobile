@@ -1,12 +1,22 @@
 buildscript {
     repositories {
+        google()
         mavenCentral()
         maven { url "https://artifactory.img.ly/artifactory/imgly" }
     }
     dependencies {
         classpath 'com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.10-1.0.6' // Depending on your Kotlin version.
         classpath 'ly.img.android.sdk:plugin:10.9.0'
+        // START: FlutterFire Configuration
+        classpath 'com.google.gms:google-services:4.4.2'
+        // END: FlutterFire Configuration
     }
+}
+
+ext {
+    compileSdkVersion   = 34                // or higher / as desired
+    targetSdkVersion    = 34                // or higher / as desired
+//    appCompatVersion    = "1.7.0"           // or higher / as desired
 }
 
 allprojects {
@@ -14,6 +24,8 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://artifactory.img.ly/artifactory/imgly' }
+        // [required] background_fetch
+        maven { url "${project(':background_fetch').projectDir}/libs" }
     }
 }
 

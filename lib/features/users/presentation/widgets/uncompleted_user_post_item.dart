@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +35,12 @@ class UncompletedUserPostItem extends StatelessWidget {
                   autoPlay: false,
                   loop: false,
                   fit: BoxFit.cover,
+                  useCache: false,
                   videoSource: VideoSource.file,
+                  builder: (controller)  {
+                    final double videoLength = (controller.videoPlayerController?.value.duration?.inSeconds ?? 0).toDouble();
+                    controller.seekTo(Duration(seconds: videoLength ~/ 2));
+                  },
                 )
               },
 

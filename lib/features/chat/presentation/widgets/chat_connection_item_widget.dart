@@ -6,13 +6,13 @@ import 'package:separated_column/separated_column.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
-import 'package:sparkduet/features/chat/data/models/chat_model.dart';
+import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
 import 'package:sparkduet/utils/custom_badge_icon.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
 class ChatConnectionItemWidget extends StatelessWidget {
 
-  final ChatModel chat;
+  final ChatConnectionModel chat;
   const ChatConnectionItemWidget({super.key, required this.chat});
 
   void _showContextMenu(BuildContext context) {
@@ -45,7 +45,7 @@ class ChatConnectionItemWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: Row(
             children: [
-              CustomUserAvatarWidget(size: 55, showBorder: false, borderWidth: 1, imageUrl: otherParticipant.image),
+              CustomUserAvatarWidget(size: 55, showBorder: false, borderWidth: 1, imageUrl: otherParticipant.info?.profilePicPath),
               const SizedBox(width: 10,),
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +53,7 @@ class ChatConnectionItemWidget extends StatelessWidget {
                   Text(otherParticipant.name ?? '', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),),
 
                   if(chat.lastMessage  != null) ... {
-                    if(chat.lastMessage?.deleted ?? false) ... {
+                    if(chat.lastMessage?.deletedAt != null) ... {
                       Row(
                         children: [
                           Icon(Icons.block, size: 13, color: theme.textTheme.titleSmall?.color,),
@@ -63,7 +63,7 @@ class ChatConnectionItemWidget extends StatelessWidget {
                       )
                     }else ... {
                       // Text(, style: theme.textTheme.titleSmall?.copyWith(fontSize: 12), maxLines: 1, ),
-                      Text(chat.lastMessage?.message ?? '', style: theme.textTheme.bodySmall,),
+                      Text(chat.lastMessage?.text ?? '', style: theme.textTheme.bodySmall,),
                     }
                   }
 
@@ -89,18 +89,19 @@ class ChatConnectionItemWidget extends StatelessWidget {
                     Text(getFormattedDateWithIntl(chat.lastMessage!.createdAt!, format: "h:mm a"), style: theme.textTheme.bodySmall?.copyWith(),),
                   },
 
-                  if(thisParticipant.unreadMessages > 0)... {
-                    CustomBadgeIcon(badgeCount: thisParticipant.unreadMessages)
-                    // Container(
-                    //   width: 20,
-                    //   height: 20,
-                    //   decoration: BoxDecoration(
-                    //       color: const Color(0xffB20000),
-                    //       borderRadius: BorderRadius.circular(20)
-                    //   ),
-                    //   child:  Center(child: Text("${}", style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),),),
-                    // )
-                  }
+                  // this will come from the pivot
+                  // if(thisParticipant.unreadMessages > 0)... {
+                  //   CustomBadgeIcon(badgeCount: thisParticipant.unreadMessages)
+                  //   // Container(
+                  //   //   width: 20,
+                  //   //   height: 20,
+                  //   //   decoration: BoxDecoration(
+                  //   //       color: const Color(0xffB20000),
+                  //   //       borderRadius: BorderRadius.circular(20)
+                  //   //   ),
+                  //   //   child:  Center(child: Text("${}", style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),),),
+                  //   // )
+                  // }
 
                 ],
               )

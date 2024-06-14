@@ -30,5 +30,57 @@ class UserCubit extends Cubit<UserState> {
     emit(state.copyWith(status: UserStatus.fetchUserInfoSuccessful));
   }
 
+  void saveProfileView({required int? profileId}) async {
+    emit(state.copyWith(status: UserStatus.saveProfileViewInProgress));
+    final either = await userRepository.saveProfileView(profileId: profileId);
+    if(either.isLeft()){
+      final l = either.asLeft();
+      emit(state.copyWith(status: UserStatus.saveProfileViewFailed, message: l));
+      return;
+    }
+    emit(state.copyWith(status: UserStatus.saveProfileViewSuccessful));
+  }
+
+
+  Future<(String?, List<UserModel>?)> fetchUnreadProfileViewers({int? pageKey}) async {
+
+    emit(state.copyWith(status: UserStatus.fetchUnreadProfileViewersInProgress));
+    final either = await userRepository.fetchUnreadProfileViewers(pageKey: pageKey);
+    if(either.isLeft()){
+      final l = either.asLeft();
+      emit(state.copyWith(status: UserStatus.fetchUnreadProfileViewersFailed, message: l));
+      return (l, null);
+    }
+
+
+    final newItems = either.asRight();
+    final List<UserModel> users = <UserModel>[...state.unreadViewers];
+    if(pageKey == 1){
+      // if its first page request remove all existing threads
+      users.clear();
+    }
+    users.addAll(newItems);
+    emit(state.copyWith(status: UserStatus.fetchUnreadProfileViewersSuccessful, unreadViewers: users));
+    return (null, newItems);
+
+  }
+
+  Future<void> countUnreadProfileViews() async {
+
+    emit(state.copyWith(status: UserStatus.countUnreadProfileViewersInProgress));
+    final either = await userRepository.countUnreadProfileViews();
+    if(either.isLeft()){
+      final l = either.asLeft();
+      emit(state.copyWith(status: UserStatus.countUnreadProfileViewersFailed, message: l));
+      return;
+    }
+
+
+    final count = either.asRight();
+    emit(state.copyWith(status: UserStatus.countUnreadProfileViewersSuccessful, unreadViewersCount: count));
+    return;
+
+  }
+
 
 }

@@ -2,8 +2,8 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_colors.dart';
-import 'package:sparkduet/features/chat/data/store/chat_cubit.dart';
-import 'package:sparkduet/features/chat/data/store/chat_state.dart';
+import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
+import 'package:sparkduet/features/chat/data/store/chat_connections_state.dart';
 
 class ChatIconWidget extends StatefulWidget {
 
@@ -15,24 +15,24 @@ class ChatIconWidget extends StatefulWidget {
 
 class _ChatIconWidgetState extends State<ChatIconWidget> {
 
-  late ChatCubit chatCubit;
+  late ChatConnectionsCubit chatConnectionsCubit;
   @override
   void initState() {
-    chatCubit = context.read<ChatCubit>();
-    chatCubit.listenToUnreadChatForNotificationDisplay();
+    chatConnectionsCubit = context.read<ChatConnectionsCubit>();
+    // chatConnectionsCubit.listenToUnreadChatForNotificationDisplay();
     super.initState();
   }
 
   @override
   void dispose() {
-    chatCubit.cancelUnreadChatForNotificationDisplayListener();
+    // chatConnectionsCubit.cancelUnreadChatForNotificationDisplayListener();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return BlocSelector<ChatCubit, ChatState, int>(
+    return BlocSelector<ChatConnectionsCubit, ChatConnectionState, int>(
       selector: (state) {
         return state.unreadMessages;
       },

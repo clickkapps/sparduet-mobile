@@ -13,7 +13,7 @@ import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
-import 'package:sparkduet/features/feeds/presentation/widgets/filter_feeds_widget.dart';
+import 'package:sparkduet/features/feeds/presentation/pages/filter_feeds_page.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
@@ -21,8 +21,9 @@ import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
 class FeedActionsWidget extends StatelessWidget {
 
   final FeedModel feed;
+  final Function(String)? onActionTapped;
 
-  const FeedActionsWidget({super.key, required this.feed});
+  const FeedActionsWidget({super.key, required this.feed, this.onActionTapped});
 
 
   void filterPostsHandler(BuildContext context) {
@@ -37,7 +38,7 @@ class FeedActionsWidget extends StatelessWidget {
           builder: (_ , controller) {
             return ClipRRect(
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: FilterFeedsWidget(scrollController: controller,)
+                child: FilterFeedsPage(scrollController: controller,)
             );
           }
       ),
@@ -61,7 +62,7 @@ class FeedActionsWidget extends StatelessWidget {
           }
       ),
     );
-    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
 
 
@@ -85,16 +86,31 @@ class FeedActionsWidget extends StatelessWidget {
             filterPostsHandler(context);
           },
           behavior: HitTestBehavior.opaque,
-          child: const Column(
+          child:  Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomHeartAnimationWidget(
                   isAnimating: false,
                   alwayAnimate: true,
-                  child: Icon(FeatherIcons.sliders, size: 25, color: Colors.white,)
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Calculate icon size based on parent constraints
+                      double iconSize = constraints.maxWidth * 0.08; // 10% of parent width
+
+                      // Ensure the icon size is not too small or too large
+                      if (iconSize < 24) {
+                        iconSize = 24;
+                      } else if (iconSize > 100) {
+                        iconSize = 100;
+                      }
+
+                      return Icon(FeatherIcons.sliders, size: iconSize, color: Colors.white,);
+                    },
+                  )
+
               ),
-              SizedBox(width: 5,),
-              Text("Filter posts", style: TextStyle(color: Colors.white, fontSize:11),),
+              const SizedBox(width: 5,),
+              const Text("Filter posts", style: TextStyle(color: Colors.white, fontSize:11),),
             ],
           ),
         ),
@@ -116,7 +132,21 @@ class FeedActionsWidget extends StatelessWidget {
                   CustomHeartAnimationWidget(
                       isAnimating: hasBookmarked,
                       alwayAnimate: true,
-                      child: Icon(Icons.bookmark, size: 30, color: (feed.hasBookmarked ?? false) ? Colors.amber : Colors.white,)
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Calculate icon size based on parent constraints
+                          double iconSize = constraints.maxWidth * 0.09; // 10% of parent width
+
+                          // Ensure the icon size is not too small or too large
+                          if (iconSize < 24) {
+                            iconSize = 24;
+                          } else if (iconSize > 100) {
+                            iconSize = 100;
+                          }
+
+                          return Icon(Icons.bookmark, size: iconSize, color: (feed.hasBookmarked ?? false) ? Colors.amber : Colors.white,);
+                        },
+                      )
                   ),
                   if((feed.totalBookmarks ?? 0) > 0) ... {
                     Text("${feed.totalBookmarks ?? 0}", style: const TextStyle(color: Colors.white, fontSize:11),),
@@ -131,16 +161,31 @@ class FeedActionsWidget extends StatelessWidget {
           GestureDetector(
             onTap: () => reportPostHandler(context),
             behavior: HitTestBehavior.opaque,
-            child: const Column(
+            child:  Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CustomHeartAnimationWidget(
                     isAnimating: false,
                     alwayAnimate: true,
-                    child: Icon(Icons.health_and_safety, size: 30, color: Colors.white,)
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Calculate icon size based on parent constraints
+                        double iconSize = constraints.maxWidth * 0.08; // 10% of parent width
+
+                        // Ensure the icon size is not too small or too large
+                        if (iconSize < 24) {
+                          iconSize = 24;
+                        } else if (iconSize > 100) {
+                          iconSize = 100;
+                        }
+
+                        return Icon(Icons.health_and_safety, size: iconSize, color: Colors.white,);
+                      },
+                    )
+                    // Icon(Icons.health_and_safety, size: 30, color: Colors.white,)
                 ),
-                SizedBox(width: 5,),
-                Text("Report post", style: TextStyle(color: Colors.white, fontSize:11),),
+                const SizedBox(width: 5,),
+                const Text("Report post", style: TextStyle(color: Colors.white, fontSize:11),),
               ],
             ),
           ),
@@ -175,16 +220,31 @@ class FeedActionsWidget extends StatelessWidget {
               context.push(AppRoutes.chatPreview, extra: feed.user );
             },
             behavior: HitTestBehavior.opaque,
-            child: const Column(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Widget>[
                 CustomHeartAnimationWidget(
                     isAnimating: false,
                     alwayAnimate: true,
-                    child: Icon(FontAwesomeIcons.solidComments, size: 27, color: AppColors.buttonBlue,)
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Calculate icon size based on parent constraints
+                        double iconSize = constraints.maxWidth * 0.08; // 10% of parent width
+
+                        // Ensure the icon size is not too small or too large
+                        if (iconSize < 24) {
+                          iconSize = 24;
+                        } else if (iconSize > 100) {
+                          iconSize = 100;
+                        }
+
+                        return Icon(FontAwesomeIcons.solidComments, size: iconSize, color: AppColors.buttonBlue,);
+                      },
+                    )
+                    // Icon(FontAwesomeIcons.solidComments, size: 27, color: AppColors.buttonBlue,)
                 ),
-                SizedBox(width: 5,),
-                Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
+                const SizedBox(width: 5,),
+                const Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
               ],
             ),
           ),
@@ -193,7 +253,12 @@ class FeedActionsWidget extends StatelessWidget {
         /// Like
         GestureDetector(
           onTap: () {
-            context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: (feed.hasLiked ?? 0) > 0 ? "remove" : "add");
+            if((feed.hasLiked ?? 0) > 0) {
+              context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: "remove");
+            }else {
+              context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: "add");
+              onActionTapped?.call("liked");
+            }
           },
           behavior: HitTestBehavior.opaque,
           child: SeparatedColumn(
@@ -205,7 +270,22 @@ class FeedActionsWidget extends StatelessWidget {
               CustomHeartAnimationWidget(
                   isAnimating: feed.hasLiked == 1,// only animate for the first like
                   alwayAnimate: true,
-                  child: (feed.hasLiked ?? 0) > 0 ? const Icon(Icons.favorite, size: 32, color: Colors.red,) : const Icon(Icons.favorite, size: 32, color: Colors.white,)
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Calculate icon size based on parent constraints
+                      double iconSize = constraints.maxWidth * 0.1; // 10% of parent width
+
+                      // Ensure the icon size is not too small or too large
+                      if (iconSize < 24) {
+                        iconSize = 24;
+                      } else if (iconSize > 100) {
+                        iconSize = 100;
+                      }
+
+                      return Icon(Icons.favorite, size: iconSize, color: (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white,);
+                    },
+                  )
+                  // Icon(Icons.favorite, size: 32, color: (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white,)
               ),
               if((feed.totalLikes ?? 0) > 0) ... {
                 Text("${feed.totalLikes}", style: TextStyle(color:  (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white, fontSize: 12),),

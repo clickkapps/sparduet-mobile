@@ -1,5 +1,7 @@
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pulsator/pulsator.dart';
@@ -21,6 +23,7 @@ import 'package:sparkduet/features/users/data/store/user_feeds_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_state.dart';
 import 'package:sparkduet/features/users/presentation/widgets/bookmarked_posts_tab_view_widget.dart';
 import 'package:sparkduet/features/users/presentation/widgets/user_posts_tab_view_widget.dart';
+import 'package:sparkduet/features/users/presentation/widgets/user_profile_action_widget.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 import 'package:sparkduet/utils/custom_chip_widget.dart';
@@ -74,7 +77,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       },
     ];
     tabController = PageController(initialPage: 0);
-
+    userCubit.saveProfileView(profileId: widget.user.id);
     super.initState();
   }
 
@@ -87,6 +90,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final media = MediaQuery.of(context);
+    final headerContainerHeight = media.size.height * 0.35;
+    final headerBackgroundHeight = headerContainerHeight * 0.75;
+    final headerIconSize = headerContainerHeight * 0.3;
+    final heightBetweenBackgroundAndContainer = headerContainerHeight - headerBackgroundHeight;
+    final actionIconSize = heightBetweenBackgroundAndContainer - (10 + 10); // 10 + 10 is the padding top and button
+
+
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -108,7 +120,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   SliverToBoxAdapter(
                     child: SizedBox(
                       width: double.maxFinite,
-                      height: 225,
+                      height: headerContainerHeight,
+                      // height: 250,
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
@@ -129,7 +142,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             },
                             child: SizedBox(
                               width: double.maxFinite,
-                              height: 190,
+                              height: headerBackgroundHeight,
                               child: ColoredBox(
                                 color: AppColors.darkColorScheme.surface,
                                 child: Stack(
@@ -176,7 +189,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             ),
                           ),
                           Positioned(
-                              bottom: 0,
+                              bottom: (headerContainerHeight - headerBackgroundHeight) - (headerIconSize / 2),
                               right: 15,
                               child: GestureDetector(
                                   onTap: () {
@@ -187,8 +200,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(100),
                                     child: SizedBox(
-                                      width: theme.brightness == Brightness.dark ? 75 : 70,
-                                      height: theme.brightness == Brightness.dark ? 75 : 70,
+                                      // width: theme.brightness == Brightness.dark ? 75 : 70,
+                                      // height: theme.brightness == Brightness.dark ? 75 : 70,
+                                      width: headerIconSize,
+                                      height: headerIconSize,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
@@ -197,25 +212,56 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                                             ClipRRect(
                                               borderRadius: BorderRadius.circular(100),
-                                              child: CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover,
+                                              child: CustomUserAvatarWidget(size: headerIconSize, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover,
                                                 imageUrl: AppConstants.imageMediaPath(mediaId: user.info?.profilePicPath ?? ''),
                                               ),
                                             )
 
                                           }else ... {
-                                            CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover)
+                                            CustomUserAvatarWidget(size: headerIconSize, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover)
                                           }
                                         ],
                                       ),
                                     ),
                                   )
                               )
-                          )
+                          ),
+
+                          Positioned(
+                              top: headerBackgroundHeight,
+                              left: 15,
+                              child: SeparatedRow(
+                             separatorBuilder: (BuildContext context, int index) {
+                               return const SizedBox(width: 10,);
+                             },
+                             children: [
+                               UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.solidMessage, onTap: () {
+                                 context.push(AppRoutes.chatPreview, extra: widget.user );
+                               },),
+                               UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.solidFlag),
+                               UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.ban),
+                                // Container(
+                                //   decoration: BoxDecoration(
+                                //     color: AppColors.buttonBlue.withOpacity(0.1),
+                                //     borderRadius: BorderRadius.circular(actionIconSize),
+                                //   ),
+                                //   padding: const EdgeInsets.all(12),
+                                //   margin: const EdgeInsets.symmetric(vertical: 5),
+                                //
+                                //   child: Center(child: Icon(FeatherIcons.flag,
+                                //     // color: theme.colorScheme.onBackground,
+                                //     color: AppColors.buttonBlue,
+                                //     size: actionIconSize * 0.4,),),
+                                // ),
+
+                             ],
+                          ))
 
                         ],
                       ),
                     ),
                   ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 5,),),
 
                   SliverToBoxAdapter(
                     child: AutoScrollTag(

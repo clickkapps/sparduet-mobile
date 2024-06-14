@@ -1,0 +1,3 @@
+enum NotificationStatus {
+  initial
+}

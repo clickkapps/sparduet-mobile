@@ -23,6 +23,11 @@ class AppApiRoutes {
     return url;
   }
 
+  static String saveProfileView = "$baseApiUrl/user/record-profile-view";
+  static String markProfileViewAsRead = "$baseApiUrl/user/mark-profile-view-as-read";
+  static String fetchUnreadProfileViewers = "$baseApiUrl/user/fetch-unread-profile-viewers";
+  static String countUnreadProfileViewers = "$baseApiUrl/user/count-unread-profile-views";
+
   static const String feeds = '$baseApiUrl/posts';
   static const String createPost = '$baseApiUrl/posts/create-post';
   static String attachMediaToPost({int? postId}) => '$baseApiUrl/posts/attach-post-media/$postId';
@@ -48,8 +53,15 @@ class AppApiRoutes {
   static const String userSearchTerms = '$baseApiUrl/search/user-search-terms';
   static const String popularSearchTerms = '$baseApiUrl/search/popular-search-terms';
 
-  static const String  suggestedChatUsers = '$baseApiUrl/chat/suggested';
   static const String  fetchSettings = '$baseApiUrl/preferences/settings';
   static const String  updateSettings = '$baseApiUrl/preferences/update-settings';
   static const String  createFeedback = '$baseApiUrl/preferences/create-feedback';
+  static const String  broadcastingAuth = '$webApiUrl/broadcasting/auth';
+  static String webSocketConnection({required int? userId}) => "users.$userId";
+
+  // chat routes
+  static const String  suggestedChatUsers = '$baseApiUrl/chat/suggested';
+  static const String  createChatConnection = '$baseApiUrl/chat/create-chat-connection';
+  static const String  fetchChatConnections = '$baseApiUrl/chat/fetch-chat-connections';
+  static String  getChatConnection(int? id) => '$baseApiUrl/chat/get-chat-connection/$id';
 }

@@ -13,6 +13,10 @@ abstract class _$UserStateCWProxy {
 
   UserState status(UserStatus status);
 
+  UserState unreadViewersCount(num unreadViewersCount);
+
+  UserState unreadViewers(List<UserModel> unreadViewers);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -23,6 +27,8 @@ abstract class _$UserStateCWProxy {
     String? message,
     UserModel? user,
     UserStatus? status,
+    num? unreadViewersCount,
+    List<UserModel>? unreadViewers,
   });
 }
 
@@ -42,6 +48,14 @@ class _$UserStateCWProxyImpl implements _$UserStateCWProxy {
   UserState status(UserStatus status) => this(status: status);
 
   @override
+  UserState unreadViewersCount(num unreadViewersCount) =>
+      this(unreadViewersCount: unreadViewersCount);
+
+  @override
+  UserState unreadViewers(List<UserModel> unreadViewers) =>
+      this(unreadViewers: unreadViewers);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -53,6 +67,8 @@ class _$UserStateCWProxyImpl implements _$UserStateCWProxy {
     Object? message = const $CopyWithPlaceholder(),
     Object? user = const $CopyWithPlaceholder(),
     Object? status = const $CopyWithPlaceholder(),
+    Object? unreadViewersCount = const $CopyWithPlaceholder(),
+    Object? unreadViewers = const $CopyWithPlaceholder(),
   }) {
     return UserState(
       message: message == const $CopyWithPlaceholder()
@@ -67,6 +83,16 @@ class _$UserStateCWProxyImpl implements _$UserStateCWProxy {
           ? _value.status
           // ignore: cast_nullable_to_non_nullable
           : status as UserStatus,
+      unreadViewersCount: unreadViewersCount == const $CopyWithPlaceholder() ||
+              unreadViewersCount == null
+          ? _value.unreadViewersCount
+          // ignore: cast_nullable_to_non_nullable
+          : unreadViewersCount as num,
+      unreadViewers:
+          unreadViewers == const $CopyWithPlaceholder() || unreadViewers == null
+              ? _value.unreadViewers
+              // ignore: cast_nullable_to_non_nullable
+              : unreadViewers as List<UserModel>,
     );
   }
 }

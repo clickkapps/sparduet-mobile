@@ -21,7 +21,7 @@ abstract final class AppConstants {
   static String videoMediaPath({required String playbackId}) => "https://stream.mux.com/$playbackId.m3u8";
   static String imageMediaPath({required String mediaId}) => "https://d2e46virtl8cds.cloudfront.net/$mediaId";
   static String audioMediaPath({required String mediaId}) => "https://d2e46virtl8cds.cloudfront.net/$mediaId";
-  static String thumbnailMediaPath({required String mediaId}) => "https://image.mux.com/$mediaId/thumbnail.webp";
+  static String thumbnailMediaPath({required String mediaId}) => "https://image.mux.com/$mediaId/thumbnail.png";
   static String defaultAudioLink = "https://d2e46virtl8cds.cloudfront.net/track_1.mp3";
   static List<String> audioLinks = <String>[
     audioMediaPath(mediaId: "track_1.mp3"),

@@ -43,4 +43,148 @@ class UserRepository {
 
   }
 
+
+  Future<Either<String, void>> saveProfileView({required int? profileId}) async {
+
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      final path = AppApiRoutes.saveProfileView;
+
+      final body = {
+        "profile_id": profileId
+      };
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+          body: body
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
+
+
+  }
+
+  Future<Either<String, void>> markProfileViewAsRead({required List<int> ids}) async {
+
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      final path = AppApiRoutes.markProfileViewAsRead;
+
+      final body = {
+        "ids": ids
+      };
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+          body: body
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
+
+
+  }
+
+  Future<Either<String, List<UserModel>>> fetchUnreadProfileViewers({int? pageKey}) async {
+
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      final path = AppApiRoutes.fetchUnreadProfileViewers;
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.get,
+          queryParams:  {"page": pageKey}
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        final dynamicList = response.data["extra"]["data"] as List<dynamic>;
+        final list = List<UserModel>.from(dynamicList.map((x) => UserModel.fromJson(x['viewer'])));
+
+        return  Right(list);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
+
+
+  }
+
+
+  Future<Either<String, num>> countUnreadProfileViews() async {
+
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      final path = AppApiRoutes.fetchUnreadProfileViewers;
+
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.get,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        final cnt = response.data["extra"] as num;
+        return  Right(cnt);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
+
+
+  }
+
+
+
 }

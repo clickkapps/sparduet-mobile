@@ -9,7 +9,7 @@ import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/chat/data/repositories/chat_broadcast_repository.dart';
 import 'package:sparkduet/features/chat/data/repositories/chat_repository.dart';
-import 'package:sparkduet/features/chat/data/store/chat_cubit.dart';
+import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
 import 'package:sparkduet/features/countries/data/repositories/countries_repository.dart';
 import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
@@ -20,10 +20,15 @@ import 'package:sparkduet/features/feeds/data/store/stories_feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/store/stories_previews_cubit.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
 import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
+import 'package:sparkduet/features/notifications/data/repositories/notifications_repository.dart';
+import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
 import 'package:sparkduet/features/preferences/data/repositories/preferences_repository.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
 import 'package:sparkduet/features/search/data/repositories/search_repository.dart';
 import 'package:sparkduet/features/search/data/store/search_cubit.dart';
+import 'package:sparkduet/features/subscriptions/data/repositories/subscription_repository.dart';
+import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/theme/data/repositories/theme_repository.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/features/theme/data/store/theme_state.dart';
@@ -54,6 +59,9 @@ class App extends StatelessWidget {
     final userRepository = UserRepository(networkProvider: sl());
     final preferencesRepository = PreferencesRepository(networkProvider: sl());
     final chatBroadcastRepository = sl<ChatBroadcastRepository>();
+    final socketRepository = sl<SocketConnectionRepository>();
+    final notificationsRepository = NotificationsRepository(networkProvider: sl());
+    final subscriptionRepository = SubscriptionRepository(networkProvider: sl());
 
     return MultiBlocProvider(
         providers: [
@@ -70,10 +78,12 @@ class App extends StatelessWidget {
           BlocProvider(create: (context) => NavCubit()),
           BlocProvider(create: (context) => CountriesCubit(countriesRepository: countriesRepository)),
           BlocProvider(create: (context) => SearchCubit(searchRepository: searchRepository)),
-          BlocProvider(create: (context) => ChatCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository)),
+          BlocProvider(create: (context) => ChatConnectionsCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository)),
           BlocProvider(create: (context) => ChatPreviewCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository)),
           BlocProvider(create: (context) => UserCubit(userRepository: userRepository)),
           BlocProvider(create: (context) => PreferencesCubit(preferencesRepository: preferencesRepository)),
+          BlocProvider(create: (context) => NotificationsCubit(notificationsRepository: notificationsRepository, socketConnectionRepository: socketRepository)),
+          BlocProvider(create: (context) => SubscriptionCubit(subscriptionRepository: subscriptionRepository)),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {

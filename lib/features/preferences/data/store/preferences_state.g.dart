@@ -17,6 +17,8 @@ abstract class _$PreferencesStateCWProxy {
   PreferencesState enableStoryViewsNotifications(
       bool enableStoryViewsNotifications);
 
+  PreferencesState showSwipeUpStoriesHint(bool? showSwipeUpStoriesHint);
+
   PreferencesState preferredFontFamily(String? preferredFontFamily);
 
   PreferencesState preferredThemeAppearance(String preferredThemeAppearance);
@@ -34,6 +36,7 @@ abstract class _$PreferencesStateCWProxy {
     bool? enableChatNotifications,
     bool? enableProfileViewsNotifications,
     bool? enableStoryViewsNotifications,
+    bool? showSwipeUpStoriesHint,
     String? preferredFontFamily,
     String? preferredThemeAppearance,
     String? message,
@@ -64,6 +67,10 @@ class _$PreferencesStateCWProxyImpl implements _$PreferencesStateCWProxy {
       this(enableStoryViewsNotifications: enableStoryViewsNotifications);
 
   @override
+  PreferencesState showSwipeUpStoriesHint(bool? showSwipeUpStoriesHint) =>
+      this(showSwipeUpStoriesHint: showSwipeUpStoriesHint);
+
+  @override
   PreferencesState preferredFontFamily(String? preferredFontFamily) =>
       this(preferredFontFamily: preferredFontFamily);
 
@@ -87,6 +94,7 @@ class _$PreferencesStateCWProxyImpl implements _$PreferencesStateCWProxy {
     Object? enableChatNotifications = const $CopyWithPlaceholder(),
     Object? enableProfileViewsNotifications = const $CopyWithPlaceholder(),
     Object? enableStoryViewsNotifications = const $CopyWithPlaceholder(),
+    Object? showSwipeUpStoriesHint = const $CopyWithPlaceholder(),
     Object? preferredFontFamily = const $CopyWithPlaceholder(),
     Object? preferredThemeAppearance = const $CopyWithPlaceholder(),
     Object? message = const $CopyWithPlaceholder(),
@@ -114,6 +122,11 @@ class _$PreferencesStateCWProxyImpl implements _$PreferencesStateCWProxy {
               ? _value.enableStoryViewsNotifications
               // ignore: cast_nullable_to_non_nullable
               : enableStoryViewsNotifications as bool,
+      showSwipeUpStoriesHint:
+          showSwipeUpStoriesHint == const $CopyWithPlaceholder()
+              ? _value.showSwipeUpStoriesHint
+              // ignore: cast_nullable_to_non_nullable
+              : showSwipeUpStoriesHint as bool?,
       preferredFontFamily: preferredFontFamily == const $CopyWithPlaceholder()
           ? _value.preferredFontFamily
           // ignore: cast_nullable_to_non_nullable

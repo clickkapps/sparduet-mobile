@@ -113,7 +113,7 @@ class FeedsCubit extends Cubit<FeedState> {
           status: null
         );
       }
-      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds));
+      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds, data: {"feed": existingFeeds[existingTempFeedIndex]}));
     }
 
     ///! function to set post as failed
@@ -180,9 +180,9 @@ class FeedsCubit extends Cubit<FeedState> {
       File? postFile;
 
       //! Flip file if its front camera
-      if(flipFile) {
-        postFile = await AppPostConverter.flipVideo(file);
-      }
+      // if(flipFile) {
+      //   postFile = await AppPostConverter.flipVideo(file);
+      // }
       final uploadResponse = await fileRepository.uploadVideoToServer(videoFile: postFile ?? file);
 
       if(uploadResponse.isLeft()){
@@ -217,13 +217,23 @@ class FeedsCubit extends Cubit<FeedState> {
 
 
   //! Fetch feeds and update the app's state as well as the UI
-  Future<(String?, List<FeedModel>?)> fetchFeeds({required String path, required int pageKey, Map<String, dynamic>? queryParams}) async {
+  Future<(String?, List<FeedModel>?)> fetchFeeds({required String path, required int pageKey, Map<String, dynamic>? queryParams, bool returnExistingFeedsForFirstPage = true}) async {
 
 
     final uncompletedFeeds = state.feeds.where((element) => element.id == null).toList();
     if(uncompletedFeeds.isNotEmpty && pageKey == 1) {
       emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
       emit(state.copyWith(status: FeedStatus.unCompletedPostsWithFeeds, feeds: state.feeds));
+    }
+
+    // return cached items
+    if(returnExistingFeedsForFirstPage) {
+      if(pageKey == 1 && state.feeds.isNotEmpty) {
+        emit(state.copyWith(status: FeedStatus.fetchFeedsSuccessful,
+            data: { "pageKey": pageKey }
+        ));
+        return (null, state.feeds);
+      }
     }
 
     emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
@@ -244,7 +254,8 @@ class FeedsCubit extends Cubit<FeedState> {
     feeds.addAll(newItems);
 
     emit(state.copyWith(status: FeedStatus.fetchFeedsSuccessful,
-        feeds: feeds
+        feeds: feeds,
+        data: { "pageKey": pageKey }
     ));
 
     return (null, newItems);
@@ -270,7 +281,7 @@ class FeedsCubit extends Cubit<FeedState> {
 
     removeLike() {
       final updatedFeed = feed.copyWith(
-          totalLikes: (feed.totalLikes ?? 1) - 1,
+          totalLikes: (feed.totalLikes ?? 1) - (feed.hasLiked ?? 1), // reduce total likes by the number of times this user has liked
           hasLiked: 0 // reduce all likes to zero once user removes the likes
       );
       feedBroadcastRepository.updateFeed(feed: updatedFeed);
@@ -315,7 +326,7 @@ class FeedsCubit extends Cubit<FeedState> {
           totalBookmarks: status ? ((existingFeed.totalBookmarks ?? 0) + 1) : ((existingFeed.totalBookmarks ?? 1) - 1)
       );
       feedBroadcastRepository.updateFeed(feed: updatedFeed);
-      emit(state.copyWith(status: FeedStatus.togglePostBookmarkActionSuccessful));
+      emit(state.copyWith(status: FeedStatus.togglePostBookmarkActionSuccessful, data: {"feed": updatedFeed} ));
     }
 
     failed(String reason) {

@@ -1,3 +1,3 @@
 enum UserStatus {
-  initial, setUserInProgress, setUserCompleted, fetchUserInfoInProgress, fetchUserInfoFailed, fetchUserInfoSuccessful
+  initial, setUserInProgress, setUserCompleted, fetchUserInfoInProgress, fetchUserInfoFailed, fetchUserInfoSuccessful, fetchUnreadProfileViewersInProgress, fetchUnreadProfileViewersFailed, fetchUnreadProfileViewersSuccessful, saveProfileViewInProgress, saveProfileViewFailed, saveProfileViewSuccessful, countUnreadProfileViewersInProgress, countUnreadProfileViewersFailed, countUnreadProfileViewersSuccessful
 }

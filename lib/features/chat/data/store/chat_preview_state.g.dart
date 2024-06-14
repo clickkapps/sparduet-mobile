@@ -12,9 +12,10 @@ abstract class _$ChatPreviewStateCWProxy {
   ChatPreviewState status(ChatPreviewStatus status);
 
   ChatPreviewState reOrderedChatMessages(
-      Map<DateTime, List<MessageModel>> reOrderedChatMessages);
+      Map<DateTime, List<ChatMessageModel>> reOrderedChatMessages);
 
-  ChatPreviewState linearMessagesList(List<MessageModel> linearMessagesList);
+  ChatPreviewState linearMessagesList(
+      List<ChatMessageModel> linearMessagesList);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatPreviewState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -25,8 +26,8 @@ abstract class _$ChatPreviewStateCWProxy {
   ChatPreviewState call({
     String? message,
     ChatPreviewStatus? status,
-    Map<DateTime, List<MessageModel>>? reOrderedChatMessages,
-    List<MessageModel>? linearMessagesList,
+    Map<DateTime, List<ChatMessageModel>>? reOrderedChatMessages,
+    List<ChatMessageModel>? linearMessagesList,
   });
 }
 
@@ -44,11 +45,12 @@ class _$ChatPreviewStateCWProxyImpl implements _$ChatPreviewStateCWProxy {
 
   @override
   ChatPreviewState reOrderedChatMessages(
-          Map<DateTime, List<MessageModel>> reOrderedChatMessages) =>
+          Map<DateTime, List<ChatMessageModel>> reOrderedChatMessages) =>
       this(reOrderedChatMessages: reOrderedChatMessages);
 
   @override
-  ChatPreviewState linearMessagesList(List<MessageModel> linearMessagesList) =>
+  ChatPreviewState linearMessagesList(
+          List<ChatMessageModel> linearMessagesList) =>
       this(linearMessagesList: linearMessagesList);
 
   @override
@@ -79,12 +81,12 @@ class _$ChatPreviewStateCWProxyImpl implements _$ChatPreviewStateCWProxy {
                   reOrderedChatMessages == null
               ? _value.reOrderedChatMessages
               // ignore: cast_nullable_to_non_nullable
-              : reOrderedChatMessages as Map<DateTime, List<MessageModel>>,
+              : reOrderedChatMessages as Map<DateTime, List<ChatMessageModel>>,
       linearMessagesList: linearMessagesList == const $CopyWithPlaceholder() ||
               linearMessagesList == null
           ? _value.linearMessagesList
           // ignore: cast_nullable_to_non_nullable
-          : linearMessagesList as List<MessageModel>,
+          : linearMessagesList as List<ChatMessageModel>,
     );
   }
 }

@@ -18,13 +18,13 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 
 # ---> run: dart run build_runner build --delete-conflicting-outputs
-# ---> run: flutter build appbundle --flavor=live --obfuscate --split-debug-info=build/  --- to build for android production
+# ---> run: flutter build appbundle --obfuscate --split-debug-info=build/  --- to build for android production
 # ---> run: flutter build ios --obfuscate --- to build for ios production
 # ---> run: flutter build apk --split-per-abi  --- to build for split apk
 # ---> run: dart run flutter_native_splash:create  --- to create splash screen
 # ---> run: dart run flutter_launcher_icons  --- to generate launcher icon
 
-version: 1.1.2+12
+version: 1.1.5+15
 
 environment:
   sdk: '>=3.3.3 <4.0.0'
@@ -121,7 +121,12 @@ dependencies:
   open_store: ^0.5.0
   notification_permissions: ^0.6.1
   firebase_remote_config: ^4.4.4
-
+  pusher_channels_flutter: ^2.2.1
+  background_fetch: ^1.3.5
+  firebase_crashlytics: ^3.5.7
+  hive: ^2.2.3
+  purchases_flutter: ^6.29.3
+  purchases_ui_flutter: ^6.29.3
 
 dependency_overrides:
   wakelock: 0.6.2
