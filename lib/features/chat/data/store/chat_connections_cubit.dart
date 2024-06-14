@@ -42,7 +42,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     emit(state.copyWith(status: ChatConnectionStatus.createChatConnectionLoading));
     const displayErrorMessage = "Oops! kindly restore your connection and try again";
 
-    if(await isNetworkConnected ()) {
+    if(!(await isNetworkConnected ())) {
 
       emit(state.copyWith(status: ChatConnectionStatus.createChatConnectionError, message: displayErrorMessage));
       return (displayErrorMessage, null);

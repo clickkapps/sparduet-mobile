@@ -100,9 +100,15 @@ final router = GoRouter(
       parentNavigatorKey: _rootNavigator,
       pageBuilder: (context, state) {
 
-        final map = state.extra as Map<String, dynamic>;
-        final chatConnection = map["connection"] as ChatConnectionModel?;
-        final opponent = map["opponent"] as UserModel;
+        late UserModel opponent;
+        ChatConnectionModel? chatConnection;
+        if(state.extra is Map<String, dynamic>) {
+          final map = state.extra as Map<String, dynamic>;
+           chatConnection = map["connection"] as ChatConnectionModel?;
+           opponent = map["user"] as UserModel;
+        }else {
+          opponent = state.extra as UserModel;
+        }
 
         return  MaterialPage(name: state.path, arguments: state.extra,
             child: ChatPreviewPage(opponent: opponent, connection: chatConnection,)

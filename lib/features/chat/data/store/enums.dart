@@ -3,7 +3,7 @@ enum ChatConnectionStatus {
 }
 
 enum ChatPreviewStatus {
-  initial
+  initial, refreshChatMessagesSuccessful, fetchChatMessagesInProgress
 }
 
 enum ChatBroadcastAction {
