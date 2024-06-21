@@ -17,6 +17,9 @@ abstract class _$ChatConnectionModelCWProxy {
 
   ChatConnectionModel matchedAt(DateTime? matchedAt);
 
+  ChatConnectionModel readFirstImpressionNoteAt(
+      DateTime? readFirstImpressionNoteAt);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -29,6 +32,7 @@ abstract class _$ChatConnectionModelCWProxy {
     ChatMessageModel? lastMessage,
     DateTime? createdAt,
     DateTime? matchedAt,
+    DateTime? readFirstImpressionNoteAt,
   });
 }
 
@@ -58,6 +62,11 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
       this(matchedAt: matchedAt);
 
   @override
+  ChatConnectionModel readFirstImpressionNoteAt(
+          DateTime? readFirstImpressionNoteAt) =>
+      this(readFirstImpressionNoteAt: readFirstImpressionNoteAt);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -71,6 +80,7 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
     Object? lastMessage = const $CopyWithPlaceholder(),
     Object? createdAt = const $CopyWithPlaceholder(),
     Object? matchedAt = const $CopyWithPlaceholder(),
+    Object? readFirstImpressionNoteAt = const $CopyWithPlaceholder(),
   }) {
     return ChatConnectionModel(
       id: id == const $CopyWithPlaceholder()
@@ -93,6 +103,11 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
           ? _value.matchedAt
           // ignore: cast_nullable_to_non_nullable
           : matchedAt as DateTime?,
+      readFirstImpressionNoteAt:
+          readFirstImpressionNoteAt == const $CopyWithPlaceholder()
+              ? _value.readFirstImpressionNoteAt
+              // ignore: cast_nullable_to_non_nullable
+              : readFirstImpressionNoteAt as DateTime?,
     );
   }
 }
@@ -102,6 +117,59 @@ extension $ChatConnectionModelCopyWith on ChatConnectionModel {
   // ignore: library_private_types_in_public_api
   _$ChatConnectionModelCWProxy get copyWith =>
       _$ChatConnectionModelCWProxyImpl(this);
+}
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class ChatConnectionModelAdapter extends TypeAdapter<ChatConnectionModel> {
+  @override
+  final int typeId = 1;
+
+  @override
+  ChatConnectionModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ChatConnectionModel(
+      id: fields[0] as int?,
+      participants: (fields[6] as List?)?.cast<UserModel>(),
+      lastMessage: fields[2] as ChatMessageModel?,
+      createdAt: fields[5] as DateTime?,
+      matchedAt: fields[3] as DateTime?,
+      readFirstImpressionNoteAt: fields[4] as DateTime?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ChatConnectionModel obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(2)
+      ..write(obj.lastMessage)
+      ..writeByte(3)
+      ..write(obj.matchedAt)
+      ..writeByte(4)
+      ..write(obj.readFirstImpressionNoteAt)
+      ..writeByte(6)
+      ..write(obj.participants)
+      ..writeByte(5)
+      ..write(obj.createdAt);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatConnectionModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 // **************************************************************************
@@ -124,14 +192,19 @@ ChatConnectionModel _$ChatConnectionModelFromJson(Map<String, dynamic> json) =>
       matchedAt: json['matched_at'] == null
           ? null
           : DateTime.parse(json['matched_at'] as String),
+      readFirstImpressionNoteAt: json['read_first_impression_note_at'] == null
+          ? null
+          : DateTime.parse(json['read_first_impression_note_at'] as String),
     );
 
 Map<String, dynamic> _$ChatConnectionModelToJson(
         ChatConnectionModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'participants': instance.participants?.map((e) => e.toJson()).toList(),
       'lastMessage': instance.lastMessage?.toJson(),
       'matched_at': instance.matchedAt?.toIso8601String(),
+      'read_first_impression_note_at':
+          instance.readFirstImpressionNoteAt?.toIso8601String(),
+      'participants': instance.participants?.map((e) => e.toJson()).toList(),
       'created_at': instance.createdAt?.toIso8601String(),
     };

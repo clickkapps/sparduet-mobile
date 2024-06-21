@@ -48,7 +48,7 @@ class MessageItemWidget extends StatelessWidget {
                 // left: message.parentMessage == null ? null :  (!(message.isSender ?? false)  ? 0 : null),
                 child: Container(
                   decoration: BoxDecoration(
-                      border: Border.all(color: theme.colorScheme.outline.withOpacity(theme.brightness == Brightness.dark ? 0.2 : 0.1)),
+                      border: Border.all(color: theme.colorScheme.outline.withOpacity(theme.brightness == Brightness.dark ? 0.85 : 0.5)),
                       borderRadius: BorderRadius.circular(5),
                   ),
                   constraints: BoxConstraints(maxWidth: media.size.width * 0.65),

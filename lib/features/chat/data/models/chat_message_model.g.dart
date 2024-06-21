@@ -192,6 +192,80 @@ extension $ChatMessageModelCopyWith on ChatMessageModel {
 }
 
 // **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class ChatMessageModelAdapter extends TypeAdapter<ChatMessageModel> {
+  @override
+  final int typeId = 2;
+
+  @override
+  ChatMessageModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ChatMessageModel(
+      id: fields[0] as int?,
+      chatConnectionId: fields[1] as int?,
+      clientId: fields[2] as String?,
+      text: fields[3] as String?,
+      parent: fields[4] as ChatMessageModel?,
+      createdAt: fields[5] as DateTime?,
+      attachmentPath: fields[7] as String?,
+      attachmentType: fields[8] as String?,
+      sentById: fields[9] as int?,
+      sentToId: fields[10] as int?,
+      deletedAt: fields[11] as DateTime?,
+      deliveredAt: fields[12] as DateTime?,
+      seenAt: fields[13] as DateTime?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ChatMessageModel obj) {
+    writer
+      ..writeByte(13)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.chatConnectionId)
+      ..writeByte(2)
+      ..write(obj.clientId)
+      ..writeByte(3)
+      ..write(obj.text)
+      ..writeByte(4)
+      ..write(obj.parent)
+      ..writeByte(5)
+      ..write(obj.createdAt)
+      ..writeByte(7)
+      ..write(obj.attachmentPath)
+      ..writeByte(8)
+      ..write(obj.attachmentType)
+      ..writeByte(9)
+      ..write(obj.sentById)
+      ..writeByte(10)
+      ..write(obj.sentToId)
+      ..writeByte(11)
+      ..write(obj.deletedAt)
+      ..writeByte(12)
+      ..write(obj.deliveredAt)
+      ..writeByte(13)
+      ..write(obj.seenAt);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatMessageModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -204,9 +278,9 @@ ChatMessageModel _$ChatMessageModelFromJson(Map<String, dynamic> json) =>
       parent: json['parent'] == null
           ? null
           : ChatMessageModel.fromJson(json['parent'] as Map<String, dynamic>),
-      createdAt: json['createdAt'] == null
+      createdAt: json['created_at'] == null
           ? null
-          : DateTime.parse(json['createdAt'] as String),
+          : DateTime.parse(json['created_at'] as String),
       attachmentPath: json['attachment_path'] as String?,
       attachmentType: json['attachment_type'] as String?,
       sentById: json['sent_by_id'] as int?,
@@ -229,7 +303,7 @@ Map<String, dynamic> _$ChatMessageModelToJson(ChatMessageModel instance) =>
       'client_id': instance.clientId,
       'text': instance.text,
       'parent': instance.parent?.toJson(),
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
       'attachment_path': instance.attachmentPath,
       'attachment_type': instance.attachmentType,
       'sent_by_id': instance.sentById,

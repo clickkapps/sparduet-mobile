@@ -81,21 +81,30 @@ class FeedActionsWidget extends StatelessWidget {
       children: [
 
 
+        /// Like
         GestureDetector(
           onTap: () {
-            filterPostsHandler(context);
+            if((feed.hasLiked ?? 0) > 0) {
+              context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: "remove");
+            }else {
+              context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: "add");
+              onActionTapped?.call("liked");
+            }
           },
           behavior: HitTestBehavior.opaque,
-          child:  Column(
+          child: SeparatedColumn(
             mainAxisSize: MainAxisSize.min,
+            separatorBuilder: (BuildContext context, int index) {
+              return const SizedBox(width: 5,);
+            },
             children: [
               CustomHeartAnimationWidget(
-                  isAnimating: false,
+                  isAnimating: feed.hasLiked == 1,// only animate for the first like
                   alwayAnimate: true,
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       // Calculate icon size based on parent constraints
-                      double iconSize = constraints.maxWidth * 0.08; // 10% of parent width
+                      double iconSize = constraints.maxWidth * 0.1; // 10% of parent width
 
                       // Ensure the icon size is not too small or too large
                       if (iconSize < 24) {
@@ -104,17 +113,56 @@ class FeedActionsWidget extends StatelessWidget {
                         iconSize = 100;
                       }
 
-                      return Icon(FeatherIcons.sliders, size: iconSize, color: Colors.white,);
+                      return Icon(Icons.favorite, size: iconSize, color: (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white,);
                     },
                   )
-
+                // Icon(Icons.favorite, size: 32, color: (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white,)
               ),
-              const SizedBox(width: 5,),
-              const Text("Filter posts", style: TextStyle(color: Colors.white, fontSize:11),),
+              if((feed.totalLikes ?? 0) > 0) ... {
+                Text("${feed.totalLikes}", style: TextStyle(color:  (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white, fontSize: 12),),
+              }
             ],
           ),
         ),
 
+        /// Chat
+        if(!isCreator) ... {
+          GestureDetector(
+            onTap: () {
+              context.push(AppRoutes.chatPreview, extra: feed.user );
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                CustomHeartAnimationWidget(
+                    isAnimating: false,
+                    alwayAnimate: true,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Calculate icon size based on parent constraints
+                        double iconSize = constraints.maxWidth * 0.08; // 10% of parent width
+
+                        // Ensure the icon size is not too small or too large
+                        if (iconSize < 24) {
+                          iconSize = 24;
+                        } else if (iconSize > 100) {
+                          iconSize = 100;
+                        }
+
+                        return Icon(FontAwesomeIcons.solidComments, size: iconSize, color: AppColors.buttonBlue,);
+                      },
+                    )
+                  // Icon(FontAwesomeIcons.solidComments, size: 27, color: AppColors.buttonBlue,)
+                ),
+                const SizedBox(width: 5,),
+                const Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
+              ],
+            ),
+          ),
+        },
+
+        /// Bookmark
         if(!isCreator) ... {
           Builder(builder: (_) {
             final hasBookmarked = feed.hasBookmarked ?? false;
@@ -157,6 +205,42 @@ class FeedActionsWidget extends StatelessWidget {
           },)
         },
 
+        /// Personalize
+        GestureDetector(
+          onTap: () {
+            filterPostsHandler(context);
+          },
+          behavior: HitTestBehavior.opaque,
+          child:  Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomHeartAnimationWidget(
+                  isAnimating: false,
+                  alwayAnimate: true,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Calculate icon size based on parent constraints
+                      double iconSize = constraints.maxWidth * 0.07; // 10% of parent width
+
+                      // Ensure the icon size is not too small or too large
+                      if (iconSize < 24) {
+                        iconSize = 24;
+                      } else if (iconSize > 100) {
+                        iconSize = 100;
+                      }
+
+                      return Icon(FeatherIcons.sliders, size: iconSize, color: Colors.white,);
+                    },
+                  )
+
+              ),
+              const SizedBox(width: 5,),
+              const Text("Personalize", style: TextStyle(color: Colors.white, fontSize:11),),
+            ],
+          ),
+        ),
+
+        /// Report
         if(!isCreator) ... {
           GestureDetector(
             onTap: () => reportPostHandler(context),
@@ -185,7 +269,7 @@ class FeedActionsWidget extends StatelessWidget {
                     // Icon(Icons.health_and_safety, size: 30, color: Colors.white,)
                 ),
                 const SizedBox(width: 5,),
-                const Text("Report post", style: TextStyle(color: Colors.white, fontSize:11),),
+                const Text("Report", style: TextStyle(color: Colors.white, fontSize:11),),
               ],
             ),
           ),
@@ -214,85 +298,6 @@ class FeedActionsWidget extends StatelessWidget {
         //   ),
         // ),
 
-        if(!isCreator) ... {
-          GestureDetector(
-            onTap: () {
-              context.push(AppRoutes.chatPreview, extra: feed.user );
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                CustomHeartAnimationWidget(
-                    isAnimating: false,
-                    alwayAnimate: true,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        // Calculate icon size based on parent constraints
-                        double iconSize = constraints.maxWidth * 0.08; // 10% of parent width
-
-                        // Ensure the icon size is not too small or too large
-                        if (iconSize < 24) {
-                          iconSize = 24;
-                        } else if (iconSize > 100) {
-                          iconSize = 100;
-                        }
-
-                        return Icon(FontAwesomeIcons.solidComments, size: iconSize, color: AppColors.buttonBlue,);
-                      },
-                    )
-                    // Icon(FontAwesomeIcons.solidComments, size: 27, color: AppColors.buttonBlue,)
-                ),
-                const SizedBox(width: 5,),
-                const Text("Chat", style: TextStyle(color: AppColors.buttonBlue, fontSize:11),),
-              ],
-            ),
-          ),
-        },
-
-        /// Like
-        GestureDetector(
-          onTap: () {
-            if((feed.hasLiked ?? 0) > 0) {
-              context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: "remove");
-            }else {
-              context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: "add");
-              onActionTapped?.call("liked");
-            }
-          },
-          behavior: HitTestBehavior.opaque,
-          child: SeparatedColumn(
-            mainAxisSize: MainAxisSize.min,
-            separatorBuilder: (BuildContext context, int index) {
-              return const SizedBox(width: 5,);
-            },
-            children: [
-              CustomHeartAnimationWidget(
-                  isAnimating: feed.hasLiked == 1,// only animate for the first like
-                  alwayAnimate: true,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      // Calculate icon size based on parent constraints
-                      double iconSize = constraints.maxWidth * 0.1; // 10% of parent width
-
-                      // Ensure the icon size is not too small or too large
-                      if (iconSize < 24) {
-                        iconSize = 24;
-                      } else if (iconSize > 100) {
-                        iconSize = 100;
-                      }
-
-                      return Icon(Icons.favorite, size: iconSize, color: (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white,);
-                    },
-                  )
-                  // Icon(Icons.favorite, size: 32, color: (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white,)
-              ),
-              if((feed.totalLikes ?? 0) > 0) ... {
-                Text("${feed.totalLikes}", style: TextStyle(color:  (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white, fontSize: 12),),
-              }
-            ],
-          ),
-        ),
       ],
     );
   }

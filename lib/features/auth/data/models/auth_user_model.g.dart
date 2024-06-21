@@ -17,13 +17,9 @@ abstract class _$AuthUserModelCWProxy {
 
   AuthUserModel username(String? username);
 
-  AuthUserModel blocked(int? blocked);
-
   AuthUserModel info(UserInfoModel? info);
 
   AuthUserModel introductoryPost(FeedModel? introductoryPost);
-
-  AuthUserModel chatId(String? chatId);
 
   AuthUserModel publicKey(String? publicKey);
 
@@ -43,10 +39,8 @@ abstract class _$AuthUserModelCWProxy {
     num? displayAge,
     String? name,
     String? username,
-    int? blocked,
     UserInfoModel? info,
     FeedModel? introductoryPost,
-    String? chatId,
     String? publicKey,
     DateTime? firstLoginAt,
     DateTime? lastLoginAt,
@@ -75,17 +69,11 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
   AuthUserModel username(String? username) => this(username: username);
 
   @override
-  AuthUserModel blocked(int? blocked) => this(blocked: blocked);
-
-  @override
   AuthUserModel info(UserInfoModel? info) => this(info: info);
 
   @override
   AuthUserModel introductoryPost(FeedModel? introductoryPost) =>
       this(introductoryPost: introductoryPost);
-
-  @override
-  AuthUserModel chatId(String? chatId) => this(chatId: chatId);
 
   @override
   AuthUserModel publicKey(String? publicKey) => this(publicKey: publicKey);
@@ -112,10 +100,8 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
     Object? displayAge = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? username = const $CopyWithPlaceholder(),
-    Object? blocked = const $CopyWithPlaceholder(),
     Object? info = const $CopyWithPlaceholder(),
     Object? introductoryPost = const $CopyWithPlaceholder(),
-    Object? chatId = const $CopyWithPlaceholder(),
     Object? publicKey = const $CopyWithPlaceholder(),
     Object? firstLoginAt = const $CopyWithPlaceholder(),
     Object? lastLoginAt = const $CopyWithPlaceholder(),
@@ -141,10 +127,6 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
           ? _value.username
           // ignore: cast_nullable_to_non_nullable
           : username as String?,
-      blocked: blocked == const $CopyWithPlaceholder()
-          ? _value.blocked
-          // ignore: cast_nullable_to_non_nullable
-          : blocked as int?,
       info: info == const $CopyWithPlaceholder()
           ? _value.info
           // ignore: cast_nullable_to_non_nullable
@@ -153,10 +135,6 @@ class _$AuthUserModelCWProxyImpl implements _$AuthUserModelCWProxy {
           ? _value.introductoryPost
           // ignore: cast_nullable_to_non_nullable
           : introductoryPost as FeedModel?,
-      chatId: chatId == const $CopyWithPlaceholder()
-          ? _value.chatId
-          // ignore: cast_nullable_to_non_nullable
-          : chatId as String?,
       publicKey: publicKey == const $CopyWithPlaceholder()
           ? _value.publicKey
           // ignore: cast_nullable_to_non_nullable
@@ -190,7 +168,6 @@ AuthUserModel _$AuthUserModelFromJson(Map<String, dynamic> json) =>
       displayAge: json['display_age'] as num?,
       name: json['name'] as String?,
       username: json['username'] as String?,
-      blocked: json['blocked'] as int?,
       info: json['info'] == null
           ? null
           : UserInfoModel.fromJson(json['info'] as Map<String, dynamic>),
@@ -198,7 +175,6 @@ AuthUserModel _$AuthUserModelFromJson(Map<String, dynamic> json) =>
           ? null
           : FeedModel.fromJson(
               json['introductory_post'] as Map<String, dynamic>),
-      chatId: json['chat_id'] as String?,
       publicKey: json['public_key'] as String?,
       firstLoginAt: json['first_login_at'] == null
           ? null
@@ -214,11 +190,9 @@ Map<String, dynamic> _$AuthUserModelToJson(AuthUserModel instance) =>
       'email': instance.email,
       'name': instance.name,
       'username': instance.username,
-      'blocked': instance.blocked,
       'info': instance.info?.toJson(),
-      'introductory_post': instance.introductoryPost?.toJson(),
       'display_age': instance.displayAge,
-      'chat_id': instance.chatId,
+      'introductory_post': instance.introductoryPost?.toJson(),
       'public_key': instance.publicKey,
       'first_login_at': instance.firstLoginAt?.toIso8601String(),
       'last_login_at': instance.lastLoginAt?.toIso8601String(),

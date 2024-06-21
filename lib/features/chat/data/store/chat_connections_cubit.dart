@@ -15,7 +15,14 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
   final ChatRepository chatRepository;
   final ChatBroadcastRepository chatBroadcastRepository;
   AuthUserModel? authenticatedUser;
+
   ChatConnectionsCubit({required this.chatRepository, required this.chatBroadcastRepository}): super(const ChatConnectionState());
+
+  @override
+  Future<void> close() {
+    chatRepository.closeConnectionBox();
+    return super.close();
+  }
 
   void setAuthenticatedUser(AuthUserModel? authUser) => authenticatedUser = authUser;
 
@@ -67,26 +74,31 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     /// From Cache First
     // ! if its first fetch retrieve from cache first
     if(pageKey == 1) {
-      emit(state.copyWith(status: ChatConnectionStatus.fetchChatConnectionLoading));
-      final either = await chatRepository.fetchChatChatConnections(fromCache: true);
-      if(either!.isRight()){
-        final r = either.asRight();
-        emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: r));
+
+      // check if there are chats connections in memory
+      if(state.chatConnections.isNotEmpty) {
+        emit(state.copyWith(status: ChatConnectionStatus.fetchingChatConnectionsFromMemory));
+        emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted));
       }
+
+      emit(state.copyWith(status: ChatConnectionStatus.fetchChatConnectionLoading));
+      final cachedList = await chatRepository.fetchChatConnectionsFromCache();
+      emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: cachedList));
+
     }
 
 
     emit(state.copyWith(status: ChatConnectionStatus.fetchChatConnectionLoading));
     // Then get from the server ----------
-    final either = await chatRepository.fetchChatChatConnections(fromCache: false);
+    final either = await chatRepository.fetchChatConnections(pageKey: pageKey);
 
-    if(either?.isLeft() ?? true){
-      final l = either!.asLeft();
+    if(either.isLeft()){
+      final l = either.asLeft();
       emit(state.copyWith(status: ChatConnectionStatus.fetchChatConnectionError, message: l));
       return;
     }
 
-    final r = either!.asRight();
+    final r = either.asRight();
     emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: r));
 
   }

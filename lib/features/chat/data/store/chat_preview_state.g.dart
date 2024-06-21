@@ -17,6 +17,10 @@ abstract class _$ChatPreviewStateCWProxy {
   ChatPreviewState linearMessagesList(
       List<ChatMessageModel> linearMessagesList);
 
+  ChatPreviewState data(dynamic data);
+
+  ChatPreviewState selectedConnection(ChatConnectionModel? selectedConnection);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatPreviewState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -28,6 +32,8 @@ abstract class _$ChatPreviewStateCWProxy {
     ChatPreviewStatus? status,
     Map<DateTime, List<ChatMessageModel>>? reOrderedChatMessages,
     List<ChatMessageModel>? linearMessagesList,
+    dynamic data,
+    ChatConnectionModel? selectedConnection,
   });
 }
 
@@ -54,6 +60,14 @@ class _$ChatPreviewStateCWProxyImpl implements _$ChatPreviewStateCWProxy {
       this(linearMessagesList: linearMessagesList);
 
   @override
+  ChatPreviewState data(dynamic data) => this(data: data);
+
+  @override
+  ChatPreviewState selectedConnection(
+          ChatConnectionModel? selectedConnection) =>
+      this(selectedConnection: selectedConnection);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatPreviewState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -66,6 +80,8 @@ class _$ChatPreviewStateCWProxyImpl implements _$ChatPreviewStateCWProxy {
     Object? status = const $CopyWithPlaceholder(),
     Object? reOrderedChatMessages = const $CopyWithPlaceholder(),
     Object? linearMessagesList = const $CopyWithPlaceholder(),
+    Object? data = const $CopyWithPlaceholder(),
+    Object? selectedConnection = const $CopyWithPlaceholder(),
   }) {
     return ChatPreviewState(
       message: message == const $CopyWithPlaceholder() || message == null
@@ -87,6 +103,14 @@ class _$ChatPreviewStateCWProxyImpl implements _$ChatPreviewStateCWProxy {
           ? _value.linearMessagesList
           // ignore: cast_nullable_to_non_nullable
           : linearMessagesList as List<ChatMessageModel>,
+      data: data == const $CopyWithPlaceholder() || data == null
+          ? _value.data
+          // ignore: cast_nullable_to_non_nullable
+          : data as dynamic,
+      selectedConnection: selectedConnection == const $CopyWithPlaceholder()
+          ? _value.selectedConnection
+          // ignore: cast_nullable_to_non_nullable
+          : selectedConnection as ChatConnectionModel?,
     );
   }
 }

@@ -61,7 +61,9 @@ class AppApiRoutes {
 
   // chat routes
   static const String  suggestedChatUsers = '$baseApiUrl/chat/suggested';
+  static const String  sendChatMessage = '$baseApiUrl/chat/send-message';
   static const String  createChatConnection = '$baseApiUrl/chat/create-chat-connection';
   static const String  fetchChatConnections = '$baseApiUrl/chat/fetch-chat-connections';
+  static const String  fetchChatMessages = '$baseApiUrl/chat/fetch-messages';
   static String  getChatConnection(int? id) => '$baseApiUrl/chat/get-chat-connection/$id';
 }

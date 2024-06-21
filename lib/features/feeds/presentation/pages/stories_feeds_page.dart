@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:background_fetch/background_fetch.dart';
 // import 'package:background_fetch/background_fetch.dart';
 import 'package:better_player/better_player.dart';
@@ -53,7 +52,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   double percentageOfTimeSpentOnActiveFeed = 0;
   bool canMarkActiveFeedAsWatched = true;
   final Map<int, BetterPlayerController?> videoControllers = {};
-  final Map<int, AssetsAudioPlayer?> imageControllers = {};
+  // final Map<int, AssetsAudioPlayer?> imageControllers = {};
   final Map<int, BetterPlayerController?> requestPostFeedVideoControllers = {};
   int pageKey = 1;
   final preloadPageController = PreloadPageController();
@@ -241,7 +240,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
-    imageControllers[activeFeedIndex]?.pause();
+    // imageControllers[activeFeedIndex]?.pause();
     requestPostFeedVideoControllers[activeFeedIndex]?.pause();
     activeStoryPlaying = false;
   }

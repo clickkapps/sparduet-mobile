@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:assets_audio_player/assets_audio_player.dart';
+// import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:better_player/better_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -27,7 +27,7 @@ import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 class FeedItemWidget extends StatefulWidget {
 
   final Function(BetterPlayerController)? videoBuilder;
-  final Function(AssetsAudioPlayer?)? imageBuilder;
+  final Function(void)? imageBuilder;
   final FeedModel feed;
   final Function()? onItemTapped;
   final bool autoPlay;
@@ -201,9 +201,9 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
 
 
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.bottomRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 10, top: 50),
+              padding: const EdgeInsets.only(right: 10, top: 50, bottom: 20),
               child: FeedActionsWidget(feed: widget.feed, onActionTapped: (value) {
                 if(value == "liked") {
                   isHeartAnimating.value = true;

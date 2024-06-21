@@ -1,11 +1,11 @@
 enum ChatConnectionStatus {
-  initial, fetchSuggestedChatUsersLoading, fetchSuggestedChatUsersError, fetchSuggestedChatUsersSuccessful, createChatConnectionLoading, createChatConnectionError, createChatConnectionSuccessful, fetchChatConnectionLoading, refreshChatConnectionsCompleted, fetchChatConnectionError
+  initial, fetchSuggestedChatUsersLoading, fetchSuggestedChatUsersError, fetchSuggestedChatUsersSuccessful, createChatConnectionLoading, createChatConnectionError, createChatConnectionSuccessful, fetchChatConnectionLoading, refreshChatConnectionsCompleted, fetchChatConnectionError, fetchingChatConnectionsFromMemory
 }
 
 enum ChatPreviewStatus {
-  initial, refreshChatMessagesSuccessful, fetchChatMessagesInProgress
+  initial, refreshChatMessagesSuccessful, fetchChatMessagesInProgress, sendMessageLoading, sendMessageFailed, sendMessageSuccessful, addNewMessageInProgress, addNewMessageCompleted, refreshChatMessagesInProgress, updateMessageInProgress, updateMessageCompleted, deleteMessageInProgress, deleteMessageCompleted, fetchChatMessagesSuccessful, fetchChatMessagesError, updateFirstImpressionMessageReadCompleted, setSelectedChatConnectionInProgress, setSelectedChatConnectionCompleted
 }
 
 enum ChatBroadcastAction {
-  addMessage, updateMessage, deleteMessage
+  addMessage, updateMessage, deleteMessage, updateClientMessage
 }

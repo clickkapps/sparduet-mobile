@@ -6,6 +6,12 @@ abstract final class AppConstants {
   static const double minimumVideoDuration = 2;
   static const int gridPageSize = 9;
   static const int listPageSize = 15;
+  static const int chatConnectionModelHiveId = 1;
+  static const int chatMessageModelHiveId = 2;
+  static const int userModelHiveId = 3;
+  static const int userInfoModelHiveId = 4;
+  static const kChatConnections = 'chat-connections-v1';
+  static const kChatMessages = 'chat-messages-v1';
   static const String website = "https://sparkduet.com";
   static const String blog = "$website/blog";
   static const String termsOfUse = "$website/terms-of-use";

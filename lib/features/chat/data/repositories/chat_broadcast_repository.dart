@@ -13,6 +13,10 @@ class ChatBroadcastRepository {
     _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.updateMessage, message: message));
   }
 
+  void updateClientMessage({required ChatMessageModel message}) {
+    _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.updateClientMessage, message: message));
+  }
+
   void addMessage({required ChatMessageModel message}) {
     _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.addMessage, message: message));
   }

@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'sparkduet-live.appspot.com',
     iosBundleId: 'com.sparkduet.ios',
   );
+
 }

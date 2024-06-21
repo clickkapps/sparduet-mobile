@@ -13,6 +13,7 @@ class CustomPageLoadingOverlay extends StatefulWidget {
   final double opacity;
   final Color? assetColor;
   final int animationDuration;
+  final bool showIcon;
 
   const CustomPageLoadingOverlay({
     super.key,
@@ -23,7 +24,8 @@ class CustomPageLoadingOverlay extends StatefulWidget {
     this.message,
     this.opacity = 0.5,
     this.assetColor,
-    this.animationDuration = 300
+    this.animationDuration = 300,
+    this.showIcon = true
 
   });
 
@@ -117,7 +119,7 @@ class _CustomPageLoadingOverlayState extends State<CustomPageLoadingOverlay>
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const _LoadingIndicator(),
+          _LoadingIndicator(showIcon: widget.showIcon,),
           if (!widget.message.isNullOrEmpty()) ...{
             Text(widget.message!, style: TextStyle(color: theme.colorScheme.onBackground),)
           }
@@ -129,7 +131,8 @@ class _CustomPageLoadingOverlayState extends State<CustomPageLoadingOverlay>
 
 class _LoadingIndicator extends StatelessWidget {
 
-  const _LoadingIndicator({super.key});
+  final bool showIcon;
+  const _LoadingIndicator({super.key, this.showIcon = true});
 
   @override
   Widget build(BuildContext context) {
@@ -147,10 +150,12 @@ class _LoadingIndicator extends StatelessWidget {
 
             ),
           ),
-          Align(
-              alignment: Alignment.center,
-              child: Icon(Icons.favorite, color: theme.colorScheme.primary,)
-          )
+          if(showIcon) ... {
+            Align(
+                alignment: Alignment.center,
+                child: Icon(Icons.favorite, color: theme.colorScheme.primary,)
+            )
+          }
         ],
       ),
     );

@@ -5,8 +5,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sparkduet/app/app.dart';
 import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
+import 'package:sparkduet/features/chat/data/models/chat_message_model.dart';
+import 'package:sparkduet/features/users/data/models/user_info_model.dart';
+import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/firebase_options.dart';
 import 'core/app_injector.dart' as di;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -64,6 +70,14 @@ void main() async {
   );
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   FirebaseAnalyticsObserver(analytics: analytics,);
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(ChatConnectionModelAdapter());
+  Hive.registerAdapter(ChatMessageModelAdapter());
+  Hive.registerAdapter(UserModelAdapter());
+  Hive.registerAdapter(UserInfoModelAdapter());
+  await Hive.openBox<ChatMessageModel>(AppConstants.kChatMessages);
+  await Hive.openBox<ChatConnectionModel>(AppConstants.kChatConnections);
 
   runApp(const App());
 

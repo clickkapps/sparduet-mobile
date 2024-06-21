@@ -17,13 +17,9 @@ abstract class _$UserModelCWProxy {
 
   UserModel username(String? username);
 
-  UserModel blocked(int? blocked);
-
   UserModel info(UserInfoModel? info);
 
   UserModel introductoryPost(FeedModel? introductoryPost);
-
-  UserModel chatId(String? chatId);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -37,10 +33,8 @@ abstract class _$UserModelCWProxy {
     String? name,
     String? email,
     String? username,
-    int? blocked,
     UserInfoModel? info,
     FeedModel? introductoryPost,
-    String? chatId,
   });
 }
 
@@ -66,17 +60,11 @@ class _$UserModelCWProxyImpl implements _$UserModelCWProxy {
   UserModel username(String? username) => this(username: username);
 
   @override
-  UserModel blocked(int? blocked) => this(blocked: blocked);
-
-  @override
   UserModel info(UserInfoModel? info) => this(info: info);
 
   @override
   UserModel introductoryPost(FeedModel? introductoryPost) =>
       this(introductoryPost: introductoryPost);
-
-  @override
-  UserModel chatId(String? chatId) => this(chatId: chatId);
 
   @override
 
@@ -92,10 +80,8 @@ class _$UserModelCWProxyImpl implements _$UserModelCWProxy {
     Object? name = const $CopyWithPlaceholder(),
     Object? email = const $CopyWithPlaceholder(),
     Object? username = const $CopyWithPlaceholder(),
-    Object? blocked = const $CopyWithPlaceholder(),
     Object? info = const $CopyWithPlaceholder(),
     Object? introductoryPost = const $CopyWithPlaceholder(),
-    Object? chatId = const $CopyWithPlaceholder(),
   }) {
     return UserModel(
       id: id == const $CopyWithPlaceholder()
@@ -118,10 +104,6 @@ class _$UserModelCWProxyImpl implements _$UserModelCWProxy {
           ? _value.username
           // ignore: cast_nullable_to_non_nullable
           : username as String?,
-      blocked: blocked == const $CopyWithPlaceholder()
-          ? _value.blocked
-          // ignore: cast_nullable_to_non_nullable
-          : blocked as int?,
       info: info == const $CopyWithPlaceholder()
           ? _value.info
           // ignore: cast_nullable_to_non_nullable
@@ -130,10 +112,6 @@ class _$UserModelCWProxyImpl implements _$UserModelCWProxy {
           ? _value.introductoryPost
           // ignore: cast_nullable_to_non_nullable
           : introductoryPost as FeedModel?,
-      chatId: chatId == const $CopyWithPlaceholder()
-          ? _value.chatId
-          // ignore: cast_nullable_to_non_nullable
-          : chatId as String?,
     );
   }
 }
@@ -142,6 +120,59 @@ extension $UserModelCopyWith on UserModel {
   /// Returns a callable class that can be used as follows: `instanceOfUserModel.copyWith(...)` or like so:`instanceOfUserModel.copyWith.fieldName(...)`.
   // ignore: library_private_types_in_public_api
   _$UserModelCWProxy get copyWith => _$UserModelCWProxyImpl(this);
+}
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class UserModelAdapter extends TypeAdapter<UserModel> {
+  @override
+  final int typeId = 3;
+
+  @override
+  UserModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return UserModel(
+      id: fields[0] as int?,
+      displayAge: fields[5] as num?,
+      name: fields[2] as String?,
+      email: fields[1] as String?,
+      username: fields[3] as String?,
+      info: fields[4] as UserInfoModel?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, UserModel obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.email)
+      ..writeByte(2)
+      ..write(obj.name)
+      ..writeByte(3)
+      ..write(obj.username)
+      ..writeByte(4)
+      ..write(obj.info)
+      ..writeByte(5)
+      ..write(obj.displayAge);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 // **************************************************************************
@@ -154,7 +185,6 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       name: json['name'] as String?,
       email: json['email'] as String?,
       username: json['username'] as String?,
-      blocked: json['blocked'] as int?,
       info: json['info'] == null
           ? null
           : UserInfoModel.fromJson(json['info'] as Map<String, dynamic>),
@@ -162,7 +192,6 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
           ? null
           : FeedModel.fromJson(
               json['introductory_post'] as Map<String, dynamic>),
-      chatId: json['chat_id'] as String?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -170,9 +199,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'email': instance.email,
       'name': instance.name,
       'username': instance.username,
-      'blocked': instance.blocked,
       'info': instance.info?.toJson(),
-      'introductory_post': instance.introductoryPost?.toJson(),
       'display_age': instance.displayAge,
-      'chat_id': instance.chatId,
+      'introductory_post': instance.introductoryPost?.toJson(),
     };
