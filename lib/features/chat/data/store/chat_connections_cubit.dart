@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
@@ -23,7 +22,8 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
   AuthUserModel? authenticatedUser;
   final SocketConnectionRepository socketConnectionRepository;
   String? unreadMessagesUpdatedFromServerChannelId;
-  String? lastMessageUpdatedFromServerChannelId = 'connection.last-message-updated';
+  String? lastMessageUpdatedFromServerChannelId;
+  String? totalUnreadMessageUpdatedFromServerChannelId;
 
   ChatConnectionsCubit({required this.chatRepository, required this.chatBroadcastRepository, required this.socketConnectionRepository}): super(const ChatConnectionState()) {
     _listenToChatBroadCastStreams();
@@ -32,6 +32,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
   void setServerPushChannels() {
     unreadMessagesUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.unread-chat-messages-count-updated';
     lastMessageUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.last-chat-message-updated';
+    totalUnreadMessageUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.total-unread-chat-messages-count-updated';
   }
 
 
@@ -99,13 +100,20 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
 
   }
 
+
+
   void _updateChatConnectionUnreadMessagesCount({required int? connectionId, required int? count}) {
     final connectionList = [...state.chatConnections];
     final connectionIndex = connectionList.indexWhere((element) => element.id == connectionId);
     if(connectionIndex < 0){
       return;
     }
-    connectionList[connectionIndex] = connectionList[connectionIndex].copyWith(
+    final connectionItem = connectionList[connectionIndex];
+    if((count ?? 0) < (connectionItem.unreadMessages ?? 0) ) {
+      // then we are about to reduce the unread messages so reduce the total unread as well
+      emit(state.copyWith(totalUnreadMessages: state.totalUnreadMessages - (connectionItem.unreadMessages ?? 0).toInt()));
+    }
+    connectionList[connectionIndex] = connectionItem.copyWith(
         unreadMessages: count
     );
     emit(state.copyWith(status: ChatConnectionStatus.updateChatConnectionUnreadMessagesCountInProgress));
@@ -209,6 +217,32 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
 
   Future<ChatConnectionModel?> getChatConnectionById({required int chatConnectionId}) async {
     return await chatRepository.getChatConnectionById(chatConnectionId: chatConnectionId);
+  }
+
+  void getTotalUnreadChatMessages() async {
+
+    emit(state.copyWith(status: ChatConnectionStatus.getTotalUnreadChatMessagesLoading));
+
+    final count = await chatRepository.getTotalUnreadChatMessages();
+
+    emit(state.copyWith(status: ChatConnectionStatus.getTotalUnreadChatMessagesSuccessful,
+        totalUnreadMessages: count ?? state.totalUnreadMessages
+    ));
+
+    // listen for server updates on total unread chats
+    if(totalUnreadMessageUpdatedFromServerChannelId != null) {
+      final serverSnapshots = socketConnectionRepository.realtimeInstance;
+      final channel = serverSnapshots?.channels.get("public:$totalUnreadMessageUpdatedFromServerChannelId");
+      channel?.subscribe().listen((event) {
+        final data = event.data as Map<Object?, Object?>;
+        final json = convertMap(data);
+        final count = json['count'] as int?;
+        emit(state.copyWith(status: ChatConnectionStatus.getTotalUnreadChatMessagesSuccessful,
+            totalUnreadMessages: count ?? state.totalUnreadMessages
+        ));
+      });
+    }
+
   }
 
 

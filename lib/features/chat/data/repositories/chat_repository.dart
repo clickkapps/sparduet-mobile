@@ -359,4 +359,34 @@ class ChatRepository {
 
   }
 
+  Future<int?> getTotalUnreadChatMessages() async {
+
+    try {
+
+      const path = AppApiRoutes.getTotalUnreadChatMessages;
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.get,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return null;
+        }
+
+        final data = response.data["extra"] as String?;
+        if(data == null) return null;
+        return int.parse(data);
+
+      } else {
+        return null;
+      }
+
+    }catch(e) {
+      return null;
+    }
+
+  }
+
 }

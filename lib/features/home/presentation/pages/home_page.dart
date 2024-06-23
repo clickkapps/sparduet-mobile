@@ -124,6 +124,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     promptUserToSubscribeToPushNotification(authUser?.username ?? "");
     context.read<HomeCubit>().initializeSocketConnection().then((value) {
       context.read<NotificationsCubit>().listenToServerNotificationUpdates(authUser: authUser);
+      context.read<ChatConnectionsCubit>().setServerPushChannels();
+      context.read<ChatConnectionsCubit>().getTotalUnreadChatMessages();
     });
     context.read<SubscriptionCubit>().initializeSubscription(authUser?.publicKey ?? "").then((value) {
       context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
@@ -274,7 +276,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             }
 
           }
-
 
         }            // <-- The target method
     );

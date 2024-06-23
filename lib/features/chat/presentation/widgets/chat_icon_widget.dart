@@ -34,7 +34,7 @@ class _ChatIconWidgetState extends State<ChatIconWidget> {
     final theme = Theme.of(context);
     return BlocSelector<ChatConnectionsCubit, ChatConnectionState, int>(
       selector: (state) {
-        return state.unreadMessages;
+        return state.totalUnreadMessages;
       },
       builder: (context, unreadMessages) {
         return Stack(

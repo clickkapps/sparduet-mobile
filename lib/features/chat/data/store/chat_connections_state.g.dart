@@ -14,7 +14,7 @@ abstract class _$ChatConnectionStateCWProxy {
   ChatConnectionState chatConnections(
       List<ChatConnectionModel> chatConnections);
 
-  ChatConnectionState unreadMessages(int unreadMessages);
+  ChatConnectionState totalUnreadMessages(int totalUnreadMessages);
 
   ChatConnectionState suggestedChatUsers(List<UserModel> suggestedChatUsers);
 
@@ -28,7 +28,7 @@ abstract class _$ChatConnectionStateCWProxy {
     String? message,
     ChatConnectionStatus? status,
     List<ChatConnectionModel>? chatConnections,
-    int? unreadMessages,
+    int? totalUnreadMessages,
     List<UserModel>? suggestedChatUsers,
   });
 }
@@ -52,8 +52,8 @@ class _$ChatConnectionStateCWProxyImpl implements _$ChatConnectionStateCWProxy {
       this(chatConnections: chatConnections);
 
   @override
-  ChatConnectionState unreadMessages(int unreadMessages) =>
-      this(unreadMessages: unreadMessages);
+  ChatConnectionState totalUnreadMessages(int totalUnreadMessages) =>
+      this(totalUnreadMessages: totalUnreadMessages);
 
   @override
   ChatConnectionState suggestedChatUsers(List<UserModel> suggestedChatUsers) =>
@@ -71,7 +71,7 @@ class _$ChatConnectionStateCWProxyImpl implements _$ChatConnectionStateCWProxy {
     Object? message = const $CopyWithPlaceholder(),
     Object? status = const $CopyWithPlaceholder(),
     Object? chatConnections = const $CopyWithPlaceholder(),
-    Object? unreadMessages = const $CopyWithPlaceholder(),
+    Object? totalUnreadMessages = const $CopyWithPlaceholder(),
     Object? suggestedChatUsers = const $CopyWithPlaceholder(),
   }) {
     return ChatConnectionState(
@@ -88,11 +88,12 @@ class _$ChatConnectionStateCWProxyImpl implements _$ChatConnectionStateCWProxy {
           ? _value.chatConnections
           // ignore: cast_nullable_to_non_nullable
           : chatConnections as List<ChatConnectionModel>,
-      unreadMessages: unreadMessages == const $CopyWithPlaceholder() ||
-              unreadMessages == null
-          ? _value.unreadMessages
-          // ignore: cast_nullable_to_non_nullable
-          : unreadMessages as int,
+      totalUnreadMessages:
+          totalUnreadMessages == const $CopyWithPlaceholder() ||
+                  totalUnreadMessages == null
+              ? _value.totalUnreadMessages
+              // ignore: cast_nullable_to_non_nullable
+              : totalUnreadMessages as int,
       suggestedChatUsers: suggestedChatUsers == const $CopyWithPlaceholder() ||
               suggestedChatUsers == null
           ? _value.suggestedChatUsers

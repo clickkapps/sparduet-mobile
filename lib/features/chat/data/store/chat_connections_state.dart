@@ -11,18 +11,18 @@ class ChatConnectionState extends Equatable {
   final String message;
   final ChatConnectionStatus status;
   final List<ChatConnectionModel> chatConnections;
-  final int unreadMessages;
+  final int totalUnreadMessages;
   final List<UserModel> suggestedChatUsers;
 
   const ChatConnectionState({
     this.message = '',
     this.status = ChatConnectionStatus.initial,
     this.chatConnections = const [],
-    this.unreadMessages = 0,
+    this.totalUnreadMessages = 0,
     this.suggestedChatUsers = const []
   });
 
   @override
-  List<Object?> get props => [status, unreadMessages];
+  List<Object?> get props => [status, totalUnreadMessages];
 
 }
