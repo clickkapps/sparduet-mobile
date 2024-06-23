@@ -157,8 +157,14 @@ class ChatRepository {
   void closeMessagesBox() {
     chatMessagesBox.close();
   }
+  void clearChatMessages() {
+    chatMessagesBox.clear();
+  }
   void closeConnectionBox() {
     chatConnectionsBox.close();
+  }
+  void clearChatConnections() {
+    chatConnectionsBox.clear();
   }
 
   Future<Either<String, ChatMessageModel>>? sendMessage({required int? chatConnectionId, required ChatMessageModel message}) async {
@@ -320,6 +326,37 @@ class ChatRepository {
     }
   }
 
+  Future<Either<String, void>> markMessagesRead({required int? connectionId, required int? opponentId}) async {
 
+    try {
+
+      const path = AppApiRoutes.markChatMessagesAsRead;
+      final body = {
+        "chat_connection_id": connectionId,
+        "opponent_id": opponentId,
+      };
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+          body: body
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }catch(e) {
+      return Left(e.toString());
+    }
+
+  }
 
 }

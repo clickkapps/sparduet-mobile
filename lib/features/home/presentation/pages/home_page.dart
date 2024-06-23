@@ -28,8 +28,9 @@ import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/introduction_widget.dart';
-import 'package:sparkduet/features/home/data/enums.dart';
-import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
+import 'package:sparkduet/features/home/data/store/home_cubit.dart';
+import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
 import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
@@ -121,7 +122,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     context.read<ChatConnectionsCubit>().fetchSuggestedChatUsers();
     context.read<PreferencesCubit>().fetchUserSettings();
     promptUserToSubscribeToPushNotification(authUser?.username ?? "");
-    context.read<NotificationsCubit>().listenToNotificationsCount(authUser);
+    context.read<HomeCubit>().initializeSocketConnection().then((value) {
+      context.read<NotificationsCubit>().listenToServerNotificationUpdates(authUser: authUser);
+    });
     context.read<SubscriptionCubit>().initializeSubscription(authUser?.publicKey ?? "").then((value) {
       context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
     });
@@ -237,7 +240,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
         }            // <-- The target method
     );
-
 
 
   }

@@ -9,20 +9,24 @@ class ChatBroadcastRepository {
   final _controller = StreamController<ChatBroadcastEvent>.broadcast();
   Stream<ChatBroadcastEvent> get stream => _controller.stream;
 
-  void updateMessage({required ChatMessageModel message}) {
-    _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.updateMessage, message: message));
+  // void updateMessage({required ChatMessageModel message}) {
+  //   _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.updateMessage, message: message));
+  // }
+
+  void updateLastMessage({required ChatMessageModel message}) {
+    _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.updateLastMessage, message: message));
   }
 
-  void updateClientMessage({required ChatMessageModel message}) {
-    _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.updateClientMessage, message: message));
-  }
+  // void addMessage({required ChatMessageModel message}) {
+  //   _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.addMessage, message: message));
+  // }
 
-  void addMessage({required ChatMessageModel message}) {
-    _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.addMessage, message: message));
-  }
+  // void removeMessage({required ChatMessageModel message}) {
+  //   _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.deleteMessage, message: message));
+  // }
 
-  void removeMessage({required ChatMessageModel message}) {
-    _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.deleteMessage, message: message));
+  void updateUnreadMessagesCount(Map<String, dynamic> data) {
+    _controller.sink.add(ChatBroadcastEvent(action: ChatBroadcastAction.updateUnreadMessagesCount, data: data));
   }
 
 }

@@ -12,8 +12,8 @@ import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
 class ChatConnectionItemWidget extends StatelessWidget {
 
-  final ChatConnectionModel chat;
-  const ChatConnectionItemWidget({super.key, required this.chat});
+  final ChatConnectionModel chatConnection;
+  const ChatConnectionItemWidget({super.key, required this.chatConnection});
 
   void _showContextMenu(BuildContext context) {
     HapticFeedback.lightImpact();
@@ -23,8 +23,8 @@ class ChatConnectionItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final currentUser = context.read<AuthCubit>().state.authUser!;
-    final otherParticipant = chat.participants!.where((element) => element.id != currentUser.id).first;
-    final thisParticipant = chat.participants!.where((element) => element.id == currentUser.id).first;
+    final otherParticipant = chatConnection.participants!.where((element) => element.id != currentUser.id).first;
+    // final thisParticipant = chatConnection.participants!.where((element) => element.id == currentUser.id).first;
 
 
     return GestureDetector(
@@ -33,7 +33,7 @@ class ChatConnectionItemWidget extends StatelessWidget {
       onTap: () {
         context.push(AppRoutes.chatPreview, extra: {
           "user": otherParticipant,
-          "chatConnection": chat
+          "connection": chatConnection
         });
       },
 
@@ -52,8 +52,8 @@ class ChatConnectionItemWidget extends StatelessWidget {
                 children: [
                   Text(otherParticipant.name ?? '', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),),
 
-                  if(chat.lastMessage  != null) ... {
-                    if(chat.lastMessage?.deletedAt != null) ... {
+                  if(chatConnection.lastMessage  != null) ... {
+                    if(chatConnection.lastMessage?.deletedAt != null) ... {
                       Row(
                         children: [
                           Icon(Icons.block, size: 13, color: theme.textTheme.titleSmall?.color,),
@@ -63,7 +63,7 @@ class ChatConnectionItemWidget extends StatelessWidget {
                       )
                     }else ... {
                       // Text(, style: theme.textTheme.titleSmall?.copyWith(fontSize: 12), maxLines: 1, ),
-                      Text(chat.lastMessage?.text ?? '', style: theme.textTheme.bodySmall,),
+                      Text(chatConnection.lastMessage?.text ?? '', style: theme.textTheme.bodySmall,),
                     }
                   }
 
@@ -85,23 +85,23 @@ class ChatConnectionItemWidget extends StatelessWidget {
                   return const SizedBox(height: 3,);
                 },
                 children: [
-                  if(chat.lastMessage?.createdAt != null) ... {
-                    Text(getFormattedDateWithIntl(chat.lastMessage!.createdAt!, format: "h:mm a"), style: theme.textTheme.bodySmall?.copyWith(),),
+                  if(chatConnection.lastMessage?.createdAt != null) ... {
+                    Text(getFormattedDateWithIntl(chatConnection.lastMessage!.createdAt!, format: "h:mm a"), style: theme.textTheme.bodySmall?.copyWith(),),
                   },
 
                   // this will come from the pivot
-                  // if(thisParticipant.unreadMessages > 0)... {
-                  //   CustomBadgeIcon(badgeCount: thisParticipant.unreadMessages)
-                  //   // Container(
-                  //   //   width: 20,
-                  //   //   height: 20,
-                  //   //   decoration: BoxDecoration(
-                  //   //       color: const Color(0xffB20000),
-                  //   //       borderRadius: BorderRadius.circular(20)
-                  //   //   ),
-                  //   //   child:  Center(child: Text("${}", style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),),),
-                  //   // )
-                  // }
+                  if((chatConnection.unreadMessages ?? 0) > 0)... {
+                    CustomBadgeIcon(badgeCount: (chatConnection.unreadMessages ?? 0).toInt())
+                    // Container(
+                    //   width: 20,
+                    //   height: 20,
+                    //   decoration: BoxDecoration(
+                    //       color: const Color(0xffB20000),
+                    //       borderRadius: BorderRadius.circular(20)
+                    //   ),
+                    //   child:  Center(child: Text("${}", style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),),),
+                    // )
+                  }
 
                 ],
               )

@@ -21,7 +21,7 @@ class ChatPreviewState extends Equatable {
     this.reOrderedChatMessages = const {},
     this.linearMessagesList = const [],
     this.data,
-    this.selectedConnection
+    this.selectedConnection,
   });
 
   @override

@@ -7,17 +7,18 @@ import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
-import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/display_settings_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/feedback_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/notifications_settings_page.dart';
+import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
 import 'package:sparkduet/features/preferences/presentation/widgets/delete_account_widget.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/mixin/launch_external_app_mixin.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 
-class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
+class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, PreferencesMixin {
 
   const PreferencesPage({super.key});
 
@@ -216,8 +217,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin {
                          context.showConfirmDialog(title: "Do you want to logout?",
                            subtitle: "You'd have to login again next time you open the app",
                            onConfirmTapped: () {
-                             context.read<AuthCubit>().logout();
-                             context.go(AppRoutes.login);
+                            logout(context);
                            },
                          );
 

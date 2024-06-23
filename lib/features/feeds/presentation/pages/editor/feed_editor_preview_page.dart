@@ -16,7 +16,7 @@ import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_image_preview_widget.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_video_preview_widget.dart';
 import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
-import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';

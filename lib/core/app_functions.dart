@@ -172,3 +172,49 @@ String convertToCompactFigure(int n) {
     return "${(n / 1000000).toStringAsFixed(1)}M";
   }
 }
+
+Map<String, dynamic> convertMap(Map<Object?, Object?> inputMap) {
+  Map<String, dynamic> outputMap = {};
+
+  inputMap.forEach((key, value) {
+    if (key is String) {
+      outputMap[key] = value;
+    } else {
+      // Handle non-string keys if necessary
+      // For example, you can convert them to string using key.toString()
+      outputMap[key.toString()] = value;
+    }
+  });
+
+  return outputMap;
+}
+
+List<int> convertToIntList(List<Object?> objectList) {
+  List<int> intList = [];
+
+  for (var item in objectList) {
+    if (item is int) {
+      intList.add(item);
+    } else if (item is String) {
+      int? parsedInt = int.tryParse(item);
+      if (parsedInt != null) {
+        intList.add(parsedInt);
+      }
+    } else if (item is double) {
+      intList.add(item.toInt());
+    }
+    // Handle other types as necessary
+  }
+
+  return intList;
+}
+
+String? convertObjectToString(Object? object) {
+  if (object == null) {
+    return null;
+  } else if (object is String) {
+    return object;
+  } else {
+    return object.toString();
+  }
+}

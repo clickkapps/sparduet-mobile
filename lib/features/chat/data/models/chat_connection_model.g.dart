@@ -20,6 +20,8 @@ abstract class _$ChatConnectionModelCWProxy {
   ChatConnectionModel readFirstImpressionNoteAt(
       DateTime? readFirstImpressionNoteAt);
 
+  ChatConnectionModel unreadMessages(num? unreadMessages);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -33,6 +35,7 @@ abstract class _$ChatConnectionModelCWProxy {
     DateTime? createdAt,
     DateTime? matchedAt,
     DateTime? readFirstImpressionNoteAt,
+    num? unreadMessages,
   });
 }
 
@@ -67,6 +70,10 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
       this(readFirstImpressionNoteAt: readFirstImpressionNoteAt);
 
   @override
+  ChatConnectionModel unreadMessages(num? unreadMessages) =>
+      this(unreadMessages: unreadMessages);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -81,6 +88,7 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
     Object? createdAt = const $CopyWithPlaceholder(),
     Object? matchedAt = const $CopyWithPlaceholder(),
     Object? readFirstImpressionNoteAt = const $CopyWithPlaceholder(),
+    Object? unreadMessages = const $CopyWithPlaceholder(),
   }) {
     return ChatConnectionModel(
       id: id == const $CopyWithPlaceholder()
@@ -108,6 +116,10 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
               ? _value.readFirstImpressionNoteAt
               // ignore: cast_nullable_to_non_nullable
               : readFirstImpressionNoteAt as DateTime?,
+      unreadMessages: unreadMessages == const $CopyWithPlaceholder()
+          ? _value.unreadMessages
+          // ignore: cast_nullable_to_non_nullable
+          : unreadMessages as num?,
     );
   }
 }
@@ -135,30 +147,33 @@ class ChatConnectionModelAdapter extends TypeAdapter<ChatConnectionModel> {
     };
     return ChatConnectionModel(
       id: fields[0] as int?,
-      participants: (fields[6] as List?)?.cast<UserModel>(),
-      lastMessage: fields[2] as ChatMessageModel?,
+      participants: (fields[4] as List?)?.cast<UserModel>(),
+      lastMessage: fields[1] as ChatMessageModel?,
       createdAt: fields[5] as DateTime?,
-      matchedAt: fields[3] as DateTime?,
-      readFirstImpressionNoteAt: fields[4] as DateTime?,
+      matchedAt: fields[2] as DateTime?,
+      readFirstImpressionNoteAt: fields[3] as DateTime?,
+      unreadMessages: fields[6] as num?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatConnectionModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
-      ..writeByte(2)
+      ..writeByte(1)
       ..write(obj.lastMessage)
-      ..writeByte(3)
+      ..writeByte(2)
       ..write(obj.matchedAt)
-      ..writeByte(4)
+      ..writeByte(3)
       ..write(obj.readFirstImpressionNoteAt)
-      ..writeByte(6)
+      ..writeByte(4)
       ..write(obj.participants)
       ..writeByte(5)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(6)
+      ..write(obj.unreadMessages);
   }
 
   @override
@@ -182,10 +197,10 @@ ChatConnectionModel _$ChatConnectionModelFromJson(Map<String, dynamic> json) =>
       participants: (json['participants'] as List<dynamic>?)
           ?.map((e) => UserModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      lastMessage: json['lastMessage'] == null
+      lastMessage: json['last_message'] == null
           ? null
           : ChatMessageModel.fromJson(
-              json['lastMessage'] as Map<String, dynamic>),
+              json['last_message'] as Map<String, dynamic>),
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -195,16 +210,19 @@ ChatConnectionModel _$ChatConnectionModelFromJson(Map<String, dynamic> json) =>
       readFirstImpressionNoteAt: json['read_first_impression_note_at'] == null
           ? null
           : DateTime.parse(json['read_first_impression_note_at'] as String),
+      unreadMessages:
+          ChatConnectionModel._unreadMessagesFromJson(json['pivot']),
     );
 
 Map<String, dynamic> _$ChatConnectionModelToJson(
         ChatConnectionModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'lastMessage': instance.lastMessage?.toJson(),
+      'last_message': instance.lastMessage?.toJson(),
       'matched_at': instance.matchedAt?.toIso8601String(),
       'read_first_impression_note_at':
           instance.readFirstImpressionNoteAt?.toIso8601String(),
       'participants': instance.participants?.map((e) => e.toJson()).toList(),
       'created_at': instance.createdAt?.toIso8601String(),
+      'pivot': instance.unreadMessages,
     };

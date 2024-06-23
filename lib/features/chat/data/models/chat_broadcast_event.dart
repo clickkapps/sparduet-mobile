@@ -6,5 +6,6 @@ class ChatBroadcastEvent {
   final ChatBroadcastAction action;
   final ChatMessageModel? message;
   final ChatConnectionModel? chatConnection;
-  const ChatBroadcastEvent({required this.action, this.message,  this.chatConnection});
+  final dynamic data;
+  const ChatBroadcastEvent({required this.action, this.message,  this.chatConnection,  this.data});
 }

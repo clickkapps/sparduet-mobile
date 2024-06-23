@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:collection';
+import 'package:ably_flutter/ably_flutter.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/chat/data/models/chat_broadcast_event.dart';
 import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
@@ -12,6 +14,10 @@ import 'package:sparkduet/features/chat/data/repositories/chat_broadcast_reposit
 import 'package:sparkduet/features/chat/data/repositories/chat_repository.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
+import 'package:sparkduet/features/home/data/events/home_broadcast_event.dart';
+import 'package:sparkduet/features/home/data/repositories/home_broadcast_repository.dart';
+import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -20,40 +26,69 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   final ChatRepository chatRepository;
   final ChatBroadcastRepository chatBroadcastRepository;
   StreamSubscription<ChatBroadcastEvent>? chatClientBroadcastRepositoryStreamListener;
+  StreamSubscription? messageCreatedSubscription;
+  StreamSubscription? unreadMessagesUpdatedSubscription;
+  final SocketConnectionRepository socketConnectionRepository;
 
   AuthUserModel? authenticatedUser;
-  ChatPreviewCubit({required this.chatRepository, required this.chatBroadcastRepository}): super(const ChatPreviewState()) {
-      _listenToChatBroadCastStreams();
-  }
+  String? messageCreatedFromServerChannelId;
+  String? unreadMessagesUpdatedFromServerChannelId;
+  ChatPreviewCubit({required this.chatRepository, required this.chatBroadcastRepository,  required this.socketConnectionRepository}): super(const ChatPreviewState());
 
   void setAuthenticatedUser(AuthUserModel? authUser) => authenticatedUser = authUser;
+  void setServerPushChannels({required int? connectionId, required int? opponentId}) {
+    messageCreatedFromServerChannelId = "connections.$connectionId.messages.${authenticatedUser?.id}.created";
+    unreadMessagesUpdatedFromServerChannelId = 'connections.$connectionId.user.${authenticatedUser?.id}.messages.read';
+  }
 
-  void _listenToChatBroadCastStreams() async {
+  void listenToClientChatBroadCastStreams() async {
     await chatClientBroadcastRepositoryStreamListener?.cancel();
     chatClientBroadcastRepositoryStreamListener = chatBroadcastRepository.stream.listen((chatBroadcastEvent) {
-
-      /// add message event
-      if (chatBroadcastEvent.action == ChatBroadcastAction.addMessage) {
-        _addMessage(chatBroadcastEvent.message);
-      }
-
-      /// update message event
-      if (chatBroadcastEvent.action == ChatBroadcastAction.updateMessage) {
-        _updateMessage(chatBroadcastEvent.message);
-      }
-
-      /// update client message event
-      if (chatBroadcastEvent.action == ChatBroadcastAction.updateMessage) {
-        _updateClientMessage(chatBroadcastEvent.message);
-      }
-
-      /// delete message event
-      if (chatBroadcastEvent.action == ChatBroadcastAction.deleteMessage) {
-        _deleteMessage(chatBroadcastEvent.message);
-      }
-
-
     });
+
+
+  }
+
+  void listenToServerChatUpdates({required int? opponentId}) async {
+    if(messageCreatedFromServerChannelId != null) {
+      final channel = socketConnectionRepository.realtimeInstance?.channels.get("public:$messageCreatedFromServerChannelId");
+      messageCreatedSubscription = channel?.subscribe(name: "message.created").listen((event) {
+        debugPrint('Ably event received:');
+        final data = event.data as Map<Object?, Object?>;
+        final messageObj = data['message'] as Map<Object?, Object?>;
+        final messageJson = convertMap(messageObj);
+        final chatMessage = ChatMessageModel.fromJson(messageJson);
+        _addMessage(chatMessage);
+        chatBroadcastRepository.updateLastMessage(message: chatMessage);
+        // We mark message as read if we're currently in the chat
+        markMessagesAsRead(connectionId: state.selectedConnection?.id, opponentId: opponentId);
+      });
+    }
+
+    // now, update all the unread chats as read with the channel below
+    // 'connections.'.$this->chatConnectionId.'.user.'.$this->opponentId.'.messages.read'
+    // server code already implemented and pushed
+    // , the data returned is $messageIds, $seenAt
+    if(unreadMessagesUpdatedFromServerChannelId != null) {
+      final channel = socketConnectionRepository.realtimeInstance?.channels.get("public:$unreadMessagesUpdatedFromServerChannelId");
+      unreadMessagesUpdatedSubscription = channel?.subscribe().listen((event) {
+        debugPrint('Ably event received:');
+        final data = event.data as Map<Object?, Object?>;
+        final messagesIdsObjs = data["messageIds"] as List<Object?>;
+        final seenAtObjs = data["seenAt"];
+        final messagesIds = convertToIntList(messagesIdsObjs);
+        final seenAt = convertObjectToString(seenAtObjs);
+
+        if(messagesIds.isNotEmpty && seenAt != null){
+          final msgList = state.linearMessagesList.where((msg) => messagesIds.contains(msg.id)).toList();
+          for (final msg in msgList) {
+            _updateMessage(msg.copyWith(seenAt: DateTime.parse(seenAt)));
+          }
+        }
+
+      });
+    }
+
 
 
   }
@@ -114,7 +149,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
       return;
     }
     // update locally
-    chatBroadcastRepository.updateMessage(message: message);
+    _updateMessage(message);
     // update on the server
   }
 
@@ -147,16 +182,34 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
         deletedAt: DateTime.now()
     );
     // remove locally
-    chatBroadcastRepository.removeMessage(message: deletedMessage);
+    _deleteMessage(deletedMessage);
     // remove from the server
     chatRepository.deleteMessage(messageId: deletedMessage.id, opponentId: deletedMessage.sentToId);
   }
 
   @override
   Future<void> close() {
-    chatClientBroadcastRepositoryStreamListener?.cancel();
     chatRepository.closeMessagesBox();
+    dispose();
     return super.close();
+  }
+
+  void dispose() async {
+    chatRepository.clearChatMessages();
+    chatClientBroadcastRepositoryStreamListener?.cancel();
+    final ch = messageCreatedFromServerChannelId;
+    // if(ch != null) {
+    //   final pusher = await socketConnectionRepository.getWebSocketConnection();
+    //   await pusher?.unsubscribe(channelName:  ch);
+    // }
+    //
+    if(ch != null) {
+      final channel = socketConnectionRepository.realtimeInstance?.channels.get(ch);
+      messageCreatedSubscription?.cancel();
+      unreadMessagesUpdatedSubscription?.cancel();
+      channel?.detach();
+    }
+
   }
 
   void clearPreviewState() {
@@ -166,6 +219,31 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   // void cancelMessagesListener() {
   //   chatMessageListener?.cancel();
   // }
+
+  void markMessagesAsRead({required int? connectionId, required int? opponentId}) async {
+
+    // mark client side connection as read
+
+    emit(state.copyWith(status: ChatPreviewStatus.markMessagesAsReadInProgress));
+
+    final either = await chatRepository.markMessagesRead(connectionId: connectionId, opponentId: opponentId);
+
+    if(either.isLeft()) {
+      final l = either.asLeft();
+      emit(state.copyWith(status: ChatPreviewStatus.markMessagesAsReadFailed, message: l));
+      return;
+    }
+
+    chatBroadcastRepository.updateUnreadMessagesCount({
+      "connectionId": connectionId,
+      "count": 0
+    });
+    emit(state.copyWith(status: ChatPreviewStatus.markMessagesAsReadSuccessful));
+
+
+  }
+
+
 
 
   Future<String?> sendMessage({required ChatConnectionModel? connection, required String message, required UserModel sentTo, ChatMessageModel? parent}) async {
@@ -192,7 +270,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
     );
 
     ///! Optimistic add message to messages --
-    chatBroadcastRepository.addMessage(message: clientMessage);
+    _addMessage(clientMessage);
 
     emit(state.copyWith(status: ChatPreviewStatus.sendMessageLoading));
     final either = await chatRepository.sendMessage(chatConnectionId: connection?.id, message: clientMessage);
@@ -200,13 +278,14 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
     if(either?.isLeft() ?? true){
       final l = either!.asLeft();
       //! Update that chat wasn't sent
-      chatBroadcastRepository.updateClientMessage(message: clientMessage.copyWith(deliveredAt: null));
+      _updateClientMessage(clientMessage.copyWith(deliveredAt: null));
       emit(state.copyWith(status: ChatPreviewStatus.sendMessageFailed, message: l));
       return l;
     }
 
     final r = either!.asRight();
-    chatBroadcastRepository.updateClientMessage(message: r);
+    _updateClientMessage(r);
+    chatBroadcastRepository.updateLastMessage(message: r);
     emit(state.copyWith(status: ChatPreviewStatus.sendMessageSuccessful));
     return null;
 

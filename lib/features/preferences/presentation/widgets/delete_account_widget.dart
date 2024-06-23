@@ -6,6 +6,7 @@ import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
+import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
@@ -20,7 +21,7 @@ class DeleteAccount extends StatefulWidget {
   State<DeleteAccount> createState() => _DeleteAccountState();
 }
 
-class _DeleteAccountState extends State<DeleteAccount> {
+class _DeleteAccountState extends State<DeleteAccount> with PreferencesMixin {
 
   final ValueNotifier<bool> activateDeleteAccountButton = ValueNotifier(false);
   late AuthCubit authCubit;
@@ -114,9 +115,8 @@ class _DeleteAccountState extends State<DeleteAccount> {
                                         ? ButtonAppearance.error
                                         : ButtonAppearance.clean,
                                     onPressed: activate ? () {
-                                      // authCubit.deleteAccount();
-                                      context.read<AuthCubit>().logout();
-                                      context.go(AppRoutes.login);
+                                      deleteAccount(context);
+                                      logout(context);
                                     } : null);
                                 },
                               );

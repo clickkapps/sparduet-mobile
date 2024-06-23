@@ -91,7 +91,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
     chatEditorController.dispose();
     scrollController.dispose();
     streamSubscriptionCubit.cancel();
-    // chatPreviewCubit.cancelMessagesListener();
+    chatPreviewCubit.dispose();
 
     super.dispose();
 
@@ -132,14 +132,22 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
   }
 
   void initiateMessages(ChatConnectionModel chatConnection, {int? pageKey = 1}) {
-    chatPreviewCubit.fetchChatMessages(chatConnection: chatConnection, pageKey: pageKey,);
-    // chatPreviewCubit.fetchChatMessages(chatConnection: chat, pageKey: 1).then((value) {
-    //   // listen to message after message have been fetched
-    //   chatPreviewCubit.listenToMessages(chatConnection: chat);
-    //   chatPreviewCubit.markChatConnectionAsRead(chat);
-    //   chatPreviewCubit.markOtherParticipantMessageAsRead(chat); // mark messages as read when app initializes
-    //   // and its also marked as read when new message is received and user is in the app
-    // });
+
+    chatPreviewCubit.setServerPushChannels(connectionId: chatConnection.id, opponentId: widget.opponent.id);
+    chatPreviewCubit.fetchChatMessages(chatConnection: chatConnection, pageKey: pageKey,).then((value) {
+
+      // listen to client side changes
+      chatPreviewCubit.listenToClientChatBroadCastStreams();
+
+      // listen to server side changes
+      chatPreviewCubit.listenToServerChatUpdates(opponentId: widget.opponent.id);
+
+      // mark messages as read when app initializes
+      // and its also marked as read when new message is received and user is in the app
+      chatPreviewCubit.markMessagesAsRead(connectionId: chatConnection.id, opponentId: widget.opponent.id);
+
+
+    });
   }
 
   void chatEditorTextChangeHandler(String value) {

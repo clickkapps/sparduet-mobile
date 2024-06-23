@@ -8,7 +8,7 @@ import 'package:sparkduet/features/chat/data/store/chat_connections_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/chat_connection_item_widget.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/empty_chat_widget.dart';
-import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
@@ -26,7 +26,8 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
   void initState() {
     chatConnectionsCubit = context.read<ChatConnectionsCubit>();
     chatConnectionsCubit.fetchChatConnections().then((value) {
-      // context.read<ChatConnectionsCubit>().listenToChatConnections();
+        chatConnectionsCubit.setServerPushChannels();
+        chatConnectionsCubit.listenToServerChatUpdates();
     });
     super.initState();
   }
@@ -144,7 +145,7 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
           }
           return ListView.separated(itemBuilder: (ctx, i){
             final chatConnectionItem = chatState.chatConnections.where((element) => element.lastMessage != null).toList()[i];
-            return ChatConnectionItemWidget(key: ValueKey(chatConnectionItem.id), chat: chatConnectionItem);
+            return ChatConnectionItemWidget(key: ValueKey(chatConnectionItem.id), chatConnection: chatConnectionItem);
           }, separatorBuilder: (ctx,i){
             return const SizedBox(height: 1,);
           }, itemCount: chatState.chatConnections.where((element) => element.lastMessage != null).length, padding: const EdgeInsets.only(bottom: 10),);

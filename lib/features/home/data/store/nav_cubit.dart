@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sparkduet/features/home/data/enums.dart';
-import 'package:sparkduet/features/home/data/nav_state.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
+import 'package:sparkduet/features/home/data/store/nav_state.dart';
 
 class NavCubit extends Cubit<NavState> {
 

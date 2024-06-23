@@ -57,7 +57,6 @@ class AppApiRoutes {
   static const String  updateSettings = '$baseApiUrl/preferences/update-settings';
   static const String  createFeedback = '$baseApiUrl/preferences/create-feedback';
   static const String  broadcastingAuth = '$webApiUrl/broadcasting/auth';
-  static String webSocketConnection({required int? userId}) => "users.$userId";
 
   // chat routes
   static const String  suggestedChatUsers = '$baseApiUrl/chat/suggested';
@@ -65,5 +64,6 @@ class AppApiRoutes {
   static const String  createChatConnection = '$baseApiUrl/chat/create-chat-connection';
   static const String  fetchChatConnections = '$baseApiUrl/chat/fetch-chat-connections';
   static const String  fetchChatMessages = '$baseApiUrl/chat/fetch-messages';
+  static const String  markChatMessagesAsRead = '$baseApiUrl/chat/mark-messages-as-read';
   static String  getChatConnection(int? id) => '$baseApiUrl/chat/get-chat-connection/$id';
 }

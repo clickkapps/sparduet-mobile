@@ -19,7 +19,9 @@ import 'package:sparkduet/features/feeds/data/store/feeds_previews_cubit.dart';
 import 'package:sparkduet/features/feeds/data/store/stories_feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/store/stories_previews_cubit.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
-import 'package:sparkduet/features/home/data/nav_cubit.dart';
+import 'package:sparkduet/features/home/data/repositories/home_broadcast_repository.dart';
+import 'package:sparkduet/features/home/data/store/home_cubit.dart';
+import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
 import 'package:sparkduet/features/notifications/data/repositories/notifications_repository.dart';
 import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
@@ -60,11 +62,13 @@ class App extends StatelessWidget {
     final preferencesRepository = PreferencesRepository(networkProvider: sl());
     final chatBroadcastRepository = sl<ChatBroadcastRepository>();
     final socketRepository = sl<SocketConnectionRepository>();
+    final homeBroadcastRepository = sl<HomeBroadcastRepository>();
     final notificationsRepository = NotificationsRepository(networkProvider: sl());
     final subscriptionRepository = SubscriptionRepository(networkProvider: sl());
 
     return MultiBlocProvider(
         providers: [
+          BlocProvider(create: (context) => HomeCubit(socketConnectionRepository: socketRepository, homeBroadcastRepository: homeBroadcastRepository)),
           BlocProvider(create: (context) => AuthCubit(authRepository: authRepository, fileRepository: fileRepository)),
           BlocProvider(create: (context) => ThemeCubit(themeRepository: themeRepository)),
           BlocProvider(create: (context) => FeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
@@ -78,8 +82,8 @@ class App extends StatelessWidget {
           BlocProvider(create: (context) => NavCubit()),
           BlocProvider(create: (context) => CountriesCubit(countriesRepository: countriesRepository)),
           BlocProvider(create: (context) => SearchCubit(searchRepository: searchRepository)),
-          BlocProvider(create: (context) => ChatConnectionsCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository)),
-          BlocProvider(create: (context) => ChatPreviewCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository)),
+          BlocProvider(create: (context) => ChatConnectionsCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository, socketConnectionRepository: socketRepository)),
+          BlocProvider(create: (context) => ChatPreviewCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository, socketConnectionRepository: socketRepository)),
           BlocProvider(create: (context) => UserCubit(userRepository: userRepository)),
           BlocProvider(create: (context) => PreferencesCubit(preferencesRepository: preferencesRepository)),
           BlocProvider(create: (context) => NotificationsCubit(notificationsRepository: notificationsRepository, socketConnectionRepository: socketRepository)),

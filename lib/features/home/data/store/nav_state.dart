@@ -1,6 +1,6 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
-import 'package:sparkduet/features/home/data/enums.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
 
 part 'nav_state.g.dart';
 

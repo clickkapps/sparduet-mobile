@@ -17,29 +17,42 @@ class ChatConnectionModel extends Equatable {
   final int? id;
 
   // The other participant is you
-  @HiveField(2)
+  @HiveField(1)
+  @JsonKey(name: 'last_message')
   final ChatMessageModel? lastMessage;
 
-  @HiveField(3)
+  @HiveField(2)
   @JsonKey(name: "matched_at")
   final DateTime? matchedAt;
 
-  @HiveField(4)
+  @HiveField(3)
   @JsonKey(name: "read_first_impression_note_at")
   final DateTime? readFirstImpressionNoteAt;
 
-  @HiveField(6)
+  @HiveField(4)
   final List<UserModel>? participants; // Users of the chat
 
   @HiveField(5)
   @JsonKey(name: "created_at")
   final DateTime? createdAt;
 
+  @HiveField(6)
+  @JsonKey(fromJson: _unreadMessagesFromJson, name: "pivot")
+  final num? unreadMessages;
+
   const ChatConnectionModel({this.id,
     this.participants, this.lastMessage, this.createdAt,
     this.matchedAt,
-    this.readFirstImpressionNoteAt
+    this.readFirstImpressionNoteAt,
+    this.unreadMessages,
   });
+
+  static num? _unreadMessagesFromJson(dynamic value) {
+    if(value == null) return null;
+    final pivot = value as Map<String, dynamic>;
+    final unreadMessages = pivot['unread_messages'] as num?;
+    return unreadMessages ?? 0;
+  }
 
   factory ChatConnectionModel.fromJson(Map<String, dynamic> json) => _$ChatConnectionModelFromJson(json);
   Map<String, dynamic> toJson() => _$ChatConnectionModelToJson(this);
