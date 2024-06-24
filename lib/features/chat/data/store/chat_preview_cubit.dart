@@ -197,7 +197,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
     );
     // remove locally
     _deleteMessage(deletedMessage);
-    chatBroadcastRepository.updateLastMessage(message: deletedMessage);
+    chatBroadcastRepository.deleteLastMessageIfApplicable(message: deletedMessage);
     // remove from the server
     chatRepository.deleteMessage(messageId: deletedMessage.id, opponentId: opponentId);
   }

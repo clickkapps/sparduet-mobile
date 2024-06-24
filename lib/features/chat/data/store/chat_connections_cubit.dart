@@ -25,6 +25,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
   String? lastMessageUpdatedFromServerChannelId;
   String? totalUnreadMessageUpdatedFromServerChannelId;
   String? deletedConnectionFromServerChannelId;
+  String? matchedConnectionFromServerChannelId;
 
   ChatConnectionsCubit({required this.chatRepository, required this.chatBroadcastRepository, required this.socketConnectionRepository}): super(const ChatConnectionState()) {
     _listenToChatBroadCastStreams();
@@ -35,6 +36,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     lastMessageUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.last-chat-message-updated';
     totalUnreadMessageUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.total-unread-chat-messages-count-updated';
     deletedConnectionFromServerChannelId = 'connection.user.${authenticatedUser?.id}.deleted';
+    matchedConnectionFromServerChannelId = 'connection.user.${authenticatedUser?.id}.matched';
   }
 
 
@@ -110,6 +112,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
         final json = convertMap(msgJson);
         final message = ChatMessageModel.fromJson(json);
         await _createConnectionIfNotExist(connectionId: message.chatConnectionId);
+        chatRepository.addMessageToCache(message);
         _updateLastMessage(message);
       });
     }
@@ -122,7 +125,21 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
         final chatConnectionId = json['chatConnectionId'] as int?;
         _deleteConnection(connectionId: chatConnectionId);
       });
+    }
 
+    if(matchedConnectionFromServerChannelId != null) {
+      final channel = serverSnapshots?.channels.get("public:$matchedConnectionFromServerChannelId");
+      channel?.subscribe().listen((event) {
+        final data = event.data as Map<Object?, Object?>;
+        final json = convertMap(data);
+        final chatConnectionId = json['connectionId'] as int?;
+        final matchedAtObjs = data["matchedAt"];
+        final matchedAt = convertObjectToString(matchedAtObjs);
+        if(matchedAt != null) {
+          _updateMatchedAt(connectionId: chatConnectionId, matchedAt: DateTime.parse(matchedAt));
+        }
+
+      });
     }
 
   }
@@ -160,6 +177,23 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     connectionList.insert(0, connection);
     emit(state.copyWith(status: ChatConnectionStatus.createConnectionInProgress));
     emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: connectionList));
+  }
+
+  void _updateMatchedAt({required int? connectionId, DateTime? matchedAt}) {
+    final connectionList = [...state.chatConnections];
+    final connectionIndex = connectionList.indexWhere((element) => element.id == connectionId);
+    if(connectionIndex < 0){
+      return;
+    }
+    final updatedConnection = connectionList[connectionIndex].copyWith(
+        matchedAt: matchedAt
+    );
+    connectionList[connectionIndex] = updatedConnection;
+    emit(state.copyWith(status: ChatConnectionStatus.matchedAtUpdatedInProgress));
+    emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: connectionList));
+    emit(state.copyWith(status: ChatConnectionStatus.matchedAtUpdated, data: updatedConnection));
+    ///! Refresh chat connectios list
+
   }
 
   void _updateLastMessage(ChatMessageModel? message) {

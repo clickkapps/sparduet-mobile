@@ -12,6 +12,7 @@ import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
 import 'package:sparkduet/features/chat/data/models/chat_message_model.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
+import 'package:sparkduet/features/chat/data/store/chat_connections_state.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_cubit.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
@@ -51,6 +52,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
   bool checkingChatConnection = false;
   late SubscriptionCubit subscriptionCubit;
   late StreamSubscription streamSubscriptionCubit;
+  late StreamSubscription chatConnectionSubscriptionCubit;
   bool showPageOverlayLoader = false;
 
 
@@ -68,6 +70,15 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
             setState(() { showPageOverlayLoader = true; });
             await initiateChatConnection();
             setState(() { showPageOverlayLoader = false; });
+         }
+      }
+    });
+    
+    chatConnectionSubscriptionCubit = chatConnectionsCubit.stream.listen((event) async {
+      if(event.status == ChatConnectionStatus.matchedAtUpdated) {
+         final con = event.data as ChatConnectionModel;
+         if(con.id == chatPreviewCubit.state.selectedConnection?.id){
+           chatPreviewCubit.setSelectedChatConnection(con);
          }
       }
     });
@@ -287,7 +298,8 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
           ),
           body: BlocBuilder<ChatPreviewCubit, ChatPreviewState>(
             buildWhen: (ctx, chatPreviewState) {
-              return chatPreviewState.status == ChatPreviewStatus.refreshChatMessagesSuccessful;
+              return chatPreviewState.status == ChatPreviewStatus.refreshChatMessagesSuccessful
+                  || chatPreviewState.status == ChatPreviewStatus.setSelectedChatConnectionCompleted;
             },
             builder: (context, chatPreviewState) {
               return  SafeArea(child: Column(
@@ -499,7 +511,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                         )
                     );
                   }),
-                 if(checkingChatConnection == false && chatPreviewCubit.state.selectedConnection == null) ...{
+                 if(checkingChatConnection == false && chatPreviewState.selectedConnection == null) ...{
                    FadeInUp(
                        preferences: const AnimationPreferences(
                            duration: Duration(milliseconds: 100)
@@ -583,6 +595,43 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                       return const SizedBox.shrink();
                     },
                   ),
+                  if(chatPreviewState.linearMessagesList.isNotEmpty && chatPreviewState.linearMessagesList.length < 3  && chatPreviewState.selectedConnection?.createdBy == currentUser?.id && chatPreviewState.selectedConnection?.matchedAt == null) ...  {
+                    FadeInUp(
+                        preferences: const AnimationPreferences(
+                            duration: Duration(milliseconds: 100)
+                        ),
+                        child: GestureDetector(
+                          onTap: (){
+                            showSubscriptionPaywall(context);
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            color: theme.brightness == Brightness.light ? const Color(0xffDDDEDF) : const Color(0xff202021),
+                            child: IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 5,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 5,),
+                                  Expanded(child: Padding(
+                                    padding: const EdgeInsets.only(top: 8.0, bottom: 0, left: 14),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("📝 To ensure smooth conversations, you're limited to 2 messages until ${widget.opponent.name} replies you.", style:  theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.normal),),
+                                      ],
+                                    ),
+                                  )),
+                                  const SizedBox(width: 5,),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                    )
+                  },
 
                   ValueListenableBuilder<bool>(valueListenable: messageHeaderMode, builder: (_, headerMode, __) {
                     return Container(
@@ -613,14 +662,14 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                         suffix: ValueListenableBuilder<bool>(valueListenable: showSubmitButton, builder: (_, show, ch) {
                           if(show) return ch!;
                           return const SizedBox.shrink();
-                        },child: BlocBuilder<ChatPreviewCubit, ChatPreviewState>(
-                          buildWhen: (_, state) {
-                            return state.status == ChatPreviewStatus.setSelectedChatConnectionCompleted;
-                          },
-                          builder: (context, state) {
+                        },child: Builder(
+                          builder: (context) {
+                            if(chatPreviewState.selectedConnection?.createdBy == currentUser?.id && chatPreviewState.selectedConnection?.matchedAt == null && chatPreviewState.linearMessagesList.length == 2){
+                              return const SizedBox.shrink();
+                            }
                             return Padding(
                               padding: const EdgeInsets.only(right: 5),
-                              child: state.selectedConnection != null ? SendChatMessageButtonWidget(onTap: submitMessageHandler,) : const SizedBox.shrink(),
+                              child: chatPreviewState.selectedConnection != null ? SendChatMessageButtonWidget(onTap: submitMessageHandler,) : const SizedBox.shrink(),
                             );
                           },
                         ),),

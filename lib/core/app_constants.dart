@@ -11,7 +11,7 @@ abstract final class AppConstants {
   static const int userModelHiveId = 3;
   static const int userInfoModelHiveId = 4;
   static const kChatConnections = 'chat-connections-v2';
-  static const kChatMessages = 'chat-messages-v1';
+  static const kChatMessages = 'chat-messages-v2';
   static const String website = "https://sparkduet.com";
   static const String blog = "$website/blog";
   static const String termsOfUse = "$website/terms-of-use";

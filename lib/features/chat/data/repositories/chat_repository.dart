@@ -136,6 +136,7 @@ class ChatRepository {
 
   }
 
+
   void refreshAllChatConnectionsInCache(List<ChatConnectionModel> recipients) async {
     await chatConnectionsBox.clear();
     chatConnectionsBox.addAll(recipients);
@@ -210,6 +211,15 @@ class ChatRepository {
 
   }
 
+  void deleteMessageFromCache(int? messageId) {
+    final index = chatMessagesBox.values.toList().indexWhere((element) => element.id == messageId);
+    chatMessagesBox.deleteAt(index);
+  }
+
+  void addMessageToCache(ChatMessageModel message) {
+    chatMessagesBox.add(message);
+  }
+
   Future<Either<String, void>>? deleteMessage({required int? messageId, required int? opponentId}) async {
 
     try {
@@ -231,6 +241,7 @@ class ChatRepository {
           return Left(response.data["message"] as String);
         }
 
+        deleteMessageFromCache(messageId);
         return const Right(null);
 
       } else {

@@ -22,6 +22,8 @@ abstract class _$ChatConnectionModelCWProxy {
 
   ChatConnectionModel unreadMessages(num? unreadMessages);
 
+  ChatConnectionModel createdBy(int? createdBy);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -36,6 +38,7 @@ abstract class _$ChatConnectionModelCWProxy {
     DateTime? matchedAt,
     DateTime? readFirstImpressionNoteAt,
     num? unreadMessages,
+    int? createdBy,
   });
 }
 
@@ -74,6 +77,9 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
       this(unreadMessages: unreadMessages);
 
   @override
+  ChatConnectionModel createdBy(int? createdBy) => this(createdBy: createdBy);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -89,6 +95,7 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
     Object? matchedAt = const $CopyWithPlaceholder(),
     Object? readFirstImpressionNoteAt = const $CopyWithPlaceholder(),
     Object? unreadMessages = const $CopyWithPlaceholder(),
+    Object? createdBy = const $CopyWithPlaceholder(),
   }) {
     return ChatConnectionModel(
       id: id == const $CopyWithPlaceholder()
@@ -120,6 +127,10 @@ class _$ChatConnectionModelCWProxyImpl implements _$ChatConnectionModelCWProxy {
           ? _value.unreadMessages
           // ignore: cast_nullable_to_non_nullable
           : unreadMessages as num?,
+      createdBy: createdBy == const $CopyWithPlaceholder()
+          ? _value.createdBy
+          // ignore: cast_nullable_to_non_nullable
+          : createdBy as int?,
     );
   }
 }
@@ -153,13 +164,14 @@ class ChatConnectionModelAdapter extends TypeAdapter<ChatConnectionModel> {
       matchedAt: fields[2] as DateTime?,
       readFirstImpressionNoteAt: fields[3] as DateTime?,
       unreadMessages: fields[6] as num?,
+      createdBy: fields[7] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatConnectionModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -173,7 +185,9 @@ class ChatConnectionModelAdapter extends TypeAdapter<ChatConnectionModel> {
       ..writeByte(5)
       ..write(obj.createdAt)
       ..writeByte(6)
-      ..write(obj.unreadMessages);
+      ..write(obj.unreadMessages)
+      ..writeByte(7)
+      ..write(obj.createdBy);
   }
 
   @override
@@ -212,6 +226,7 @@ ChatConnectionModel _$ChatConnectionModelFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['read_first_impression_note_at'] as String),
       unreadMessages:
           ChatConnectionModel._unreadMessagesFromJson(json['pivot']),
+      createdBy: json['created_by'] as int?,
     );
 
 Map<String, dynamic> _$ChatConnectionModelToJson(
@@ -225,4 +240,5 @@ Map<String, dynamic> _$ChatConnectionModelToJson(
       'participants': instance.participants?.map((e) => e.toJson()).toList(),
       'created_at': instance.createdAt?.toIso8601String(),
       'pivot': instance.unreadMessages,
+      'created_by': instance.createdBy,
     };

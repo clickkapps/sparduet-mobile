@@ -40,11 +40,16 @@ class ChatConnectionModel extends Equatable {
   @JsonKey(fromJson: _unreadMessagesFromJson, name: "pivot")
   final num? unreadMessages;
 
+  @HiveField(7)
+  @JsonKey(name: "created_by")
+  final int? createdBy;
+
   const ChatConnectionModel({this.id,
     this.participants, this.lastMessage, this.createdAt,
     this.matchedAt,
     this.readFirstImpressionNoteAt,
     this.unreadMessages,
+    this.createdBy
   });
 
   static num? _unreadMessagesFromJson(dynamic value) {

@@ -18,6 +18,8 @@ abstract class _$ChatConnectionStateCWProxy {
 
   ChatConnectionState suggestedChatUsers(List<UserModel> suggestedChatUsers);
 
+  ChatConnectionState data(dynamic data);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -30,6 +32,7 @@ abstract class _$ChatConnectionStateCWProxy {
     List<ChatConnectionModel>? chatConnections,
     int? totalUnreadMessages,
     List<UserModel>? suggestedChatUsers,
+    dynamic data,
   });
 }
 
@@ -60,6 +63,9 @@ class _$ChatConnectionStateCWProxyImpl implements _$ChatConnectionStateCWProxy {
       this(suggestedChatUsers: suggestedChatUsers);
 
   @override
+  ChatConnectionState data(dynamic data) => this(data: data);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatConnectionState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -73,6 +79,7 @@ class _$ChatConnectionStateCWProxyImpl implements _$ChatConnectionStateCWProxy {
     Object? chatConnections = const $CopyWithPlaceholder(),
     Object? totalUnreadMessages = const $CopyWithPlaceholder(),
     Object? suggestedChatUsers = const $CopyWithPlaceholder(),
+    Object? data = const $CopyWithPlaceholder(),
   }) {
     return ChatConnectionState(
       message: message == const $CopyWithPlaceholder() || message == null
@@ -99,6 +106,10 @@ class _$ChatConnectionStateCWProxyImpl implements _$ChatConnectionStateCWProxy {
           ? _value.suggestedChatUsers
           // ignore: cast_nullable_to_non_nullable
           : suggestedChatUsers as List<UserModel>,
+      data: data == const $CopyWithPlaceholder() || data == null
+          ? _value.data
+          // ignore: cast_nullable_to_non_nullable
+          : data as dynamic,
     );
   }
 }

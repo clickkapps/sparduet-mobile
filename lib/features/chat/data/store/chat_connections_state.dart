@@ -13,13 +13,15 @@ class ChatConnectionState extends Equatable {
   final List<ChatConnectionModel> chatConnections;
   final int totalUnreadMessages;
   final List<UserModel> suggestedChatUsers;
+  final dynamic data; // temporal data
 
   const ChatConnectionState({
     this.message = '',
     this.status = ChatConnectionStatus.initial,
     this.chatConnections = const [],
     this.totalUnreadMessages = 0,
-    this.suggestedChatUsers = const []
+    this.suggestedChatUsers = const [],
+    this.data
   });
 
   @override
