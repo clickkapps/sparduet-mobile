@@ -67,4 +67,6 @@ class AppApiRoutes {
   static const String  markChatMessagesAsRead = '$baseApiUrl/chat/mark-messages-as-read';
   static String  getChatConnection(int? id) => '$baseApiUrl/chat/get-chat-connection/$id';
   static const String  getTotalUnreadChatMessages = '$baseApiUrl/chat/total-unread-chat-messages';
+  static const String  deleteChatMessage = '$baseApiUrl/chat/delete-message';
+  static const String  deleteChatConnection = '$baseApiUrl/chat/delete-connection';
 }

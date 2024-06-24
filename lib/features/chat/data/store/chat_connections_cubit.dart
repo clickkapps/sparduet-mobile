@@ -24,6 +24,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
   String? unreadMessagesUpdatedFromServerChannelId;
   String? lastMessageUpdatedFromServerChannelId;
   String? totalUnreadMessageUpdatedFromServerChannelId;
+  String? deletedConnectionFromServerChannelId;
 
   ChatConnectionsCubit({required this.chatRepository, required this.chatBroadcastRepository, required this.socketConnectionRepository}): super(const ChatConnectionState()) {
     _listenToChatBroadCastStreams();
@@ -33,6 +34,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     unreadMessagesUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.unread-chat-messages-count-updated';
     lastMessageUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.last-chat-message-updated';
     totalUnreadMessageUpdatedFromServerChannelId = 'user.${authenticatedUser?.id}.total-unread-chat-messages-count-updated';
+    deletedConnectionFromServerChannelId = 'connection.user.${authenticatedUser?.id}.deleted';
   }
 
 
@@ -50,12 +52,25 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
 
   void _listenToChatBroadCastStreams() async {
     await chatClientBroadcastRepositoryStreamListener?.cancel();
-    chatClientBroadcastRepositoryStreamListener = chatBroadcastRepository.stream.listen((chatBroadcastEvent) {
+    chatClientBroadcastRepositoryStreamListener = chatBroadcastRepository.stream.listen((chatBroadcastEvent) async {
 
 
       /// update last message event
       if (chatBroadcastEvent.action == ChatBroadcastAction.updateLastMessage) {
+         await _createConnectionIfNotExist(connectionId: chatBroadcastEvent.message?.chatConnectionId);
         _updateLastMessage(chatBroadcastEvent.message);
+      }
+
+      if (chatBroadcastEvent.action == ChatBroadcastAction.messageDeleted) {
+        final message = chatBroadcastEvent.message;
+        final chatConnection = state.chatConnections.where((element) => element.id == message?.chatConnectionId).firstOrNull;
+        if(chatConnection == null) {
+          return;
+        }
+        if(chatConnection.lastMessage?.id == message?.id) {
+          _updateLastMessage(message);
+        }
+
       }
 
       if (chatBroadcastEvent.action == ChatBroadcastAction.updateUnreadMessagesCount) {
@@ -89,13 +104,25 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
 
     if(lastMessageUpdatedFromServerChannelId != null) {
       final channel = serverSnapshots?.channels.get("public:$lastMessageUpdatedFromServerChannelId");
-      channel?.subscribe().listen((event) {
+      channel?.subscribe().listen((event) async {
         final data = event.data as Map<Object?, Object?>;
         final msgJson = data['message'] as Map<Object?, Object?>;
         final json = convertMap(msgJson);
         final message = ChatMessageModel.fromJson(json);
+        await _createConnectionIfNotExist(connectionId: message.chatConnectionId);
         _updateLastMessage(message);
       });
+    }
+
+    if(deletedConnectionFromServerChannelId != null) {
+      final channel = serverSnapshots?.channels.get("public:$deletedConnectionFromServerChannelId");
+      channel?.subscribe().listen((event) {
+        final data = event.data as Map<Object?, Object?>;
+        final json = convertMap(data);
+        final chatConnectionId = json['chatConnectionId'] as int?;
+        _deleteConnection(connectionId: chatConnectionId);
+      });
+
     }
 
   }
@@ -120,6 +147,21 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: connectionList));
   }
 
+  _createConnectionIfNotExist({int? connectionId}) async {
+
+    if(connectionId == null) { return;}
+    final connectionList = [...state.chatConnections];
+    final connectionIndexFound = connectionList.indexWhere((element) => element.id == connectionId);
+    if(connectionIndexFound > -1) {
+      return;
+    }
+    final connection = await getChatConnectionById(chatConnectionId: connectionId);
+    if(connection == null) { return; }
+    connectionList.insert(0, connection);
+    emit(state.copyWith(status: ChatConnectionStatus.createConnectionInProgress));
+    emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: connectionList));
+  }
+
   void _updateLastMessage(ChatMessageModel? message) {
     if(message == null){return;}
     final connectionList = [...state.chatConnections];
@@ -133,6 +175,25 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     emit(state.copyWith(status: ChatConnectionStatus.lastMessageUpdatedInProgress));
     emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: connectionList));
     ///! Refresh chat connectios list
+
+  }
+
+  void _deleteConnection({required int? connectionId}) {
+    final connections = <ChatConnectionModel>[...state.chatConnections];
+    final foundConnectionIndex = connections.indexWhere((element) => element.id == connectionId);
+    if(foundConnectionIndex < 0) {
+      return;
+    }
+
+    // remove locally
+    final foundChatConnection = connections[foundConnectionIndex];
+    final updatedTotalUnreadMessages = state.totalUnreadMessages - (foundChatConnection.unreadMessages ?? 0);
+    connections.removeAt(foundConnectionIndex);
+    emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsInProgress));
+    emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted,
+        chatConnections: connections,
+        totalUnreadMessages: updatedTotalUnreadMessages.toInt()
+    ));
 
   }
 
@@ -215,7 +276,7 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
 
   }
 
-  Future<ChatConnectionModel?> getChatConnectionById({required int chatConnectionId}) async {
+  Future<ChatConnectionModel?> getChatConnectionById({required int? chatConnectionId}) async {
     return await chatRepository.getChatConnectionById(chatConnectionId: chatConnectionId);
   }
 
@@ -243,6 +304,22 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
       });
     }
 
+  }
+
+  void deleteConnection({ChatConnectionModel? connection}) {
+
+    if(connection == null) {
+      return;
+    }
+    // you cannot delete a message which is not yours
+    final opponent = connection.participants?.where((element) => element.id != authenticatedUser?.id).firstOrNull;
+    if(opponent == null) {
+      return;
+    }
+    // delete from local
+    _deleteConnection(connectionId: connection.id);
+    // remove from the server
+    chatRepository.deleteConnection(chatConnectionId: connection.id, opponentId: opponent.id);
   }
 
 

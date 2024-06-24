@@ -392,7 +392,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       // if (CubeChatConnection.instance.isAuthenticated()) {
       //   CubeChatConnection.instance.markInactive();
       // }
+      debugPrint("didChangeAppLifecycleState: paused");
     } else if (AppLifecycleState.resumed == state) {
+      debugPrint("didChangeAppLifecycleState: resumed");
       // just for an example user was saved in the local storage
       final authUser = context.read<AuthCubit>().state.authUser;
       if(authUser != null) {

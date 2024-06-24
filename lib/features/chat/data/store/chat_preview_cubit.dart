@@ -28,17 +28,20 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   StreamSubscription<ChatBroadcastEvent>? chatClientBroadcastRepositoryStreamListener;
   StreamSubscription? messageCreatedSubscription;
   StreamSubscription? unreadMessagesUpdatedSubscription;
+  StreamSubscription? deletedMessagesSubscription;
   final SocketConnectionRepository socketConnectionRepository;
 
   AuthUserModel? authenticatedUser;
   String? messageCreatedFromServerChannelId;
   String? unreadMessagesUpdatedFromServerChannelId;
+  String? deletedMessagesFromServerChannelId;
   ChatPreviewCubit({required this.chatRepository, required this.chatBroadcastRepository,  required this.socketConnectionRepository}): super(const ChatPreviewState());
 
   void setAuthenticatedUser(AuthUserModel? authUser) => authenticatedUser = authUser;
   void setServerPushChannels({required int? connectionId, required int? opponentId}) {
     messageCreatedFromServerChannelId = "connections.$connectionId.messages.${authenticatedUser?.id}.created";
     unreadMessagesUpdatedFromServerChannelId = 'connections.$connectionId.user.${authenticatedUser?.id}.messages.read';
+    deletedMessagesFromServerChannelId = 'connections.$connectionId.messages.${authenticatedUser?.id}.deleted';
   }
 
   void listenToClientChatBroadCastStreams() async {
@@ -59,7 +62,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
         final messageJson = convertMap(messageObj);
         final chatMessage = ChatMessageModel.fromJson(messageJson);
         _addMessage(chatMessage);
-        chatBroadcastRepository.updateLastMessage(message: chatMessage);
+        // chatBroadcastRepository.updateLastMessage(message: chatMessage, connection: state.selectedConnection);
         // We mark message as read if we're currently in the chat
         markMessagesAsRead(connectionId: state.selectedConnection?.id, opponentId: opponentId);
       });
@@ -86,6 +89,17 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
           }
         }
 
+      });
+    }
+
+    if(deletedMessagesFromServerChannelId != null) {
+      final channel = socketConnectionRepository.realtimeInstance?.channels.get("public:$deletedMessagesFromServerChannelId");
+      deletedMessagesSubscription = channel?.subscribe().listen((event) {
+        final data = event.data as Map<Object?, Object?>;
+        final messageObj = data['message'] as Map<Object?, Object?>;
+        final messageJson = convertMap(messageObj);
+        final chatMessage = ChatMessageModel.fromJson(messageJson);
+        _deleteMessage(chatMessage);
       });
     }
 
@@ -170,7 +184,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   }
 
   //! For public access
-  void deleteMessage({required ChatConnectionModel chatConnection, ChatMessageModel? message}) {
+  void deleteMessage({ChatMessageModel? message, int? opponentId}) {
     if(message == null) {
       return;
     }
@@ -183,8 +197,9 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
     );
     // remove locally
     _deleteMessage(deletedMessage);
+    chatBroadcastRepository.updateLastMessage(message: deletedMessage);
     // remove from the server
-    chatRepository.deleteMessage(messageId: deletedMessage.id, opponentId: deletedMessage.sentToId);
+    chatRepository.deleteMessage(messageId: deletedMessage.id, opponentId: opponentId);
   }
 
   @override
@@ -195,20 +210,18 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   }
 
   void dispose() async {
-    chatRepository.clearChatMessages();
+    // chatRepository.clearChatMessages();
     chatClientBroadcastRepositoryStreamListener?.cancel();
-    final ch = messageCreatedFromServerChannelId;
+
     // if(ch != null) {
     //   final pusher = await socketConnectionRepository.getWebSocketConnection();
     //   await pusher?.unsubscribe(channelName:  ch);
     // }
     //
-    if(ch != null) {
-      final channel = socketConnectionRepository.realtimeInstance?.channels.get(ch);
-      messageCreatedSubscription?.cancel();
-      unreadMessagesUpdatedSubscription?.cancel();
-      channel?.detach();
-    }
+
+    messageCreatedSubscription?.cancel();
+    unreadMessagesUpdatedSubscription?.cancel();
+    deletedMessagesSubscription?.cancel();
 
   }
 

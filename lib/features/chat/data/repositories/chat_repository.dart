@@ -93,7 +93,7 @@ class ChatRepository {
   }
 
 
-  Future<ChatConnectionModel?> getChatConnectionById({required int chatConnectionId}) async {
+  Future<ChatConnectionModel?> getChatConnectionById({required int? chatConnectionId}) async {
 
     try {
 
@@ -210,11 +210,11 @@ class ChatRepository {
 
   }
 
-  Future<Either<String, ChatMessageModel>>? deleteMessage({required int? messageId, required int? opponentId}) async {
+  Future<Either<String, void>>? deleteMessage({required int? messageId, required int? opponentId}) async {
 
     try {
 
-      const path = AppApiRoutes.sendChatMessage;
+      const path = AppApiRoutes.deleteChatMessage;
       final body = {
         "opponent_id": opponentId,
         "message_id": messageId,
@@ -231,9 +231,40 @@ class ChatRepository {
           return Left(response.data["message"] as String);
         }
 
-        final json = response.data["extra"] as Map<String, dynamic>;
-        final serverMessage = ChatMessageModel.fromJson(json);
-        return Right(serverMessage);
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }catch(e) {
+      return Left(e.toString());
+    }
+
+  }
+
+  Future<Either<String, void>>? deleteConnection({required int? chatConnectionId, required int? opponentId}) async {
+
+    try {
+
+      const path = AppApiRoutes.deleteChatConnection;
+      final body = {
+        "opponent_id": opponentId,
+        "chat_connection_id": chatConnectionId,
+      };
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+          body: body
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        return const Right(null);
 
       } else {
         return Left(response.statusMessage ?? "");

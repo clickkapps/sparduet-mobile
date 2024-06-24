@@ -1,13 +1,17 @@
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
+import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
 import 'package:sparkduet/utils/custom_badge_icon.dart';
+import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
 class ChatConnectionItemWidget extends StatelessWidget {
@@ -17,7 +21,68 @@ class ChatConnectionItemWidget extends StatelessWidget {
 
   void _showContextMenu(BuildContext context) {
     HapticFeedback.lightImpact();
+    final theme = Theme.of(context);
+
+    final ch = ClipRRect(
+      borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+      child: Container(
+        color: theme.brightness == Brightness.light ? const Color(0xffF2F3F4) : const Color(0xff202021),
+        padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 20),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: GestureDetector(
+                      onTap: () {
+                        context.popScreen();
+                      },
+                      child: ColoredBox(
+                          color: theme.brightness == Brightness.light ? const Color(0xffc2c2c2) : theme.colorScheme.outline,
+                          child:  SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: Center(
+                                  child: Icon(Icons.close, size: 20, color: theme.colorScheme.background,)))),
+                    )
+                ),
+              ),
+
+              const SizedBox(height: 20,),
+
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: theme.brightness == Brightness.light ? theme.colorScheme.surface : theme.colorScheme.outline
+                ),
+                child: SeparatedColumn(
+                  mainAxisSize: MainAxisSize.min,
+                  separatorBuilder: (BuildContext context, int index) {
+                    return CustomBorderWidget(color: theme.brightness == Brightness.light ? theme.colorScheme.outline.withOpacity(0.1) : theme.colorScheme.background.withOpacity(0.2),);
+                  },
+                  children: [
+
+                    ListTile(title: Text("Delete chat", style: theme.textTheme.bodyMedium), onTap: () {
+                      context.popScreen();
+                      context.read<ChatConnectionsCubit>().deleteConnection(connection: chatConnection);
+                    }, trailing: Icon(FeatherIcons.delete, size: 20, color:theme.colorScheme.onSurface,),),
+
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+        ),
+      ),
+    );
+
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)));
   }
+
 
   @override
   Widget build(BuildContext context) {

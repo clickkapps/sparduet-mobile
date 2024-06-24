@@ -186,7 +186,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
     // }
   }
 
-  void openMessageOptionsModal(BuildContext context, ChatMessageModel message) {
+  void openMessageOptionsModal(BuildContext context, ChatMessageModel message, {bool showDeleteAction = true}) {
 
     final theme = Theme.of(context);
 
@@ -223,22 +223,15 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
               Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: theme.colorScheme.surface
+                    color: theme.brightness == Brightness.light ? theme.colorScheme.surface : theme.colorScheme.outline
                 ),
                 child: SeparatedColumn(
                   mainAxisSize: MainAxisSize.min,
                   separatorBuilder: (BuildContext context, int index) {
-                    return CustomBorderWidget(color: theme.colorScheme.outline.withOpacity(theme.brightness == Brightness.light ? 0.1 : 0.2),);
+                    return CustomBorderWidget(color: theme.brightness == Brightness.light ? theme.colorScheme.outline.withOpacity(0.1) : theme.colorScheme.background.withOpacity(0.2),);
                   },
                   children: [
 
-                    ListTile(title: Text("Delete message", style: theme.textTheme.bodyMedium), onTap: () {
-                      context.popScreen();
-                      if(chatPreviewCubit.state.selectedConnection != null) {
-                        // chatPreviewCubit.deleteMessage(chatConnection: chatConnection!, message: message);
-                      }
-
-                    }, trailing: Icon(FeatherIcons.delete, size: 20, color: theme.colorScheme.onSurface,),),
                     ListTile(title: Text("Reply message", style: theme.textTheme.bodyMedium), onTap: () {
                       context.popScreen();
                       // chatPreviewCubit.deleteMessage(message);
@@ -246,38 +239,18 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                       if(!focusNode.hasFocus){
                         focusNode.requestFocus();
                       }
-                    }, trailing: Icon(FeatherIcons.messageSquare, size: 20, color: theme.colorScheme.onSurface,),)
-                    // ListTile(title: Text("Asian", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Asian";
-                    //
-                    // },),
-                    // ListTile(title: Text("Black or African American", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Black or African American";
-                    //
-                    // },),
-                    // ListTile(title: Text("Middle Eastern or North African", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Middle Eastern or North African";
-                    //
-                    // },),
-                    // ListTile(title: Text("Native Hawaiian or other Pacific Islander", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Native Hawaiian or other Pacific Islander";
-                    // },),
-                    // ListTile(title: Text("Hispanic, Latino, or Spanish origin", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Hispanic, Latino, or Spanish origin";
-                    // },),
-                    // ListTile(title: Text("White", style: theme.textTheme.bodyMedium,), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "White";
-                    // },),
-                    // ListTile(title: Text("Other", style: theme.textTheme.bodyMedium), onTap: () {
-                    //   pop(context);
-                    //   raceController.text = "Other";
-                    // },),
+                    }, trailing: Icon(FeatherIcons.messageSquare, size: 20, color: theme.colorScheme.onSurface,),),
+
+                    if(showDeleteAction) ... {
+                      ListTile(title: Text("Delete message", style: theme.textTheme.bodyMedium), onTap: () {
+                        context.popScreen();
+                        if(chatPreviewCubit.state.selectedConnection != null) {
+                          chatPreviewCubit.deleteMessage(message: message, opponentId: widget.opponent.id);
+                        }
+
+                      }, trailing: Icon(FeatherIcons.delete, size: 20, color:theme.colorScheme.onSurface,),),
+                    },
+
                   ],
                 ),
               ),
@@ -391,7 +364,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                                         },
                                         swipeSensitivity: 20,
                                         child: MessageItemWidget(message: message, onLongPress: (message) {
-                                          openMessageOptionsModal(context, message);
+                                          openMessageOptionsModal(context, message, showDeleteAction: message.sentById == currentUser?.id);
                                         },),
                                       );
                                     })

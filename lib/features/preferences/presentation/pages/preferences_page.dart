@@ -1,12 +1,9 @@
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:separated_column/separated_column.dart';
-import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
-import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/display_settings_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/feedback_page.dart';
@@ -179,7 +176,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, Prefe
 
                      ListTile(
                        dense: true,
-                       title: Text("Website / Live support", style: theme.textTheme.bodyMedium,),
+                       title: Text("Live support", style: theme.textTheme.bodyMedium,),
                        trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
                        onTap: () {
                          launchBrowser(AppConstants.website);

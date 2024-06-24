@@ -1,5 +1,5 @@
 enum ChatConnectionStatus {
-  initial, fetchSuggestedChatUsersLoading, fetchSuggestedChatUsersError, fetchSuggestedChatUsersSuccessful, createChatConnectionLoading, createChatConnectionError, createChatConnectionSuccessful, fetchChatConnectionLoading, refreshChatConnectionsCompleted, fetchChatConnectionError, fetchingChatConnectionsFromMemory, lastMessageUpdatedInProgress, updateChatConnectionUnreadMessagesCountInProgress, getTotalUnreadChatMessagesLoading, getTotalUnreadChatMessagesError, getTotalUnreadChatMessagesSuccessful
+  initial, fetchSuggestedChatUsersLoading, fetchSuggestedChatUsersError, fetchSuggestedChatUsersSuccessful, createChatConnectionLoading, createChatConnectionError, createChatConnectionSuccessful, fetchChatConnectionLoading, refreshChatConnectionsCompleted, fetchChatConnectionError, fetchingChatConnectionsFromMemory, lastMessageUpdatedInProgress, updateChatConnectionUnreadMessagesCountInProgress, getTotalUnreadChatMessagesLoading, getTotalUnreadChatMessagesError, getTotalUnreadChatMessagesSuccessful, refreshChatConnectionsInProgress, createConnectionInProgress
 }
 
 enum ChatPreviewStatus {
@@ -7,5 +7,5 @@ enum ChatPreviewStatus {
 }
 
 enum ChatBroadcastAction {
-   updateLastMessage, updateUnreadMessagesCount
+   updateLastMessage, updateUnreadMessagesCount, messageDeleted
 }
