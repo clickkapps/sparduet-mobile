@@ -5,6 +5,7 @@ import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/auth/presentation/pages/auth_user_location_page.dart';
 import 'package:sparkduet/features/auth/presentation/widgets/update_auth_profile_form_widget.dart';
 import 'package:sparkduet/features/users/data/models/user_info_model.dart';
 
@@ -55,6 +56,30 @@ mixin AuthUIMixin {
             authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(race: item.id))// this will cause immediate update
         );
       });
+
+    }
+
+    void showLocationSelectorPage(BuildContext context) {
+
+      final ch = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => Navigator.pop(context),
+        child: DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 1.0,
+            minChildSize: 0.9,
+            builder: (_ , controller) {
+              return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: AuthUserLocationPage(controller: controller,
+                  automaticallyImplyLeading: true,
+                  onComplete: () => context.popScreen(),)
+              );
+            }
+        ),
+      );
+
+      context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
 
     }
 

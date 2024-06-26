@@ -13,6 +13,8 @@ abstract class _$NotificationsStateCWProxy {
 
   NotificationsState count(int count);
 
+  NotificationsState notifications(List<NotificationModel> notifications);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `NotificationsState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -23,6 +25,7 @@ abstract class _$NotificationsStateCWProxy {
     NotificationStatus? status,
     String? message,
     int? count,
+    List<NotificationModel>? notifications,
   });
 }
 
@@ -42,6 +45,10 @@ class _$NotificationsStateCWProxyImpl implements _$NotificationsStateCWProxy {
   NotificationsState count(int count) => this(count: count);
 
   @override
+  NotificationsState notifications(List<NotificationModel> notifications) =>
+      this(notifications: notifications);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `NotificationsState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -53,6 +60,7 @@ class _$NotificationsStateCWProxyImpl implements _$NotificationsStateCWProxy {
     Object? status = const $CopyWithPlaceholder(),
     Object? message = const $CopyWithPlaceholder(),
     Object? count = const $CopyWithPlaceholder(),
+    Object? notifications = const $CopyWithPlaceholder(),
   }) {
     return NotificationsState(
       status: status == const $CopyWithPlaceholder() || status == null
@@ -67,6 +75,11 @@ class _$NotificationsStateCWProxyImpl implements _$NotificationsStateCWProxy {
           ? _value.count
           // ignore: cast_nullable_to_non_nullable
           : count as int,
+      notifications:
+          notifications == const $CopyWithPlaceholder() || notifications == null
+              ? _value.notifications
+              // ignore: cast_nullable_to_non_nullable
+              : notifications as List<NotificationModel>,
     );
   }
 }

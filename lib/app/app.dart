@@ -84,7 +84,7 @@ class App extends StatelessWidget {
           BlocProvider(create: (context) => SearchCubit(searchRepository: searchRepository)),
           BlocProvider(create: (context) => ChatConnectionsCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository, socketConnectionRepository: socketRepository)),
           BlocProvider(create: (context) => ChatPreviewCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository, socketConnectionRepository: socketRepository)),
-          BlocProvider(create: (context) => UserCubit(userRepository: userRepository)),
+          BlocProvider(create: (context) => UserCubit(userRepository: userRepository, socketConnectionRepository: socketRepository)),
           BlocProvider(create: (context) => PreferencesCubit(preferencesRepository: preferencesRepository)),
           BlocProvider(create: (context) => NotificationsCubit(notificationsRepository: notificationsRepository, socketConnectionRepository: socketRepository)),
           BlocProvider(create: (context) => SubscriptionCubit(subscriptionRepository: subscriptionRepository)),

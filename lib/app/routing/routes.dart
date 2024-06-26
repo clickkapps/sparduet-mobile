@@ -6,6 +6,7 @@ import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/presentation/pages/auth_profile_page.dart';
+import 'package:sparkduet/features/auth/presentation/pages/auth_user_location_page.dart';
 import 'package:sparkduet/features/auth/presentation/pages/login_page.dart';
 import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
 import 'package:sparkduet/features/chat/presentation/pages/chat_connections_page.dart';
@@ -39,6 +40,10 @@ final router = GoRouter(
     AuthUserModel? user  = await context.read<AuthCubit>().getCurrentUserSession();
     if(user == null) {
       return AppRoutes.login;
+    }
+
+    if((user.info?.preferredNationalities ?? "").isEmpty) {
+      return AppRoutes.location;
     }
 
     return null;
@@ -112,6 +117,16 @@ final router = GoRouter(
 
         return  MaterialPage(name: state.path, arguments: state.extra,
             child: ChatPreviewPage(opponent: opponent, connection: chatConnection,)
+        );
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.location,
+      parentNavigatorKey: _rootNavigator,
+      pageBuilder: (context, state) {
+        return  MaterialPage(name: state.path, arguments: state.extra,
+            child: const AuthUserLocationPage()
         );
       },
     ),

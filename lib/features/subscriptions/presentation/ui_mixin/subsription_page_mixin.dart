@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/subscriptions/presentation/pages/subscription_page.dart';
 
 mixin SubscriptionPageMixin {
-  void showSubscriptionPaywall(BuildContext context, {bool openAsModal = false}) {
+  void showSubscriptionPaywall(BuildContext context, {bool openAsModal = false}) async {
 
     if(!openAsModal) {
       context.pushScreen(const SubscriptionPage());
@@ -32,4 +34,5 @@ mixin SubscriptionPageMixin {
     borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
 
   }
+
 }

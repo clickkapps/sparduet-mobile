@@ -18,6 +18,8 @@ import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_injector.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/auth/data/store/enums.dart';
+import 'package:sparkduet/features/auth/presentation/mixin/auth_profile_mixin.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_cubit.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/chat_icon_widget.dart';
@@ -34,8 +36,10 @@ import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
 import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
+import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
 import 'package:sparkduet/features/search/data/store/search_cubit.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_cubit.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:notification_permissions/notification_permissions.dart' as n_permission;
 import 'package:new_version_plus/new_version_plus.dart';
@@ -50,11 +54,12 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver, PreferencesMixin {
 
   int activeIndex = 0;
   late NavCubit navCubit;
   late FeedsCubit feedsCubit;
+  late AuthCubit authCubit;
   StreamSubscription? navCubitStreamSubscription;
   StreamSubscription? feedsCubitStreamSubscription;
   StreamSubscription? cubeChatConnectionStateStream;
@@ -64,12 +69,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     navCubit = context.read<NavCubit>();
+    authCubit = context.read<AuthCubit>();
     feedsCubit = context.read<FeedsCubit>();
     navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChangeRequested) {
             onItemTapped(event.currentTabIndex);
         }
     });
+
+    authCubit.stream.listen((event) {
+      if(event.status == AuthStatus.setAuthUserInfoCompleted) {
+          if((event.authUser?.info?.preferredNationalities ?? "").isEmpty){
+            logout(context);
+          }
+      }
+    });
+
     feedsCubitStreamSubscription = feedsCubit.stream.listen((event) {
       if(event.status == FeedStatus.postFeedSuccessful) {
         final data = event.data as Map<String, dynamic>;
@@ -123,6 +138,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     context.read<PreferencesCubit>().fetchUserSettings();
     promptUserToSubscribeToPushNotification(authUser?.username ?? "");
     context.read<HomeCubit>().initializeSocketConnection().then((value) {
+      context.read<UserCubit>().listenToServerNotificationUpdates(authUser: authUser);
       context.read<NotificationsCubit>().listenToServerNotificationUpdates(authUser: authUser);
       context.read<ChatConnectionsCubit>().setServerPushChannels();
       context.read<ChatConnectionsCubit>().getTotalUnreadChatMessages();

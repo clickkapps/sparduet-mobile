@@ -139,6 +139,12 @@ class UserRepository {
         final dynamicList = response.data["extra"]["data"] as List<dynamic>;
         final list = List<UserModel>.from(dynamicList.map((x) => UserModel.fromJson(x['viewer'])));
 
+        // mark profile views as read
+        List<int> ids = list.where((element) => element.id != null).map((e) => e.id!).toList();
+        if(ids.isNotEmpty) {
+          markProfileViewAsRead(ids: ids);
+        }
+
         return  Right(list);
 
       } else {
@@ -158,7 +164,7 @@ class UserRepository {
     try {
 
       // by default it fetches the current loggedIn User Profile
-      final path = AppApiRoutes.fetchUnreadProfileViewers;
+      final path = AppApiRoutes.countUnreadProfileViewers;
 
       final response = await networkProvider.call(
         path: path,
@@ -182,9 +188,7 @@ class UserRepository {
       return Left(e.toString());
     }
 
-
   }
-
 
 
 }

@@ -38,7 +38,7 @@ class CompletedUserPostItem extends StatelessWidget {
                 child: Text(post.description ?? "", maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.darkColorScheme.onBackground,fontSize: 12),),
               ),
             ),
-            if((post.totalViews ?? 0) > 0) ... {
+            if((post.totalLikes ?? 0) > 0) ... {
               Align(
                 alignment: Alignment.topLeft,
                 child:  Padding(padding: const EdgeInsets.all(5),
@@ -51,8 +51,8 @@ class CompletedUserPostItem extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(convertToCompactFigure((post.totalViews ?? 0).toInt()), style: const TextStyle(color: Colors.white, fontSize: 12),),
-                          const SizedBox(width: 10,),
-                          const Icon(FeatherIcons.eye, size: 18, color: Colors.white,)
+                          const SizedBox(width: 5,),
+                          const Icon(Icons.favorite, size: 14, color: Colors.white,)
                         ],
                       )
                   ),),

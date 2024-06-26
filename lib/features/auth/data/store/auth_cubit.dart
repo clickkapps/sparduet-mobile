@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
+import 'package:sparkduet/features/auth/data/models/auth_user_notice_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
@@ -87,6 +88,20 @@ class AuthCubit extends Cubit<AuthState> {
     return (null, authUser);
 
 
+  }
+
+  void setupAuthUserLocation() async {
+    emit(state.copyWith(status: AuthStatus.setupAuthUserLocationInProgress));
+    final either = await authRepository.determinePosition();
+    if(either.isLeft()) {
+      final l = either.asLeft();
+      emit(state.copyWith(status: AuthStatus.setupAuthUserLocationFailed, message: l));
+      return;
+    }
+
+    final r = either.asRight();
+    setAuthUserInfo(updatedAuthUser: r);
+    emit(state.copyWith(status: AuthStatus.setupAuthUserLocationSuccessful));
   }
 
   // void uploadAuthUserProfile()
@@ -189,4 +204,33 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(status: AuthStatus.logOutCompleted, authUser: null));
   }
 
+  void getUserNotice() async {
+    emit(state.copyWith(status: AuthStatus.getUserNoticeInProgress));
+    final either = await authRepository.getUserNotice();
+
+    if(either.isLeft()) {
+      final l = either.asLeft();
+      emit(state.copyWith(status: AuthStatus.getUserNoticeFailed, message: l));
+      return;
+    }
+
+    final r = either.asRight();
+    emit(state.copyWith(status: AuthStatus.getUserNoticeSuccessful, userNotice: r));
+
+  }
+
+  void markNoticeAsRead({required int? noticeId}) async {
+    emit(state.copyWith(status: AuthStatus.markNoticeAsReadInProgress));
+    final either = await authRepository.markNoticeAsRead(noticeId: noticeId);
+
+    if(either.isLeft()) {
+      final l = either.asLeft();
+      emit(state.copyWith(status: AuthStatus.markNoticeAsReadFailed, message: l));
+      return;
+    }
+
+    // final r = either.asRight();
+    final noticeUpdated = state.userNotice?.copyWith(noticeReadAt: DateTime.now());
+    emit(state.copyWith(status: AuthStatus.markNoticeAsReadSuccessful, userNotice: noticeUpdated));
+  }
 }

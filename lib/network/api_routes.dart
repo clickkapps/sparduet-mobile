@@ -27,6 +27,12 @@ class AppApiRoutes {
   static String markProfileViewAsRead = "$baseApiUrl/user/mark-profile-view-as-read";
   static String fetchUnreadProfileViewers = "$baseApiUrl/user/fetch-unread-profile-viewers";
   static String countUnreadProfileViewers = "$baseApiUrl/user/count-unread-profile-views";
+  static String getUserNotice = "$baseApiUrl/user/get-notice";
+  static String markNoticeAsRead = "$baseApiUrl/user/mark-notice-as-read";
+  static String reportUser = "$baseApiUrl/user/report-user";
+  static String blockUser = "$baseApiUrl/user/block-user";
+  static String unblockUser = "$baseApiUrl/user/unblock-user";
+  static String setupUserLocation = "$baseApiUrl/auth/setup-location";
 
   static const String feeds = '$baseApiUrl/posts';
   static const String createPost = '$baseApiUrl/posts/create-post';
@@ -45,7 +51,7 @@ class AppApiRoutes {
   static const String getUploadStatus = '$baseApiUrl/utils/mux-upload-status';
   static const String getVideoStatus = '$baseApiUrl/utils/mux-video-status';
 
-  static const String getCountries = 'https://api.first.org/data/v1/countries';
+  static const String getCountries = 'https://api.first.org/data/v1/countries?limit=249';
 
   static const String topSearch = '$baseApiUrl/search/top';
   static const String usersSearch = '$baseApiUrl/search/users';
@@ -69,4 +75,10 @@ class AppApiRoutes {
   static const String  getTotalUnreadChatMessages = '$baseApiUrl/chat/total-unread-chat-messages';
   static const String  deleteChatMessage = '$baseApiUrl/chat/delete-message';
   static const String  deleteChatConnection = '$baseApiUrl/chat/delete-connection';
+
+  // notifications
+  static String fetchNotifications = "$baseApiUrl/notifications";
+  static String countUnseenNotifications = "$baseApiUrl/notifications/count-unseen-count";
+  static String markNotificationsAsSeen = "$baseApiUrl/notifications/mark-as-seen";
+  static String markNotificationAsRead({int? id}) => "$baseApiUrl/notifications/mark-as-read/$id";
 }

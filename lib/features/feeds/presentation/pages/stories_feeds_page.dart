@@ -24,6 +24,8 @@ import 'package:sparkduet/features/home/data/store/enums.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
 import 'package:sparkduet/features/notifications/data/store/notifications_state.dart';
+import 'package:sparkduet/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:sparkduet/features/notifications/presentation/widgets/notification_icon_widget.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
 import 'package:sparkduet/features/search/presentation/pages/top_search_page.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
@@ -289,57 +291,11 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
           UnconstrainedBox(
             child: GestureDetector(
               onTap: () {
-                presentPaywall();
+                context.pushScreen(const NotificationsPage());
               } ,
               behavior: HitTestBehavior.opaque,
-              child: Padding(padding: const EdgeInsets.all(10),
-                child: Builder(
-                  builder: (context) {
-                    // Calculate icon size based on parent constraints
-                    double iconSize = MediaQuery.of(context).size.width * 0.065; // 10% of parent width
-
-                    // Ensure the icon size is not too small or too large
-                    if (iconSize < 24) {
-                      iconSize = 24;
-                    } else if (iconSize > 100) {
-                      iconSize = 100;
-                    }
-
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Icon(FeatherIcons.bell, color: Colors.white, size: iconSize,),
-                        Positioned(
-                          right: -5, top: -3,
-                        child: BlocSelector<NotificationsCubit, NotificationsState, int>(
-                          selector: (state) {
-                            return state.count;
-                          },
-                          builder: (context, cnt) {
-                            if(cnt > 0)  {
-                              return Container(
-                                width: 17,
-                                height: 17,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: AppColors.buttonBlue,
-                                ),
-                                child: Center(
-                                  child: FittedBox(fit: BoxFit.scaleDown,child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Text("$cnt", style: const TextStyle(fontSize: 12, color: Colors.white),),
-                                  ),),
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        )),
-
-                      ],
-                    );
-                  },
-                ),
+              child: const Padding(padding: EdgeInsets.all(10),
+                child: NotificationIconWidget(),
               ),
             ),
           ),

@@ -32,6 +32,28 @@ String getFormattedDateWithIntl(DateTime date, {String format = 'MMM yyyy'}) {
   return dateString;
 }
 
+String getFormattedDateTimeWithIntl(DateTime date) {
+  final daySuffix = getDaySuffix(date.day);
+  final formattedDate = DateFormat("d'$daySuffix' MMMM yyyy h:mm a").format(date);
+  return formattedDate;
+}
+
+String getDaySuffix(int day) {
+  if (day >= 11 && day <= 13) {
+    return 'th';
+  }
+  switch (day % 10) {
+    case 1:
+      return 'st';
+    case 2:
+      return 'nd';
+    case 3:
+      return 'rd';
+    default:
+      return 'th';
+  }
+}
+
 String formatDuration(Duration duration) {
   // Calculate total seconds
   int totalSeconds = duration.inSeconds;

@@ -157,7 +157,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     children: [
                       const Icon(Icons.circle, size: 12, color: Colors.green,),
                       const SizedBox(width: 10,),
-                      Expanded(child: Text("See who viewed your posts", style: theme.textTheme.bodySmall,))
+                      Expanded(child: Text("See who liked your posts", style: theme.textTheme.bodySmall,))
                     ],
                   ),
                 ],

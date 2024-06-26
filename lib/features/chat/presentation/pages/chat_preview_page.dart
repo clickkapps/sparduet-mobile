@@ -21,6 +21,8 @@ import 'package:sparkduet/features/chat/presentation/widgets/message_item_widget
 import 'package:sparkduet/features/chat/presentation/widgets/send_chat_message_button_widget.dart';
 import 'package:sparkduet/features/subscriptions/data/store/enum.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
+import 'package:sparkduet/features/subscriptions/presentation/pages/first_impression_explanation_page.dart';
+import 'package:sparkduet/features/subscriptions/presentation/pages/matched_conversation_explanation_page.dart';
 import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
@@ -197,6 +199,52 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
     // }
   }
 
+  void showFirstImpressionExplanationModal(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.9,
+          shouldCloseOnMinExtent: true,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: FirstImpressionExplanationPage(controller: controller,)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(
+        child: ch,
+        isDismissible: true,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
+  void showMatchedConversationExplanationModal(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.9,
+          shouldCloseOnMinExtent: true,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: MatchedConversationExplanationPage(controller: controller,)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(
+        child: ch,
+        isDismissible: true,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
   void openMessageOptionsModal(BuildContext context, ChatMessageModel message, {bool showDeleteAction = true}) {
 
     final theme = Theme.of(context);
@@ -320,7 +368,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                         const SingleChildScrollView(
                           reverse:true,
                           child: Padding(padding: EdgeInsets.only(bottom: 20),
-                              child: EmptyChatWidget()),) :
+                              child: EmptyChatWidget( message: "🔐 All messages are encrypted. No one outside of this chat, not even Sparkduet can read them.",)),) :
                         ListView.separated(
                           reverse: true,
                           shrinkWrap: true,
@@ -562,7 +610,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                             ),
                             child: GestureDetector(
                               onTap: (){
-                                showSubscriptionPaywall(context);
+                                showFirstImpressionExplanationModal(context);
                               },
                               behavior: HitTestBehavior.opaque,
                               child: Container(
@@ -602,7 +650,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                         ),
                         child: GestureDetector(
                           onTap: (){
-                            showSubscriptionPaywall(context);
+                            showMatchedConversationExplanationModal(context);
                           },
                           behavior: HitTestBehavior.opaque,
                           child: Container(

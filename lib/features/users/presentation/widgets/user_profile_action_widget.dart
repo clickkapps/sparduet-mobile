@@ -10,18 +10,22 @@ class UserProfileActionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.buttonBlue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(size),
-      ),
-      padding: const EdgeInsets.all(12),
-      margin: const EdgeInsets.symmetric(vertical: 5),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.buttonBlue.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 5),
 
-      child: Center(child: Icon(icon,
-        // color: theme.colorScheme.onBackground,
-        color: AppColors.buttonBlue,
-        size: size * 0.4,),),
+        child: Center(child: Icon(icon,
+          // color: theme.colorScheme.onBackground,
+          color: AppColors.buttonBlue,
+          size: size * 0.3,),),
+      ),
     );
   }
 }

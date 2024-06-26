@@ -34,6 +34,10 @@ abstract class _$UserInfoModelCWProxy {
 
   UserInfoModel preferredNationalities(String? preferredNationalities);
 
+  UserInfoModel loc(String? loc);
+
+  UserInfoModel country(String? country);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserInfoModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -54,6 +58,8 @@ abstract class _$UserInfoModelCWProxy {
     num? preferredMaxAge,
     String? preferredRaces,
     String? preferredNationalities,
+    String? loc,
+    String? country,
   });
 }
 
@@ -112,6 +118,12 @@ class _$UserInfoModelCWProxyImpl implements _$UserInfoModelCWProxy {
       this(preferredNationalities: preferredNationalities);
 
   @override
+  UserInfoModel loc(String? loc) => this(loc: loc);
+
+  @override
+  UserInfoModel country(String? country) => this(country: country);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserInfoModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -133,6 +145,8 @@ class _$UserInfoModelCWProxyImpl implements _$UserInfoModelCWProxy {
     Object? preferredMaxAge = const $CopyWithPlaceholder(),
     Object? preferredRaces = const $CopyWithPlaceholder(),
     Object? preferredNationalities = const $CopyWithPlaceholder(),
+    Object? loc = const $CopyWithPlaceholder(),
+    Object? country = const $CopyWithPlaceholder(),
   }) {
     return UserInfoModel(
       bio: bio == const $CopyWithPlaceholder()
@@ -190,6 +204,14 @@ class _$UserInfoModelCWProxyImpl implements _$UserInfoModelCWProxy {
               ? _value.preferredNationalities
               // ignore: cast_nullable_to_non_nullable
               : preferredNationalities as String?,
+      loc: loc == const $CopyWithPlaceholder()
+          ? _value.loc
+          // ignore: cast_nullable_to_non_nullable
+          : loc as String?,
+      country: country == const $CopyWithPlaceholder()
+          ? _value.country
+          // ignore: cast_nullable_to_non_nullable
+          : country as String?,
     );
   }
 }
@@ -220,13 +242,15 @@ class UserInfoModelAdapter extends TypeAdapter<UserInfoModel> {
       age: fields[1] as num?,
       gender: fields[2] as String?,
       profilePicPath: fields[4] as String?,
+      loc: fields[5] as String?,
+      country: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserInfoModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.bio)
       ..writeByte(1)
@@ -236,7 +260,11 @@ class UserInfoModelAdapter extends TypeAdapter<UserInfoModel> {
       ..writeByte(3)
       ..write(obj.race)
       ..writeByte(4)
-      ..write(obj.profilePicPath);
+      ..write(obj.profilePicPath)
+      ..writeByte(5)
+      ..write(obj.loc)
+      ..writeByte(6)
+      ..write(obj.country);
   }
 
   @override
@@ -274,6 +302,8 @@ UserInfoModel _$UserInfoModelFromJson(Map<String, dynamic> json) =>
       preferredMaxAge: json['preferred_max_age'] as num?,
       preferredRaces: json['preferred_races'] as String?,
       preferredNationalities: json['preferred_nationalities'] as String?,
+      loc: json['loc'] as String?,
+      country: json['country'] as String?,
     );
 
 Map<String, dynamic> _$UserInfoModelToJson(UserInfoModel instance) =>
@@ -293,4 +323,6 @@ Map<String, dynamic> _$UserInfoModelToJson(UserInfoModel instance) =>
       'preferred_max_age': instance.preferredMaxAge,
       'preferred_races': instance.preferredRaces,
       'preferred_nationalities': instance.preferredNationalities,
+      'loc': instance.loc,
+      'country': instance.country,
     };

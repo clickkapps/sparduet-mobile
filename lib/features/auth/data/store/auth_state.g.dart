@@ -15,6 +15,8 @@ abstract class _$AuthStateCWProxy {
 
   AuthState data(dynamic data);
 
+  AuthState userNotice(AuthUserNoticeModel? userNotice);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AuthState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -26,6 +28,7 @@ abstract class _$AuthStateCWProxy {
     String? message,
     AuthUserModel? authUser,
     dynamic data,
+    AuthUserNoticeModel? userNotice,
   });
 }
 
@@ -48,6 +51,10 @@ class _$AuthStateCWProxyImpl implements _$AuthStateCWProxy {
   AuthState data(dynamic data) => this(data: data);
 
   @override
+  AuthState userNotice(AuthUserNoticeModel? userNotice) =>
+      this(userNotice: userNotice);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AuthState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -60,6 +67,7 @@ class _$AuthStateCWProxyImpl implements _$AuthStateCWProxy {
     Object? message = const $CopyWithPlaceholder(),
     Object? authUser = const $CopyWithPlaceholder(),
     Object? data = const $CopyWithPlaceholder(),
+    Object? userNotice = const $CopyWithPlaceholder(),
   }) {
     return AuthState(
       status: status == const $CopyWithPlaceholder() || status == null
@@ -78,6 +86,10 @@ class _$AuthStateCWProxyImpl implements _$AuthStateCWProxy {
           ? _value.data
           // ignore: cast_nullable_to_non_nullable
           : data as dynamic,
+      userNotice: userNotice == const $CopyWithPlaceholder()
+          ? _value.userNotice
+          // ignore: cast_nullable_to_non_nullable
+          : userNotice as AuthUserNoticeModel?,
     );
   }
 }

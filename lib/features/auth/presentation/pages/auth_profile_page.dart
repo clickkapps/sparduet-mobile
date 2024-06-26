@@ -24,13 +24,20 @@ import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
 import 'package:sparkduet/features/auth/presentation/mixin/auth_profile_mixin.dart';
+import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
+import 'package:sparkduet/features/countries/data/store/countries_state.dart';
+import 'package:sparkduet/features/countries/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
+import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
+import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_state.dart';
 import 'package:sparkduet/features/users/presentation/pages/unread_viewers_page.dart';
 import 'package:sparkduet/features/users/presentation/widgets/bookmarked_posts_tab_view_widget.dart';
 import 'package:sparkduet/features/users/presentation/widgets/user_posts_tab_view_widget.dart';
@@ -51,7 +58,7 @@ class AuthProfilePage extends StatefulWidget {
   State<AuthProfilePage> createState() => _AuthProfilePageState();
 }
 
-class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderStateMixin, AuthUIMixin {
+class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderStateMixin, AuthUIMixin, SubscriptionPageMixin {
 
   static int aboutYouIndex = 0;
   static int yourPostsIndex = 1;
@@ -62,6 +69,7 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
   PagingController<int, dynamic>? userPostsPagingController;
   PagingController<int, dynamic>? userBookmarksPagingController;
   late AuthCubit authCubit;
+  late UserCubit userCubit;
   late AuthFeedsCubit feedsCubit;
   StreamSubscription? feedCubitSubscription;
   StreamSubscription? authubitSubscription;
@@ -80,6 +88,8 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
       axis: Axis.vertical,
     );
     authCubit = context.read<AuthCubit>();
+    userCubit = context.read<UserCubit>();
+    userCubit.countUnreadProfileViews();
     feedsCubit = context.read<AuthFeedsCubit>();
     feedCubitSubscription = feedsCubit.stream.listen((event) {
         if(event.status == FeedStatus.postFeedInProgress) {
@@ -165,6 +175,12 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
 
 
   void profileViewersHandler(BuildContext context) {
+
+    if(!context.read<SubscriptionCubit>().state.subscribed) {
+      showSubscriptionPaywall(context, openAsModal: true);
+      return;
+    }
+
     final ch = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
@@ -377,62 +393,79 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                           return const SizedBox(height: 10,);
                         },
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                          BlocSelector<UserCubit, UserState, num>(
+                            selector: (state) {
+                              return state.unreadViewersCount;
+                            },
+                            builder: (context, unreadViewersCount) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 15),
 
-                            child: GestureDetector(
-                              onTap: () => profileViewersHandler(context),
-                              behavior: HitTestBehavior.opaque,
-                              child: CustomCard(
-                                padding: 10,
-                                child: SizedBox(
-                                  width: double.maxFinite,
-                                  child: Row(
-                                     children: [
+                                child: GestureDetector(
+                                  onTap: () => profileViewersHandler(context),
+                                  behavior: HitTestBehavior.opaque,
+                                  child: CustomCard(
+                                    padding: 10,
+                                    child: SizedBox(
+                                      width: double.maxFinite,
+                                      child: Row(
+                                        children: [
 
-                                       Stack(
-                                         clipBehavior: Clip.none,
-                                         children: [
-                                           ClipRRect(
-                                             child: Stack(
-                                               children: [
-                                                 const CustomUserAvatarWidget(size: 35,),
-                                                 Positioned.fill(
-                                                   child: ClipRRect(
-                                                     borderRadius: BorderRadius.circular(35),
-                                                     child: BackdropFilter(
-                                                       filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                                                       child: Container(
-                                                         color: Colors.transparent,
-                                                       ),
-                                                     ),
-                                                   ),
-                                                 ),
-                                               ],
-                                             ),
-                                           ),
-                                           Positioned( left: 35 * 0.5,child: Stack(children: [
-                                             const CustomUserAvatarWidget(size: 35,),
-                                             Positioned.fill(
-                                               child: ClipRRect(
-                                                 borderRadius: BorderRadius.circular(35),
-                                                 child: BackdropFilter(
-                                                   filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                                                   child: Container(
-                                                     color: Colors.transparent,
-                                                   ),
-                                                 ),
-                                               ),
-                                             ),
-                                           ],)),
-                                           // Positioned(left: (35 + 35 * 0.5) * , child: CustomUserAvatarWidget(size: 35,)),
-                                         ],),
-                                        const SizedBox(width: (35 * 0.5) + 10,),
-                                        Expanded(child: Text("2+ people viewed your profile", style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.normal, color: theme.colorScheme.secondary),))
-                                     ],
-                                  ),),
+                                          Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              ClipRRect(
+                                                child: Stack(
+                                                  children: [
+                                                    const CustomUserAvatarWidget(size: 35,),
+                                                    Positioned.fill(
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(35),
+                                                        child: BackdropFilter(
+                                                          filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                                                          child: Container(
+                                                            color: Colors.transparent,
+                                                          ),
                                                         ),
-                            ),),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Positioned( left: 35 * 0.5,child: Stack(children: [
+                                                const CustomUserAvatarWidget(size: 35,),
+                                                Positioned.fill(
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(35),
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                                                      child: Container(
+                                                        color: Colors.transparent,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],)),
+                                              // Positioned(left: (35 + 35 * 0.5) * , child: CustomUserAvatarWidget(size: 35,)),
+                                            ],),
+                                          const SizedBox(width: (35 * 0.5) + 10,),
+                                          Expanded(child:
+                                          Builder(
+                                            builder: (context) {
+                                              String message = "See who viewed your profile";
+                                              if(unreadViewersCount > 0)  {
+                                                message = "$unreadViewersCount+ people viewed your profile";
+                                              }
+                                              return Text(message, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.normal, color: theme.colorScheme.secondary),);
+                                            }
+                                          ))
+                                        ],
+                                      ),),
+                                  ),
+                                ),);
+                            },
+                          )
+                          ,
                           AutoScrollTag(
                               key: ValueKey(aboutYouIndex),
                               controller: autoScrollController,
@@ -530,6 +563,34 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                       showRaceSelectorListWidget(context);
                                     },
                                   ),
+
+                                  BlocBuilder<CountriesCubit, CountriesState>(
+                                    buildWhen: (_, state) {
+                                      return state.status == CountryStatus.fetchAllCountriesSuccessful;
+                                    },
+                                    builder: (context, state) {
+                                      return ListTile(
+                                    dense: true,
+                                    title: Text("Country",
+                                      style: theme.textTheme.bodyMedium,),
+                                    subtitle: (authUser?.info?.country ?? "").isNotEmpty ? Builder(builder: (_) {
+                                      final countryCode = authUser?.info?.country;
+                                      final country = state.countries.where((element) => element.countryCode == countryCode).firstOrNull;
+                                      if(country == null) {
+                                        return const Text("N/A");
+                                      }
+                                      return Text(country.countryName ?? "");
+                                    }): null ,
+                                    // subTitle
+                                    trailing: Icon(Icons.edit,
+                                      color: theme.colorScheme.onBackground,
+                                      size: 14,),
+                                    onTap: () {
+                                      showLocationSelectorPage(context);
+                                    },
+                                  );
+  },
+),
 
                                 ],
                               ),),

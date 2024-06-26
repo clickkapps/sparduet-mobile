@@ -15,7 +15,10 @@ class EmptyChatWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
          children: [
            Lottie.asset(AppAssets.kEmptyChatJson ),
-           Text(message ?? "Your messages will appear here", textAlign: TextAlign.center, style: theme.textTheme.titleSmall,)
+           Padding(
+             padding: const EdgeInsets.symmetric(horizontal: 20),
+             child: Text(message ?? "Your messages will appear here", textAlign: TextAlign.center, style: theme.textTheme.titleSmall,),
+           )
          ],
       ),
     );

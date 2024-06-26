@@ -12,6 +12,9 @@ import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/features/countries/data/store/countries_cubit.dart';
+import 'package:sparkduet/features/countries/data/store/countries_state.dart';
+import 'package:sparkduet/features/countries/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
@@ -341,6 +344,30 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                     }): null ,
                                     // subTitle
                                   )
+                                },
+
+                                if((user.info?.country ?? "").isNotEmpty) ... {
+                                  BlocBuilder<CountriesCubit, CountriesState>(
+                                    buildWhen: (_, state) {
+                                      return state.status == CountryStatus.fetchAllCountriesSuccessful;
+                                    },
+                                    builder: (context, state) {
+                                      return ListTile(
+                                    dense: true,
+                                    title: Text("Country",
+                                      style: theme.textTheme.bodyMedium,),
+                                    subtitle: (user.info?.country ?? "").isNotEmpty ? Builder(builder: (_) {
+                                      final countryCode = user.info?.country;
+                                      final country = state.countries.where((element) => element.countryCode == countryCode).firstOrNull;
+                                      if(country == null) {
+                                        return const Text("N/A");
+                                      }
+                                      return Text(country.countryName ?? "");
+                                    }): null ,
+                                    // subTitle
+                                  );
+  },
+)
                                 },
 
                               ],

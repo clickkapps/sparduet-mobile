@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
+import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/features/users/data/repositories/user_repository.dart';
 import 'package:sparkduet/features/users/data/store/enums.dart';
@@ -8,7 +13,23 @@ import 'package:sparkduet/features/users/data/store/user_state.dart';
 class UserCubit extends Cubit<UserState> {
 
   final UserRepository userRepository;
-  UserCubit({required this.userRepository}) : super(const UserState());
+  final SocketConnectionRepository socketConnectionRepository;
+  StreamSubscription? ablySubscription;
+  UserCubit({required this.userRepository, required this.socketConnectionRepository}) : super(const UserState());
+
+  void listenToServerNotificationUpdates({required AuthUserModel? authUser}) async {
+    final channelId = "users.${authUser?.id}.unread-profile-views-counted";
+    final channel = socketConnectionRepository.realtimeInstance?.channels.get("public:$channelId");
+    ablySubscription = channel?.subscribe().listen((event) {
+      final data = event.data as Map<Object?, Object?>;
+      final json = convertMap(data);
+      final count = json['count'] as int;
+      emit(state.copyWith(status: UserStatus.countUnreadProfileViewersInProgress));
+      emit(state.copyWith(status: UserStatus.countUnreadProfileViewersSuccessful, unreadViewersCount: count));
+
+    });
+
+  }
 
   void setUser(UserModel user) {
       emit(state.copyWith(status: UserStatus.setUserInProgress));
@@ -60,7 +81,10 @@ class UserCubit extends Cubit<UserState> {
       users.clear();
     }
     users.addAll(newItems);
-    emit(state.copyWith(status: UserStatus.fetchUnreadProfileViewersSuccessful, unreadViewers: users));
+    emit(state.copyWith(status: UserStatus.fetchUnreadProfileViewersSuccessful,
+        unreadViewers: users,
+        unreadViewersCount: 0
+    ));
     return (null, newItems);
 
   }
@@ -74,7 +98,6 @@ class UserCubit extends Cubit<UserState> {
       emit(state.copyWith(status: UserStatus.countUnreadProfileViewersFailed, message: l));
       return;
     }
-
 
     final count = either.asRight();
     emit(state.copyWith(status: UserStatus.countUnreadProfileViewersSuccessful, unreadViewersCount: count));

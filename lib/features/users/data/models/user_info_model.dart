@@ -36,6 +36,10 @@ class UserInfoModel extends Equatable {
   final String? preferredRaces;
   @JsonKey(name: "preferred_nationalities")
   final String? preferredNationalities;
+  @HiveField(5)
+  final String? loc;
+  @HiveField(6)
+  final String? country;
 
   const UserInfoModel({
     this.bio,
@@ -47,7 +51,9 @@ class UserInfoModel extends Equatable {
     this.preferredMinAge,
     this.preferredMaxAge,
     this.preferredRaces,
-    this.preferredNationalities
+    this.preferredNationalities,
+    this.loc,
+    this.country
   });
 
   factory UserInfoModel.fromJson(Map<String, dynamic> json) => _$UserInfoModelFromJson(json);

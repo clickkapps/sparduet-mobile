@@ -1,3 +1,3 @@
 enum NotificationStatus {
-  initial
+  initial, countUnseenNotificationsInProgress, countUnseenNotificationsFailed, countUnseenNotificationsSuccessful, fetchNotificationsInProgress, fetchNotificationsFailed, fetchNotificationsSuccessful, markNotificationAsSeenInProgress, markNotificationAsSeenFailed, markNotificationAsSeenSuccessful, markNotificationAsReadInProgress, markNotificationAsReadFailed, markNotificationAsReadSuccessful
 }

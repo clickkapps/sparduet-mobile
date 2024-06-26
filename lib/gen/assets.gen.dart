@@ -40,11 +40,26 @@ class $AssetsJsonGen {
   /// File path: assets/json/empty_chat.json
   String get emptyChat => 'assets/json/empty_chat.json';
 
+  /// File path: assets/json/first_impression.json
+  String get firstImpression => 'assets/json/first_impression.json';
+
+  /// File path: assets/json/location_request.json
+  String get locationRequest => 'assets/json/location_request.json';
+
+  /// File path: assets/json/matched_coversations.json
+  String get matchedCoversations => 'assets/json/matched_coversations.json';
+
   /// File path: assets/json/sub_success.json
   String get subSuccess => 'assets/json/sub_success.json';
 
   /// List of all assets
-  List<String> get values => [emptyChat, subSuccess];
+  List<String> get values => [
+        emptyChat,
+        firstImpression,
+        locationRequest,
+        matchedCoversations,
+        subSuccess
+      ];
 }
 
 class Assets {
