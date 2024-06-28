@@ -155,16 +155,25 @@ bool containsPhoneNumber(String text) {
 }
 
 bool containsDigitPhoneNumber(String text) {
+  // Regular expression to match phone numbers
   final regex = RegExp(
-    r'(\+?\d[\d\s-]{8,}\d)',
+    r'(\+?\d[\d\s-]{8,}\d)|(^0\d{9,}$)',
     caseSensitive: false,
   );
 
-  // Find all matches and count them
-  final matches = regex.allMatches(text).length;
+  // Find all matches
+  final matches = regex.allMatches(text);
 
-  // A single number word is usually fine, but multiple could indicate a phone number
-  return matches > 2; // Adjust this threshold as needed
+  // Check each match to see if it starts with '0' or '+' and has at least 10 digits
+  for (final match in matches) {
+    String matchText = match.group(0) ?? '';
+    String digitsOnly = matchText.replaceAll(RegExp(r'\D'), ''); // Remove non-digit characters
+    if ((matchText.startsWith('0') || matchText.startsWith('+')) && digitsOnly.length >= 10) {
+      return true; // Return true if a valid phone number is found
+    }
+  }
+
+  return false; // Return false if no valid phone number is found
 }
 
 bool containsWordPhoneNumber(String text) {
@@ -195,20 +204,36 @@ String convertToCompactFigure(int n) {
   }
 }
 
-Map<String, dynamic> convertMap(Map<Object?, Object?> inputMap) {
-  Map<String, dynamic> outputMap = {};
+// Map<String, dynamic> convertMap(Map<Object?, Object?> inputMap) {
+//   Map<String, dynamic> outputMap = {};
+//
+//   inputMap.forEach((key, value) {
+//     if (key is String) {
+//       outputMap[key] = value;
+//     } else {
+//       // Handle non-string keys if necessary
+//       // For example, you can convert them to string using key.toString()
+//       outputMap[key.toString()] = value;
+//     }
+//   });
+//
+//   return outputMap;
+// }
 
-  inputMap.forEach((key, value) {
+Map<String, dynamic> convertMap(Map<Object?, Object?> input) {
+  Map<String, dynamic> result = {};
+
+  input.forEach((key, value) {
     if (key is String) {
-      outputMap[key] = value;
-    } else {
-      // Handle non-string keys if necessary
-      // For example, you can convert them to string using key.toString()
-      outputMap[key.toString()] = value;
+      if (value is Map<Object?, Object?>) {
+        result[key] = convertMap(value); // Recursive call for inner maps
+      } else {
+        result[key] = value;
+      }
     }
   });
 
-  return outputMap;
+  return result;
 }
 
 List<int> convertToIntList(List<Object?> objectList) {

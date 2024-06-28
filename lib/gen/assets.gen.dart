@@ -37,6 +37,9 @@ class $AssetsImgGen {
 class $AssetsJsonGen {
   const $AssetsJsonGen();
 
+  /// File path: assets/json/blocked_icon.json
+  String get blockedIcon => 'assets/json/blocked_icon.json';
+
   /// File path: assets/json/empty_chat.json
   String get emptyChat => 'assets/json/empty_chat.json';
 
@@ -46,6 +49,9 @@ class $AssetsJsonGen {
   /// File path: assets/json/location_request.json
   String get locationRequest => 'assets/json/location_request.json';
 
+  /// File path: assets/json/love_loader.json
+  String get loveLoader => 'assets/json/love_loader.json';
+
   /// File path: assets/json/matched_coversations.json
   String get matchedCoversations => 'assets/json/matched_coversations.json';
 
@@ -54,9 +60,11 @@ class $AssetsJsonGen {
 
   /// List of all assets
   List<String> get values => [
+        blockedIcon,
         emptyChat,
         firstImpression,
         locationRequest,
+        loveLoader,
         matchedCoversations,
         subSuccess
       ];

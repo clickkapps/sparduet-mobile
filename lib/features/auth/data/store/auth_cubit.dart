@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_notice_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
@@ -233,4 +234,7 @@ class AuthCubit extends Cubit<AuthState> {
     final noticeUpdated = state.userNotice?.copyWith(noticeReadAt: DateTime.now());
     emit(state.copyWith(status: AuthStatus.markNoticeAsReadSuccessful, userNotice: noticeUpdated));
   }
+
+
+
 }

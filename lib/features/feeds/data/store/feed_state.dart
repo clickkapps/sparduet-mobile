@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/files/data/models/media_model.dart';
+import 'package:sparkduet/features/users/data/models/user_model.dart';
 
 part 'feed_state.g.dart';
 
@@ -18,7 +19,7 @@ class FeedState extends Equatable {
     this.status = FeedStatus.initial,
     this.message = "There's an issue with your connection",
     this.feeds = const  [],
-    this.data
+    this.data,
     // this.postFeedRequest = const PostFeedRequest()
   });
 

@@ -2,6 +2,7 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
@@ -68,6 +69,9 @@ class _UpdateAuthProfileFormWidgetState extends State<UpdateAuthProfileFormWidge
   }
   void updateBio(String field) {
     EasyDebounce.debounce('update-bio', const Duration(milliseconds: 1000), () {
+      if(containsPhoneNumber(field)) {
+        return;
+      }
       authCubit.updateAuthUserProfile(payload: {"bio": field}, authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(bio: field)));
     });
   }

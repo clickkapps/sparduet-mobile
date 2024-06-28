@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_assets.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/features/users/data/store/user_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_state.dart';
 import 'package:sparkduet/utils/custom_network_image_widget.dart';
 
 class CustomUserAvatarWidget extends StatelessWidget {
@@ -12,7 +15,7 @@ class CustomUserAvatarWidget extends StatelessWidget {
   final double size;
   final Color? color;
   final String? imageUrl;
-  final bool online;
+  final int? userId;
   final bool showBorder;
   final double borderWidth;
   final BoxFit fit;
@@ -23,11 +26,11 @@ class CustomUserAvatarWidget extends StatelessWidget {
   this.color,
   this.imageUrl,
   this.showBorder = false,
-  this.online = false,
   this.fit = BoxFit.cover,
   this.borderRadius = 1000,
-    this.placeHolderFile,
-    this.borderWidth = 3,
+  this.userId,
+  this.placeHolderFile,
+  this.borderWidth = 3,
   super.key});
 
   Widget get  avatarPlaceholder => placeHolderFile != null ? Image.file(placeHolderFile!, width: size, fit: BoxFit.cover, height: size,) : Image.asset(AppAssets.avatar, width: size, fit: BoxFit.cover, height: size,);
@@ -41,24 +44,33 @@ class CustomUserAvatarWidget extends StatelessWidget {
 
     debugPrint("customUserAvatar build");
 
-    return Container(
-        decoration: BoxDecoration(
-          border: showBorder ? Border.all(color: online ? AppColors.buttonBlue : color ?? theme.colorScheme.onBackground, width: borderWidth) : null,
-          borderRadius: BorderRadius.circular(borderRadius),
-          color: theme.colorScheme.outline.withOpacity(0.3)
-        ),
-        child: imageUrl.isNullOrEmpty() ? ClipRRect(
-          borderRadius: BorderRadius.circular(borderRadius),
-            child: avatarPlaceholder) :
-        SizedBox(
-            width: imgSize,
-            height: imgSize,
-            child: ClipRRect(
+    return BlocSelector<UserCubit, UserState, bool>(
+      selector: (state) {
+        return userId == null ? false : (state.onlineUserIds.where((element) => element == userId).firstOrNull != null);
+      },
+      builder: (context, online) {
+        final showBorderEvaluated = online ? true : showBorder;
+        return Container(
+            decoration: BoxDecoration(
+                border: showBorderEvaluated ? Border.all(color: online ? Colors.green : color ?? theme.colorScheme.onBackground, width: borderWidth) : null,
                 borderRadius: BorderRadius.circular(borderRadius),
-                child: CustomNetworkImageWidget(imageUrl: imageUrl ?? '', fit: fit, width:  imgSize, height:  imgSize,
-                  errorChild: avatarPlaceholder,
-                  progressChild: avatarPlaceholder,
-                )))
-    );
+                color: theme.colorScheme.outline.withOpacity(0.3)
+            ),
+            child: imageUrl.isNullOrEmpty() ? ClipRRect(
+                borderRadius: BorderRadius.circular(borderRadius),
+                child: avatarPlaceholder) :
+            SizedBox(
+                width: imgSize,
+                height: imgSize,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    child: CustomNetworkImageWidget(imageUrl: imageUrl ?? '', fit: fit, width:  imgSize, height:  imgSize,
+                      errorChild: avatarPlaceholder,
+                      progressChild: avatarPlaceholder,
+                    )))
+        );
+      },
+    )
+    ;
   }
 }

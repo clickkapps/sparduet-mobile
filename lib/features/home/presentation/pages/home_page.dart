@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,7 +40,12 @@ import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart
 import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
 import 'package:sparkduet/features/search/data/store/search_cubit.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
+import 'package:sparkduet/features/users/data/models/user_disciplinary_record_model.dart';
+import 'package:sparkduet/features/users/data/store/enums.dart';
 import 'package:sparkduet/features/users/data/store/user_cubit.dart';
+import 'package:sparkduet/features/users/presentation/pages/user_account_banned_page.dart';
+import 'package:sparkduet/features/users/presentation/pages/user_account_notice_page.dart';
+import 'package:sparkduet/features/users/presentation/pages/user_account_warned_page.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:notification_permissions/notification_permissions.dart' as n_permission;
 import 'package:new_version_plus/new_version_plus.dart';
@@ -60,6 +66,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
   late NavCubit navCubit;
   late FeedsCubit feedsCubit;
   late AuthCubit authCubit;
+  late UserCubit userCubit;
   StreamSubscription? navCubitStreamSubscription;
   StreamSubscription? feedsCubitStreamSubscription;
   StreamSubscription? cubeChatConnectionStateStream;
@@ -71,10 +78,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
     navCubit = context.read<NavCubit>();
     authCubit = context.read<AuthCubit>();
     feedsCubit = context.read<FeedsCubit>();
+    userCubit = context.read<UserCubit>();
     navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChangeRequested) {
             onItemTapped(event.currentTabIndex);
         }
+    });
+
+    userCubit.stream.listen((event) {
+      if(event.status == UserStatus.getDisciplinaryRecordSuccessful) {
+        if(event.disciplinaryRecord != null && mounted) {
+          if(event.disciplinaryRecord?.disciplinaryAction == "banned") {
+            showUserAccountBannedPage(context, event.disciplinaryRecord!);
+          }
+          if(event.disciplinaryRecord?.disciplinaryAction == "warned" && event.disciplinaryRecord?.userReadAt == null) {
+            showUserAccountWarnedPage(context, event.disciplinaryRecord!);
+          }
+          if(event.disciplinaryRecord?.disciplinaryAction == "notice"  && event.disciplinaryRecord?.userReadAt == null) {
+            showUserAccountNoticePage(context, event.disciplinaryRecord!);
+          }
+
+        }
+      }
     });
 
     authCubit.stream.listen((event) {
@@ -137,6 +162,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
     context.read<ChatConnectionsCubit>().fetchSuggestedChatUsers();
     context.read<PreferencesCubit>().fetchUserSettings();
     promptUserToSubscribeToPushNotification(authUser?.username ?? "");
+    context.read<UserCubit>().addOnlineUser(userId: authUser?.id); // set user as online
+    context.read<UserCubit>().getDisciplinaryRecord(userId: authUser?.id);
     context.read<HomeCubit>().initializeSocketConnection().then((value) {
       context.read<UserCubit>().listenToServerNotificationUpdates(authUser: authUser);
       context.read<NotificationsCubit>().listenToServerNotificationUpdates(authUser: authUser);
@@ -147,6 +174,50 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
       context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
     });
 
+  }
+
+  void showUserAccountBannedPage(BuildContext context, UserDisciplinaryRecordModel disRecord) {
+    final ch = DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.9,
+        minChildSize: 0.9,
+        builder: (_ , controller) {
+          return ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+              child: UserAccountBannedPage(disRecord: disRecord, controller: controller,)
+          );
+        }
+    );
+    context.showCustomBottomSheet(child: ch,isDismissible: false, enableDrag: false, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
+  void showUserAccountWarnedPage(BuildContext context, UserDisciplinaryRecordModel disRecord) {
+    final ch = DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.9,
+        minChildSize: 0.9,
+        builder: (_ , controller) {
+          return ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+              child: UserAccountWarnedPage( disRecord: disRecord, controller: controller,)
+          );
+        }
+    );
+    context.showCustomBottomSheet(child: ch,isDismissible: false, enableDrag: false, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+  void showUserAccountNoticePage(BuildContext context, UserDisciplinaryRecordModel disRecord) {
+    final ch = DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.9,
+        minChildSize: 0.9,
+        builder: (_ , controller) {
+          return ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+              child: UserAccountNoticePage(disRecord: disRecord, controller: controller,)
+          );
+        }
+    );
+    context.showCustomBottomSheet(child: ch,isDismissible: false, enableDrag: false, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
 
 
@@ -405,22 +476,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
     appState = state;
 
     if (AppLifecycleState.paused == state) {
-      // if (CubeChatConnection.instance.isAuthenticated()) {
-      //   CubeChatConnection.instance.markInactive();
-      // }
+      final authUser = context.read<AuthCubit>().state.authUser;
       debugPrint("didChangeAppLifecycleState: paused");
+      if(authUser != null) {
+        context.read<UserCubit>().removeOnlineUser(userId: authUser.id);
+      }
+
+
     } else if (AppLifecycleState.resumed == state) {
       debugPrint("didChangeAppLifecycleState: resumed");
       // just for an example user was saved in the local storage
       final authUser = context.read<AuthCubit>().state.authUser;
       if(authUser != null) {
-        // if (!CubeChatConnection.instance.isAuthenticated()) {
-        //   String? token = CubeSessionManager.instance.activeSession?.token;
-        //   CubeUser user = CubeUser(id: authUser.id, password:token);
-        //   CubeChatConnection.instance.login(user);
-        // } else {
-        //   CubeChatConnection.instance.markActive();
-        // }
+
+        context.read<UserCubit>().addOnlineUser(userId: authUser.id);
+        /// anytime we resume get user subscription status
+        context.read<SubscriptionCubit>().initializeSubscription(authUser.publicKey ?? "").then((value) {
+          context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
+        });
+
       }
     }
   }

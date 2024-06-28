@@ -9,6 +9,7 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
@@ -211,6 +212,11 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
 
     if(!additionalInfoSeen) {
       showVideoInfoHandler(context);
+      return;
+    }
+
+    if(containsPhoneNumber(descriptionTextEditingController.text.trim())) {
+      context.showSnackBar("Phone numbers are not allowed here");
       return;
     }
 

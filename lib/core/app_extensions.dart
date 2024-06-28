@@ -103,10 +103,10 @@ extension ContextExtension on BuildContext {
   }
 
   // Handy method to show bottom sheets with ease
-  Future<void> showCustomBottomSheet({required Widget child, bool? showDragHandle, Color? backgroundColor, double? elevation, BorderRadius? borderRadius, bool enableBottomPadding = true, bool isDismissible = true}){
+  Future<void> showCustomBottomSheet({required Widget child, bool? showDragHandle, Color? backgroundColor, double? elevation, BorderRadius? borderRadius, bool enableBottomPadding = true, bool isDismissible = true,  bool enableDrag = true}){
     final theme = Theme.of(this);
     return showModalBottomSheet<void>(
-      enableDrag: true,
+      enableDrag: enableDrag,
       context: this,
       shape:  RoundedRectangleBorder(
         borderRadius: borderRadius ?? BorderRadius.zero,

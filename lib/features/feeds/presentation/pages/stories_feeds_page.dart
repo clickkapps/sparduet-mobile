@@ -6,8 +6,10 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:sparkduet/core/app_assets.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
@@ -31,6 +33,10 @@ import 'package:sparkduet/features/search/presentation/pages/top_search_page.dar
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
+import 'package:sparkduet/features/users/data/store/enums.dart';
+import 'package:sparkduet/features/users/data/store/user_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_state.dart';
+import 'package:sparkduet/features/users/presentation/pages/users_online_page.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_badge_icon.dart';
@@ -50,6 +56,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   late StoriesFeedsCubit storiesFeedsCubit;
   late ThemeCubit themeCubit;
   late NavCubit navCubit;
+  late UserCubit userCubit;
   int activeFeedIndex = 0;
   double percentageOfTimeSpentOnActiveFeed = 0;
   bool canMarkActiveFeedAsWatched = true;
@@ -68,11 +75,12 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   late AnimationController _hintController;
   late Animation<Offset> _hintOffsetAnimation;
   bool _showHint = false;
-  
+
   @override
   void initState() {
     themeCubit = context.read<ThemeCubit>();
     navCubit = context.read<NavCubit>();
+    userCubit = context.read<UserCubit>();
     navCubitSubscription = navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChanged) {{
           if(event.currentTabIndex == 0) {
@@ -88,6 +96,15 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
 
           }
         }}
+    });
+    userCubit.stream.listen((event) {
+      if(event.status == UserStatus.getDisciplinaryRecordSuccessful) {
+        if(event.disciplinaryRecord != null) {
+          Future.delayed(const Duration(seconds: 1), () {
+            pauseActiveStory();  // pause story if user has a disciplinary case
+          });
+        }
+      }
     });
     storiesFeedsCubit = context.read<StoriesFeedsCubit>();
     // fetch first page
@@ -151,7 +168,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
       //  requestPostFeedAudioControllers[activeFeedIndex]?.;
       storyPlayingBeforeLeavingPage = activeStoryPlaying;
       pauseActiveStory();
-      
+
     } else if (state == AppLifecycleState.resumed) {
       // App is in foreground
       // playRequestFeedVideo(position)
@@ -238,7 +255,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
         }
     }
   }
-  
+
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
@@ -263,8 +280,6 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
 
   void playActiveStory({FeedModel? feed}) async {
     // "request post feed"
-
-
     requestPostFeedVideoControllers[activeFeedIndex]?.play();
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
@@ -275,7 +290,27 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
       context.read<FeedsCubit>().viewPost(postId: feed.id, action: "seen");
     }
   }
-  
+
+  void usersOnlineHandler(BuildContext context) {
+
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: UsersOnlinePage(controller: controller)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -288,6 +323,46 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
             // fontSize: 16
         ),),
         actions:  [
+
+          BlocSelector<UserCubit, UserState, num>(
+            selector: (state) {
+              return state.onlineUserIds.length;
+            },
+            builder: (context, onlineUsersCount) {
+              if(onlineUsersCount < 1) {
+                return const SizedBox.shrink();
+              }
+              return UnconstrainedBox(
+                child: GestureDetector(
+                  onTap: () => usersOnlineHandler(context) ,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(padding: const EdgeInsets.all(10),
+                    child: Builder(
+                      builder: (ctx) {
+                        // Calculate icon size based on parent constraints
+                        double iconSize = MediaQuery.of(context).size.width * 0.07; // 10% of parent width
+
+                        // Ensure the icon size is not too small or too large
+                        if (iconSize < 24) {
+                          iconSize = 24;
+                        } else if (iconSize > 100) {
+                          iconSize = 100;
+                        }
+
+                        return Row(
+                            children: [
+                              Icon(Icons.person, size: iconSize, color: Colors.green,),
+                              Text(convertToCompactFigure(onlineUsersCount.toInt()), style: theme.textTheme.bodyMedium?.copyWith(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 14),)
+                            ],
+                          );
+                      }
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+
           UnconstrainedBox(
             child: GestureDetector(
               onTap: () {
@@ -346,7 +421,8 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                         },
                         builder: (context, state) {
                           if(state.status == FeedStatus.fetchFeedsInProgress) {
-                            return const Center(child: CustomAdaptiveCircularIndicator(),);
+                            // return const Center(child: CustomAdaptiveCircularIndicator(),);
+                            return  Center(child: Lottie.asset(AppAssets.kLoveLoaderJson ),);
                           }
                           else if(state.status == FeedStatus.fetchFeedsFailed) {
                             return Center(child: CustomErrorContentWidget(onTap: () {

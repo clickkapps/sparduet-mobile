@@ -21,6 +21,7 @@ import 'package:sparkduet/features/feeds/presentation/widgets/feed_actions_widge
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
 import 'package:sparkduet/utils/custom_image_player.dart';
+import 'package:sparkduet/utils/custom_network_image_widget.dart';
 import 'package:sparkduet/utils/custom_regular_video_widget.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
@@ -67,7 +68,11 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
   // }
 
 
-
+  Widget videoPlaceholder(MediaQueryData mediaQuery) {
+    return SizedBox(width: mediaQuery.size.width, height: mediaQuery.size.height,
+      child: CustomNetworkImageWidget(imageUrl: AppConstants.thumbnailMediaPath(mediaId: widget.feed.mediaPath ?? ""), fit: BoxFit.cover,),
+    );
+  }
 
   String getRandomString(List<String> strings) {
     final random = Random();
@@ -160,6 +165,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                           file: widget.feed.tempId != null ? File(widget.feed.mediaPath ?? "") : null,
                           videoSource: widget.feed.tempId != null ? VideoSource.file : VideoSource.network, // the post will
                           onProgress: widget.onProgress,
+                          placeholder: videoPlaceholder(mediaQuery),
                         ),
                       ),
                     );
@@ -231,7 +237,8 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                           behavior: HitTestBehavior.opaque,
                           child: Row(
                             children: [
-                              CustomUserAvatarWidget(imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.user?.info?.profilePicPath ?? ""),),
+                              CustomUserAvatarWidget(
+                                imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.user?.info?.profilePicPath ?? ""), userId: widget.feed.user?.id, showBorder: false, borderWidth: 2,),
                               const SizedBox(width: 10,),
                               Flexible(child: Text(widget.feed.user?.name ?? "", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),)),
                               const SizedBox(width: 10,),

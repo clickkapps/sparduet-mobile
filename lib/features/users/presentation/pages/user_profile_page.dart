@@ -24,6 +24,10 @@ import 'package:sparkduet/features/users/data/store/user_bookmarked_feeds_cubit.
 import 'package:sparkduet/features/users/data/store/user_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_feeds_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_state.dart';
+import 'package:sparkduet/features/users/presentation/pages/block_user_page.dart';
+import 'package:sparkduet/features/users/presentation/pages/report_user_page.dart';
+import 'package:sparkduet/features/users/presentation/pages/user_blocked_you_explanation_page.dart';
+import 'package:sparkduet/features/users/presentation/pages/you_blocked_user_explanation_page.dart';
 import 'package:sparkduet/features/users/presentation/widgets/bookmarked_posts_tab_view_widget.dart';
 import 'package:sparkduet/features/users/presentation/widgets/user_posts_tab_view_widget.dart';
 import 'package:sparkduet/features/users/presentation/widgets/user_profile_action_widget.dart';
@@ -59,6 +63,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
     userCubit = context.read<UserCubit>();
     feedsCubit = context.read<UserFeedsCubit>();
     userCubit.setUser(widget.user);
+    userCubit.setUserBlockedStatus(youBlockedUser: false, userBlockedYou: false);
+    userCubit.getUserBlockStatus(profileId: widget.user.id);
     userCubit.fetchUserInfo(userId: widget.user.id);
     autoScrollController = AutoScrollController(
       //add this for advanced viewport boundary. e.g. SafeArea
@@ -90,6 +96,93 @@ class _UserProfilePageState extends State<UserProfilePage> {
     super.dispose();
   }
 
+  void reportUserHandler(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: ReportUserPage(controller: controller, user: widget.user,)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
+  void blockUserHandler(BuildContext context) {
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: BlockUserPage(controller: controller, user: widget.user,)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(
+        child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+        backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
+  void showYouBlockedUserPage(BuildContext context) {
+    final ch = DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.9,
+        minChildSize: 0.9,
+        builder: (_ , controller) {
+          return ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+              child: YouBlockedUserExplanationPage(controller: controller, onCloseTapped: () {
+                context.popScreen();
+              }, user: widget.user,)
+          );
+        }
+    );
+    context.showCustomBottomSheet(child: ch, isDismissible: false,  enableDrag: false, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
+  void showUserBlockedYouPage(BuildContext context) {
+    final ch = DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.9,
+        minChildSize: 0.9,
+        builder: (_ , controller) {
+          return ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+              child: UserBlockedYouExplanationPage( onCloseTapped: () {
+                context.popScreen();
+              },)
+          );
+        }
+    );
+    context.showCustomBottomSheet(child: ch,isDismissible: false, enableDrag: false, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
+  void userCubitListener(BuildContext context, UserState event) {
+    if(event.status == UserStatus.setUserBlockedStatusCompleted) {
+      if(mounted) {
+        if(event.youBlockedUser) {
+          showYouBlockedUserPage(context);
+        }
+        else if(event.userBlockedYou) {
+          showUserBlockedYouPage(context);
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -109,10 +202,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
         leading: CloseButton(color: AppColors.darkColorScheme.onBackground,),
       ),
       extendBodyBehindAppBar: true,
-      body: BlocBuilder<UserCubit, UserState>(
+      body: BlocConsumer<UserCubit, UserState>(
         buildWhen: (_, state){
           return state.status == UserStatus.setUserCompleted;
         },
+        listener: userCubitListener,
         builder: (context, userSate) {
           final user = userSate.user ?? widget.user;
           return NestedScrollView(
@@ -241,8 +335,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.solidMessage, onTap: () {
                                  context.push(AppRoutes.chatPreview, extra: widget.user );
                                },),
-                               UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.solidFlag),
-                               UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.ban),
+                               UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.solidFlag, onTap: () {
+                                 reportUserHandler(context);
+                               },),
+                               UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.ban, onTap: () {
+                                 blockUserHandler(context);
+                               },),
                                 // Container(
                                 //   decoration: BoxDecoration(
                                 //     color: AppColors.buttonBlue.withOpacity(0.1),

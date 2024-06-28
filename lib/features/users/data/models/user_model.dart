@@ -4,9 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/users/data/models/user_info_model.dart';
-
 import '../../../../core/app_constants.dart';
-
 part 'user_model.g.dart';
 
 @HiveType(typeId: AppConstants.userModelHiveId)

@@ -9,4 +9,6 @@ abstract final class AppAssets {
   static const kFirstImpressJson = '$_jsonPath/first_impression.json'; // used by app
   static const kLocationRequestJson = '$_jsonPath/location_request.json'; // used by app
   static const kMatchedConversationsJson = '$_jsonPath/matched_coversations.json'; // used by app
+  static const kBlockedIconJson = '$_jsonPath/blocked_icon.json'; // used by app
+  static const kLoveLoaderJson = '$_jsonPath/love_loader.json'; // used by app
 }

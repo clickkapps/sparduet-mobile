@@ -33,6 +33,13 @@ class AppApiRoutes {
   static String blockUser = "$baseApiUrl/user/block-user";
   static String unblockUser = "$baseApiUrl/user/unblock-user";
   static String setupUserLocation = "$baseApiUrl/auth/setup-location";
+  static String userBlockStatus = "$baseApiUrl/user/block-status";
+
+  static String fetchPostLikedUsers({required int? postId}) => "$baseApiUrl/user/liked/post/$postId";
+  static String fetchOnlineUsers = "$baseApiUrl/user/online/get";
+  static String addOnlineUser({required int? userId}) => "$baseApiUrl/user/online/add/$userId";
+  static String removeOnlineUser({required int? userId}) => "$baseApiUrl/user/online/remove/$userId";
+  static String getOnlineUserIds = "$baseApiUrl/user/online/ids";
 
   static const String feeds = '$baseApiUrl/posts';
   static const String createPost = '$baseApiUrl/posts/create-post';
@@ -81,4 +88,8 @@ class AppApiRoutes {
   static String countUnseenNotifications = "$baseApiUrl/notifications/count-unseen-count";
   static String markNotificationsAsSeen = "$baseApiUrl/notifications/mark-as-seen";
   static String markNotificationAsRead({int? id}) => "$baseApiUrl/notifications/mark-as-read/$id";
+
+  // disciplinary records
+  static String getDisciplinaryRecord({required int? userId}) => "$baseApiUrl/user/get-disciplinary-record/$userId";
+  static String markDisciplinaryRecordAsRead({required int? id}) => "$baseApiUrl/user/mark-disciplinary-as-read/$id";
 }

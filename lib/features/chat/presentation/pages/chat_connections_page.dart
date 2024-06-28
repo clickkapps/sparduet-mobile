@@ -3,12 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/chat_connection_item_widget.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/empty_chat_widget.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_cubit.dart';
+import 'package:sparkduet/features/users/data/store/user_state.dart';
+import 'package:sparkduet/features/users/presentation/pages/users_online_page.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
@@ -38,6 +43,26 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
     super.dispose();
   }
 
+  void usersOnlineHandler(BuildContext context) {
+
+    final ch = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          maxChildSize: 0.9,
+          minChildSize: 0.7,
+          builder: (_ , controller) {
+            return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: UsersOnlinePage(controller: controller)
+            );
+          }
+      ),
+    );
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -51,6 +76,31 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
             leading: CloseButton(color: theme.colorScheme.onBackground, onPressed: () => {
               context.read<NavCubit>().requestTabChange(NavPosition.home)
             },),
+            centerTitle: false,
+            actions: [
+              BlocSelector<UserCubit, UserState, num>(
+                selector: (state) {
+                  return state.onlineUserIds.length;
+                },
+                builder: (context, onlineUsersCount) {
+                  if(onlineUsersCount < 1) {
+                    return const SizedBox.shrink();
+                  }
+                  return GestureDetector(
+                    onTap: () => usersOnlineHandler(context),
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person, size: 16, color: Colors.green,),
+                        Text("${convertToCompactFigure(onlineUsersCount.toInt())} online", style: theme.textTheme.bodyMedium?.copyWith(color: Colors.green, fontWeight: FontWeight.bold),)
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 15,)
+
+            ],
           ),
           BlocBuilder<ChatConnectionsCubit, ChatConnectionState>(
             buildWhen: (ctx, chatState) {
@@ -93,7 +143,7 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            UnconstrainedBox(child: CustomUserAvatarWidget(size: 70, online: true, showBorder: false,
+                            UnconstrainedBox(child: CustomUserAvatarWidget(size: 70, userId: user.id, showBorder: false,
                               imageUrl: AppConstants.imageMediaPath(mediaId: user.info?.profilePicPath ?? ''),
                             ),),
                             Text(user.name ?? (user.username ?? ""), maxLines: 1, overflow: TextOverflow.ellipsis,)
