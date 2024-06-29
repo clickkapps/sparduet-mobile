@@ -18,6 +18,7 @@ class CustomInfiniteGridViewWidget<M> extends StatefulWidget {
   final double? childAspectRatio;
   final String? emptyTitle;
   final String? emptySubTitle;
+  final Widget? loadingIndicator;
   const CustomInfiniteGridViewWidget({super.key,
     required this.fetchData, this.onRetryTapped, required this.itemBuilder,
     this.builder, this.padding,
@@ -26,7 +27,8 @@ class CustomInfiniteGridViewWidget<M> extends StatefulWidget {
     this.crossAxisSpacing = 1,
     this.childAspectRatio,
     this.emptyTitle,
-    this.emptySubTitle
+    this.emptySubTitle,
+    this.loadingIndicator
   });
 
   @override
@@ -97,7 +99,7 @@ class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridView
           itemBuilder: widget.itemBuilder,
           noItemsFoundIndicatorBuilder: (_) => CustomEmptyContentWidget(title: widget.emptyTitle, subTitle:  widget.emptySubTitle),
           noMoreItemsIndicatorBuilder: (_) => const SizedBox.shrink(),
-          firstPageProgressIndicatorBuilder: (_) => const SizedBox(height: 30, child: Center(child: CustomAdaptiveCircularIndicator(),),),
+          firstPageProgressIndicatorBuilder: (_) => widget.loadingIndicator ?? const SizedBox(height: 30, child: Center(child: CustomAdaptiveCircularIndicator(),),),
           firstPageErrorIndicatorBuilder: (_) => CustomNoConnectionWidget(title:
           "Restore connection and retry ...", onRetry: widget.onRetryTapped,
           ),

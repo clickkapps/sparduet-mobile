@@ -3,18 +3,51 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_broadcast_event.dart';
+import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
+import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
 import 'package:sparkduet/features/users/data/models/user_disciplinary_record_model.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/features/users/data/repositories/user_repository.dart';
 import 'package:sparkduet/features/users/data/store/enums.dart';
 import 'package:sparkduet/features/users/data/store/user_state.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 
 class UserCubit extends Cubit<UserState> {
 
   final UserRepository userRepository;
   final SocketConnectionRepository socketConnectionRepository;
-  UserCubit({required this.userRepository, required this.socketConnectionRepository}) : super(const UserState());
+  final FeedBroadcastRepository feedBroadcastRepository;
+  StreamSubscription<FeedBroadCastEvent>? feedBroadcastRepositoryStreamListener;
+
+  UserCubit({required this.userRepository, required this.socketConnectionRepository, required this.feedBroadcastRepository}) : super(const UserState()) {
+    listenForFeedUpdate();
+  }
+
+  /// This method updates feed when there's a change in state
+  void listenForFeedUpdate() async {
+
+    await feedBroadcastRepositoryStreamListener?.cancel();
+    feedBroadcastRepositoryStreamListener = feedBroadcastRepository.stream.listen((FeedBroadCastEvent event) {
+
+      if(event.action == FeedBroadcastAction.censorUpdated){
+        final feedId = event.data['id'] as int?;
+        final disAction = event.data['action'] as String?;
+        if(feedId == state.user?.introductoryPost?.id) {
+          final introPostUpdated = state.user?.introductoryPost?.copyWith(
+              disciplinaryAction: disAction
+          );
+          final updatedUser = state.user?.copyWith(
+            introductoryPost: introPostUpdated
+          );
+          setUser(updatedUser);
+        }
+      }
+
+
+    });
+  }
 
   void listenToServerNotificationUpdates({required AuthUserModel? authUser}) async {
 
@@ -78,7 +111,7 @@ class UserCubit extends Cubit<UserState> {
     ));
   }
 
-  void setUser(UserModel user) {
+  void setUser(UserModel? user) {
       emit(state.copyWith(status: UserStatus.setUserInProgress));
       emit(state.copyWith(status: UserStatus.setUserCompleted, user: user));
   }

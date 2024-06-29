@@ -46,6 +46,9 @@ class FeedModel extends Equatable{
   final String? status;
   final bool? flipFile;
 
+  @JsonKey(name: "disciplinary_action")
+  final String? disciplinaryAction;
+
   const FeedModel({
     this.id,
     this.user,
@@ -68,6 +71,7 @@ class FeedModel extends Equatable{
     this.status,
     this.tempId,
     this.flipFile,
+    this.disciplinaryAction,
   });
 
   @override

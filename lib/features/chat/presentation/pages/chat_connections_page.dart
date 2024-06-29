@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
@@ -15,6 +17,7 @@ import 'package:sparkduet/features/users/data/store/user_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_state.dart';
 import 'package:sparkduet/features/users/presentation/pages/users_online_page.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
+import 'package:sparkduet/utils/custom_infinite_list_view_widget.dart';
 import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 
 class ChatConnectionsPage extends StatefulWidget {
@@ -27,18 +30,27 @@ class ChatConnectionsPage extends StatefulWidget {
 class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
 
   late ChatConnectionsCubit chatConnectionsCubit;
+  PagingController<int, dynamic>? pagingController;
   @override
   void initState() {
     chatConnectionsCubit = context.read<ChatConnectionsCubit>();
+    // chatConnectionsCubit.stream.listen((event) {
+    //   if(event.status == ChatConnectionStatus.refreshChatConnectionsCompleted) {
+    //     pagingController?.itemList = event.chatConnections;
+    //     // pagingController?.itemList = [];
+    //   }
+    // });
+
     chatConnectionsCubit.fetchChatConnections().then((value) {
-        chatConnectionsCubit.setServerPushChannels();
-        chatConnectionsCubit.listenToServerChatUpdates();
+      chatConnectionsCubit.setServerPushChannels();
+      chatConnectionsCubit.listenToServerChatUpdates();
     });
     super.initState();
   }
 
   @override
   void dispose() {
+    pagingController?.dispose();
     // chatConnectionsCubit.cancelChatConnectionsListener();
     super.dispose();
   }
@@ -62,6 +74,10 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
+
+  // Future<(String?, List<ChatConnectionModel>?)> fetchData(int pageKey) async {
+  //   return chatConnectionsCubit.fetchChatConnections(pageKey: pageKey);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +193,7 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
         ];
 
       }, body:
-      // Dont! use infinte scroll here. list all the previous chat of the user
+
       BlocBuilder<ChatConnectionsCubit, ChatConnectionState>(
         buildWhen: (ctx, chatState) {
           return chatState.status == ChatConnectionStatus.refreshChatConnectionsCompleted;
@@ -193,14 +209,32 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
                 padding: EdgeInsets.only(bottom: 20),
                 child: EmptyChatWidget(message: "Your conversations will appear here",)),);
           }
+
           return ListView.separated(itemBuilder: (ctx, i){
             final chatConnectionItem = chatState.chatConnections.where((element) => element.lastMessage != null).toList()[i];
             return ChatConnectionItemWidget(key: ValueKey(chatConnectionItem.id), chatConnection: chatConnectionItem);
           }, separatorBuilder: (ctx,i){
             return const SizedBox(height: 1,);
           }, itemCount: chatState.chatConnections.where((element) => element.lastMessage != null).length, padding: const EdgeInsets.only(bottom: 10),);
+
         },
       )
+
+          ///Look into infinite scroll later
+          //CustomInfiniteListViewWidget<ChatConnectionModel>(itemBuilder: (item, index) {
+        //         final chatConnectionItem = item as ChatConnectionModel;
+        //         return ChatConnectionItemWidget(key: ValueKey(chatConnectionItem.id), chatConnection: chatConnectionItem);
+        //       }, fetchData: fetchData,
+        //         pageViewBuilder: (controller) => pagingController = controller,
+        //         padding: const EdgeInsets.only(bottom: 10),
+        //         separatorBuilder: (_, __) {
+        //           return const SizedBox(height: 1,);
+        //         },
+        //         noItemsFoundIndicator: const SingleChildScrollView(child: Padding(
+        //             padding: EdgeInsets.only(bottom: 20),
+        //             child: EmptyChatWidget(message: "Your conversations will appear here",)),),
+        //       )
+
         // ListView.separated(itemBuilder: (ctx, i) {
         //   return  ;
         // }, itemCount: 3, separatorBuilder: (BuildContext context, int index) {

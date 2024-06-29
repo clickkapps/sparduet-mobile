@@ -14,6 +14,6 @@ mixin PreferencesMixin {
   }
 
   void deleteAccount(BuildContext context) {
-
+    context.read<AuthCubit>().deleteAccount();
   }
 }

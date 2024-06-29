@@ -49,6 +49,8 @@ abstract class _$FeedModelCWProxy {
 
   FeedModel flipFile(bool? flipFile);
 
+  FeedModel disciplinaryAction(String? disciplinaryAction);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -77,6 +79,7 @@ abstract class _$FeedModelCWProxy {
     String? status,
     String? tempId,
     bool? flipFile,
+    String? disciplinaryAction,
   });
 }
 
@@ -157,6 +160,10 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
   FeedModel flipFile(bool? flipFile) => this(flipFile: flipFile);
 
   @override
+  FeedModel disciplinaryAction(String? disciplinaryAction) =>
+      this(disciplinaryAction: disciplinaryAction);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -186,6 +193,7 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
     Object? status = const $CopyWithPlaceholder(),
     Object? tempId = const $CopyWithPlaceholder(),
     Object? flipFile = const $CopyWithPlaceholder(),
+    Object? disciplinaryAction = const $CopyWithPlaceholder(),
   }) {
     return FeedModel(
       id: id == const $CopyWithPlaceholder()
@@ -273,6 +281,10 @@ class _$FeedModelCWProxyImpl implements _$FeedModelCWProxy {
           ? _value.flipFile
           // ignore: cast_nullable_to_non_nullable
           : flipFile as bool?,
+      disciplinaryAction: disciplinaryAction == const $CopyWithPlaceholder()
+          ? _value.disciplinaryAction
+          // ignore: cast_nullable_to_non_nullable
+          : disciplinaryAction as String?,
     );
   }
 }
@@ -404,6 +416,7 @@ FeedModel _$FeedModelFromJson(Map<String, dynamic> json) => FeedModel(
       status: json['status'] as String?,
       tempId: json['tempId'] as String?,
       flipFile: json['flipFile'] as bool?,
+      disciplinaryAction: json['disciplinary_action'] as String?,
     );
 
 Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
@@ -428,6 +441,7 @@ Map<String, dynamic> _$FeedModelToJson(FeedModel instance) => <String, dynamic>{
       'deleted_at': instance.deleteAt?.toIso8601String(),
       'status': instance.status,
       'flipFile': instance.flipFile,
+      'disciplinary_action': instance.disciplinaryAction,
     };
 
 const _$FileTypeEnumMap = {

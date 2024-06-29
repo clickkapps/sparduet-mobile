@@ -10,13 +10,15 @@ import 'package:sparkduet/utils/custom_shared_refresh_indicator.dart';
 class CustomInfiniteListViewWidget<M> extends StatefulWidget {
 
   final Widget Function(dynamic, int) itemBuilder;
-  final Function(PagingController<int, M>) pageViewBuilder;
+  final Function(PagingController<int, dynamic>)? pageViewBuilder;
   final IndexedWidgetBuilder? separatorBuilder;
+  final Widget? noItemsFoundIndicator;
   final EdgeInsets? padding;
   final Future<(String?, List<dynamic>?)> Function(int) fetchData;
   const CustomInfiniteListViewWidget({super.key, required this.itemBuilder, required this.fetchData,
     required this.pageViewBuilder, this.padding,
-    this.separatorBuilder
+    this.separatorBuilder,
+    this.noItemsFoundIndicator
   });
 
   @override
@@ -48,6 +50,7 @@ class _CustomInfiniteListViewWidgetState<M> extends State<CustomInfiniteListView
       }
 
     });
+    widget.pageViewBuilder?.call(pagingController);
     super.initState();
   }
 
@@ -68,11 +71,6 @@ class _CustomInfiniteListViewWidgetState<M> extends State<CustomInfiniteListView
     pagingController.value = PagingState(nextPageKey: 2, itemList: newItems);
   }
 
-  // void feedCubitStateListener(_, S event) {
-  //   if(event.status == InfiniteScrollStatus.refreshListCompleted) {
-  //     pagingController.itemList = event.items;
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +94,7 @@ class _CustomInfiniteListViewWidgetState<M> extends State<CustomInfiniteListView
                   child: CustomAdaptiveCircularIndicator(),
                 ),
               )),
-          noItemsFoundIndicatorBuilder: (_) => const CustomEmptyContentWidget(),
+          noItemsFoundIndicatorBuilder: (_) => widget.noItemsFoundIndicator ?? const CustomEmptyContentWidget(),
           noMoreItemsIndicatorBuilder: (_) => const SizedBox.shrink(),
           firstPageErrorIndicatorBuilder: (_) => const CustomNoConnectionWidget(title:
           "Restore connection and swipe to refresh ...",

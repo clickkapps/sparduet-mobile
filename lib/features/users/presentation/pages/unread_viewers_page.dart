@@ -28,7 +28,7 @@ class _UnreadViewersPageState extends State<UnreadViewersPage> with Subscription
 
   // we use infinite scroll view here
   late UserCubit cubit;
-  PagingController<int, UserModel>? pagingController;
+  PagingController<int, dynamic>? pagingController;
 
   @override
   void initState() {

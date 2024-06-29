@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
+import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
@@ -33,9 +34,12 @@ class _DeleteAccountState extends State<DeleteAccount> with PreferencesMixin {
   }
   
   void authCubitStateListener(BuildContext ctx, AuthState event) {
-    if(event.status == AuthStatus.deleteAccountCompleted) {
-      // automatically logs user out
-      ctx.go(AppApiRoutes.login);
+    if(event.status == AuthStatus.deleteAccountSuccessful) {
+      context.showSnackBar("Account deleted");
+      logout(context);
+    }
+    if(event.status == AuthStatus.deleteAccountFailed) {
+      context.showSnackBar(event.message);
     }
   }
 
@@ -116,7 +120,6 @@ class _DeleteAccountState extends State<DeleteAccount> with PreferencesMixin {
                                         : ButtonAppearance.clean,
                                     onPressed: activate ? () {
                                       deleteAccount(context);
-                                      logout(context);
                                     } : null);
                                 },
                               );

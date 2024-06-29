@@ -14,6 +14,7 @@ import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/files/data/models/media_model.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
+import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class FeedsCubit extends Cubit<FeedState> {
@@ -22,7 +23,7 @@ class FeedsCubit extends Cubit<FeedState> {
   final FileRepository fileRepository;
   final FeedBroadcastRepository feedBroadcastRepository;
   StreamSubscription<FeedBroadCastEvent>? feedBroadcastRepositoryStreamListener;
-  FeedsCubit({required this.fileRepository, required this.feedsRepository, required this.feedBroadcastRepository}): super(const FeedState()) {
+  FeedsCubit({required this.fileRepository, required this.feedsRepository, required this.feedBroadcastRepository,}): super(const FeedState()) {
     listenForFeedUpdate();
   }
 
@@ -39,17 +40,30 @@ class FeedsCubit extends Cubit<FeedState> {
         final feedIndex = copiedFeeds.indexWhere((element) => element.id == event.feed!.id);
         if(feedIndex > -1){
           copiedFeeds[feedIndex] = event.feed!;
-          emit(state.copyWith(feeds: copiedFeeds, status: FeedStatus.updateFeedCompleted));
+          // emit(state.copyWith(feeds: copiedFeeds, status: FeedStatus.updateFeedCompleted));
+          refreshList(updatedFeeds: copiedFeeds);
         }
-
+      }
+      if(event.action == FeedBroadcastAction.censorUpdated){
+        final feedId = event.data['id'] as int?;
+        final disAction = event.data['action'] as String?;
+        final feedIndex = copiedFeeds.indexWhere((element) => element.id == feedId);
+        if(feedIndex > -1) {
+          copiedFeeds[feedIndex] = copiedFeeds[feedIndex].copyWith(
+            disciplinaryAction: disAction
+          );
+          // emit(state.copyWith(feeds: copiedFeeds, status: FeedStatus.updateFeedCompleted));
+          refreshList(updatedFeeds: copiedFeeds);
+        }
       }
 
       if(event.action == FeedBroadcastAction.delete){
         final feedIndex = copiedFeeds.indexWhere((element) => element.id == event.feed!.id);
         if(feedIndex > -1){
           copiedFeeds.removeAt(feedIndex);
+          emit(state.copyWith( feeds: copiedFeeds, status: FeedStatus.deleteFeedCompleted));
+          refreshList(updatedFeeds: copiedFeeds);
         }
-        emit(state.copyWith( feeds: copiedFeeds, status: FeedStatus.deleteFeedCompleted));
 
       }
 
@@ -227,14 +241,14 @@ class FeedsCubit extends Cubit<FeedState> {
     }
 
     // return cached items
-    if(returnExistingFeedsForFirstPage) {
-      if(pageKey == 1 && state.feeds.isNotEmpty) {
-        emit(state.copyWith(status: FeedStatus.fetchFeedsSuccessful,
-            data: { "pageKey": pageKey }
-        ));
-        return (null, state.feeds);
-      }
-    }
+    // if(returnExistingFeedsForFirstPage) {
+    //   if(pageKey == 1 && state.feeds.isNotEmpty) {
+    //     emit(state.copyWith(status: FeedStatus.fetchFeedsSuccessful,
+    //         data: { "pageKey": pageKey }
+    //     ));
+    //     return (null, state.feeds);
+    //   }
+    // }
 
     emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
     final either = await feedsRepository.fetchFeeds(path, queryParams: queryParams);
@@ -389,12 +403,50 @@ class FeedsCubit extends Cubit<FeedState> {
     final either = await feedsRepository.viewPost(postId: postId, action: action);
     if(either.isLeft()){
       final l = either.asLeft();
-      failed(l);
+
       return;
     }
 
     emit(state.copyWith(status: FeedStatus.viewPostActionSuccessful));
 
+  }
+
+  void deletePost({required FeedModel post}) async {
+
+    failed(String message) {
+      emit(state.copyWith(status: FeedStatus.deletePostFailed, message: message));
+    }
+
+    emit(state.copyWith(status: FeedStatus.deletePostInProgress));
+
+    // once user is connected to the network, just assume post is successful
+    if(!(await isNetworkConnected())) {
+      failed("You're not connected to the internet");
+      return;
+    }
+
+    // final feeds = <FeedModel>[...state.feeds];
+    // final indexOfFeed = feeds.indexWhere((element) => element.id == postId);
+    // if(indexOfFeed > -1) {
+    //   // feeds[indexOfFeed] = feeds[indexOfFeed].
+    //   feeds.removeAt(indexOfFeed);
+    // }
+    //
+    // refreshList(updatedFeeds: feeds);
+    feedBroadcastRepository.deleteFeed(feed: post);
+    emit(state.copyWith(status: FeedStatus.deletePostSuccessful,));
+    final either = await feedsRepository.deletePost(postId: post.id);
+    if(either.isLeft()){
+      final l = either.asLeft();
+      failed(l);
+      return;
+    }
+
+  }
+
+  void refreshList({List<FeedModel>? updatedFeeds}) {
+    emit(state.copyWith(status: FeedStatus.refreshListInProgress));
+    emit(state.copyWith(status: FeedStatus.refreshListCompleted, feeds: updatedFeeds ?? state.feeds));
   }
 
 

@@ -2,6 +2,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
@@ -10,12 +11,16 @@ import 'package:sparkduet/features/preferences/presentation/pages/feedback_page.
 import 'package:sparkduet/features/preferences/presentation/pages/notifications_settings_page.dart';
 import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
 import 'package:sparkduet/features/preferences/presentation/widgets/delete_account_widget.dart';
+import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
+import 'package:sparkduet/features/subscriptions/data/store/subscription_state.dart';
+import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/mixin/launch_external_app_mixin.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
+import 'dart:io' show Platform;
 
-class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, PreferencesMixin {
+class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, PreferencesMixin, SubscriptionPageMixin {
 
   const PreferencesPage({super.key});
 
@@ -204,6 +209,26 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, Prefe
                          trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onBackground, size: 18,),
                        onTap: () {
                          launchBrowser(AppConstants.termsOfUse);
+                       },
+                     ),
+
+                     BlocBuilder<SubscriptionCubit, SubscriptionState>(
+                       builder: (context, state) {
+                         return ListTile(
+                           dense: true,
+                           title: Text("Subscription", style: theme.textTheme.bodyMedium,),
+                           trailing: Text(state.subscribed ? "Paid" : "Free", style: theme.textTheme.bodyMedium?.copyWith(color: state.subscribed ? null : AppColors.buttonBlue),),
+                           onTap: () {
+                             if(state.subscribed) {
+                               final store = Platform.isAndroid ? "Play Store" : "App Store";
+                               context.showSnackBar("You are currently on the paid subscription. To unsubscribe, kindly visit your $store. Thanks");
+                               return;
+                             }
+
+                             showSubscriptionPaywall(context, openAsModal: true);
+
+                           },
+                         );
                        },
                      ),
                      ListTile(

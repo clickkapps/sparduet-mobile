@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:selectable_autolink_text/selectable_autolink_text.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/mixin/launch_external_app_mixin.dart';
+import 'package:sparkduet/utils/custom_network_image_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 ///iMessage's chat bubble type
@@ -27,6 +30,8 @@ class ChatBubbleWidget extends StatelessWidget with LaunchExternalAppMixin {
   final DateTime? timeStamp;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final File? attachedImageFile;
+  final String? attachedImageUrl;
 
   const ChatBubbleWidget({
     super.key,
@@ -41,6 +46,8 @@ class ChatBubbleWidget extends StatelessWidget with LaunchExternalAppMixin {
     this.timeStamp,
     this.onLongPress,
     this.onTap,
+    this.attachedImageFile,
+    this.attachedImageUrl,
     this.textStyle = const TextStyle(
       color: Colors.black87,
       fontSize: 16,
@@ -116,52 +123,65 @@ class ChatBubbleWidget extends StatelessWidget with LaunchExternalAppMixin {
                          mainAxisSize: MainAxisSize.min,
                          children: [
 
-                           SelectableAutoLinkText(
-                             text,
-                             style: textStyle,
-                             linkStyle: textStyle.copyWith(color: isSender ? AppColors.white : AppColors.buttonBlue),
-                             highlightedLinkStyle: textStyle.copyWith(
-                               color: Colors.purpleAccent,
-                             ),
-                             linkRegExpPattern: '(@[\\w]+|#[\\w]+|${AutoLinkUtils.defaultLinkRegExpPattern})',
-                             // onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
-                             // enableInteractiveSelection: false,
-                             onTap: (url) async {
+                           if(attachedImageUrl != null) ... {
+                             CustomNetworkImageWidget(imageUrl: attachedImageUrl ?? '',)
+                           }
+                           else if(attachedImageFile != null) ... {
+                             Image.file(attachedImageFile!)
+                           },
 
-                               if (isContainingAnyLink(text)) {
-                                 await launchBrowser(url);
-                                 return;
-                               }
+                           Column(
+                             crossAxisAlignment: isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                             mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SelectableAutoLinkText(
+                                  text,
+                                  style: textStyle,
+                                  linkStyle: textStyle.copyWith(color: isSender ? AppColors.white : AppColors.buttonBlue),
+                                  highlightedLinkStyle: textStyle.copyWith(
+                                    color: Colors.purpleAccent,
+                                  ),
+                                  linkRegExpPattern: '(@[\\w]+|#[\\w]+|${AutoLinkUtils.defaultLinkRegExpPattern})',
+                                  // onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
+                                  // enableInteractiveSelection: false,
+                                  onTap: (url) async {
 
-                               if (isPhoneNumber(text)) {
-                                 makePhoneCall(text);
-                                 return;
-                               }
+                                    if (isContainingAnyLink(text)) {
+                                      await launchBrowser(url);
+                                      return;
+                                    }
 
-                               if (isEmail(text)) {
-                                 openEmail(text);
-                                 return;
-                               }
+                                    if (isPhoneNumber(text)) {
+                                      makePhoneCall(text);
+                                      return;
+                                    }
 
-                               if (await canLaunchUrl(Uri.parse(url))) {
-                                 await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                               }
+                                    if (isEmail(text)) {
+                                      openEmail(text);
+                                      return;
+                                    }
 
-                             },
-                             onLongPress: (url) {
-                               copyTextToClipBoard(context, url);
-                             },
-                             onTapOther: (a,b) {
-                               onTap?.call();
-                             },
-                             onLongPressOther: (a, b) {
-                               onLongPress?.call();
-                             },
-                           ),
+                                    if (await canLaunchUrl(Uri.parse(url))) {
+                                      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                    }
 
-                           Padding(
-                             padding: isSender ? const EdgeInsets.only(left: 0, right: 12) : const EdgeInsets.only(left: 0),
-                             child: timeWidget,
+                                  },
+                                  onLongPress: (url) {
+                                    copyTextToClipBoard(context, url);
+                                  },
+                                  onTapOther: (a,b) {
+                                    onTap?.call();
+                                  },
+                                  onLongPressOther: (a, b) {
+                                    onLongPress?.call();
+                                  },
+                                ),
+
+                                Padding(
+                                  padding: isSender ? const EdgeInsets.only(left: 0, right: 12) : const EdgeInsets.only(left: 0),
+                                  child: timeWidget,
+                                )
+                              ],
                            )
 
                          ],

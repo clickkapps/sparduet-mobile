@@ -559,7 +559,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
     }
 
     if(index == activeIndex) {
-      // homeCubit.onActiveIndexTapped(index);
+      context.read<NavCubit>().onActiveIndexTapped(index);
       return;
     }
 

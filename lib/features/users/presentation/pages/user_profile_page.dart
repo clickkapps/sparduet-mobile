@@ -18,6 +18,7 @@ import 'package:sparkduet/features/countries/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
+import 'package:sparkduet/features/feeds/presentation/widgets/censored_feed_checker_widget.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/features/users/data/store/enums.dart';
 import 'package:sparkduet/features/users/data/store/user_bookmarked_feeds_cubit.dart';
@@ -249,9 +250,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                                       AspectRatio(
                                         aspectRatio: 9 / 16,
-                                        child: SizedBox(
+                                        child: CensoredFeedCheckerWidget(feed: user.introductoryPost, child: SizedBox(
                                             width: double.maxFinite,
-                                            child: Image.network(AppConstants.thumbnailMediaPath(mediaId: user.introductoryPost?.mediaPath ?? ""), fit: BoxFit.cover,)),
+                                            child: Image.network(AppConstants.thumbnailMediaPath(mediaId: user.introductoryPost?.mediaPath ?? ""), fit: BoxFit.cover,)
+                                        ),),
                                       )
                                       // CustomVideoPlayer(
                                       //   videoSource: VideoSource.network,
@@ -564,11 +566,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 return const SizedBox(width: 0,);
                               },
                               children: [
-                                CustomChipWidget(label: "Your posts", active: val == 0, onTap: () {
+                                CustomChipWidget(label: "Posts", active: val == 0, onTap: () {
                                   activeTab.value = 0;
                                   tabController.animateToPage(0, duration: const Duration(milliseconds: 357), curve: Curves.linear);
                                 },),
-                                CustomChipWidget(label: "Bookmarked posts", active: val == 1, onTap: () {
+                                CustomChipWidget(label: "Bookmarks", active: val == 1, onTap: () {
                                   activeTab.value = 1;
                                   tabController.animateToPage(1, duration: const Duration(milliseconds: 357), curve: Curves.linear);
                                 },),

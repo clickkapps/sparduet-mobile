@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_animator/animation/animation_preferences.dart';
 import 'package:flutter_animator/widgets/fading_entrances/fade_in_up.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
@@ -16,6 +21,7 @@ import 'package:sparkduet/features/chat/data/store/chat_connections_state.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_cubit.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
+import 'package:sparkduet/features/chat/presentation/widgets/attach_message_file_button_widget.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/empty_chat_widget.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/message_item_widget.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/send_chat_message_button_widget.dart';
@@ -56,6 +62,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
   late StreamSubscription streamSubscriptionCubit;
   late StreamSubscription chatConnectionSubscriptionCubit;
   bool showPageOverlayLoader = false;
+  File? attachedImageFile;
 
 
   @override
@@ -173,9 +180,14 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
     }
   }
 
-  void submitMessageHandler() {
+  void submitMessageHandler() async {
 
     final message = chatEditorController.text.trim();
+
+    if(!(await isNetworkConnected ()) && mounted) {
+      context.showSnackBar("Kindly fix your network connection and resend");
+      return;
+    }
 
     chatPreviewCubit.sendMessage(connection: chatPreviewCubit.state.selectedConnection, message: message, sentTo: widget.opponent, parent: messageToReply.value);
     chatEditorController.clear();
@@ -329,6 +341,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
   Widget build(BuildContext context) {
 
     final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
     final currentUser = context.read<AuthCubit>().state.authUser;
 
     return  CustomPageLoadingOverlay(
@@ -351,6 +364,7 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
             },
             builder: (context, chatPreviewState) {
               return  SafeArea(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
                   if(chatPreviewState.status == ChatPreviewStatus.fetchChatMessagesInProgress) ... {
@@ -506,6 +520,25 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                       ),
                     ))
                   },
+
+                  /// image attachment
+                  // if(attachedImageFile != null) ... {
+                  //   GestureDetector(
+                  //     onTap: () {
+                  //       // focusNode.unfocus();
+                  //       context.push(AppRoutes.photoGalleryPage, extra: {"images": <File>[attachedImageFile!]});
+                  //     },
+                  //     child: Container(
+                  //       width: mediaQuery.size.width * 0.23,
+                  //       color: theme.brightness == Brightness.light ? const Color(0xffDDDEDF) : const Color(0xff202021),
+                  //       padding: const EdgeInsets.only(bottom: 10, left: 20),
+                  //       child: SizedBox(
+                  //         // width: 30,
+                  //         child: Image.file(attachedImageFile!, fit: BoxFit.contain,),
+                  //       ),
+                  //     ),
+                  //   )
+                  // },
 
                   ValueListenableBuilder<ChatMessageModel?>(valueListenable: messageToReply, builder: (_, msg, __) {
                     if(msg == null) {
@@ -707,6 +740,17 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
                         keyboardAppearance: theme.brightness,
                         padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 20),
                         textAlign: TextAlign.start,
+                        // prefix: Padding(padding: const EdgeInsets.only(left: 5),
+                        //   child: AttachMessageFileButtonWidget(onTap: () {
+                        //     context.pickFileFromGallery(fileType: FileType.image, onSuccess: (file) {
+                        //       setState(() {
+                        //         attachedImageFile = file;
+                        //       });
+                        //     }, onError: (error) {
+                        //       // context.showSnackBar(error, appearance: NotificationAppearance.info);
+                        //     });
+                        //   },),
+                        // ),
                         suffix: ValueListenableBuilder<bool>(valueListenable: showSubmitButton, builder: (_, show, ch) {
                           if(show) return ch!;
                           return const SizedBox.shrink();

@@ -32,6 +32,7 @@ import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
+import 'package:sparkduet/features/feeds/presentation/widgets/censored_feed_checker_widget.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
@@ -268,9 +269,10 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
 
                                         AspectRatio(
                                           aspectRatio: 9 / 16,
-                                          child: SizedBox(
+                                          child: CensoredFeedCheckerWidget(feed: authUser?.introductoryPost, child: SizedBox(
                                               width: double.maxFinite,
-                                              child: Image.network(AppConstants.thumbnailMediaPath(mediaId: authUser?.introductoryPost?.mediaPath ?? ""), fit: BoxFit.cover,)),
+                                              child: Image.network(AppConstants.thumbnailMediaPath(mediaId: authUser?.introductoryPost?.mediaPath ?? ""), fit: BoxFit.cover,)
+                                          ),),
                                         )
                                         // CustomVideoPlayer(
                                         //   videoSource: VideoSource.network,
@@ -689,10 +691,18 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                 },
                                 children: [
                                   CustomChipWidget(label: "Your posts", active: val == 0, onTap: () {
+                                    if(activeTab.value == 0) {
+                                      userPostsPagingController?.refresh();
+                                      return;
+                                    }
                                     activeTab.value = 0;
                                     tabController.animateToPage(0, duration: const Duration(milliseconds: 357), curve: Curves.linear);
                                   },),
                                   CustomChipWidget(label: "Bookmarked posts", active: val == 1, onTap: () {
+                                    if(activeTab.value == 1) {
+                                      userBookmarksPagingController?.refresh();
+                                      return;
+                                    }
                                     activeTab.value = 1;
                                     tabController.animateToPage(1, duration: const Duration(milliseconds: 357), curve: Curves.linear);
                                   },),

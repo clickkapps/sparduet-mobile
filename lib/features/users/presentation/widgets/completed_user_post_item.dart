@@ -7,7 +7,9 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
+import 'package:sparkduet/features/feeds/presentation/widgets/censored_feed_checker_widget.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
 import 'package:sparkduet/features/users/presentation/pages/post_liked_users_page.dart';
@@ -17,7 +19,8 @@ class CompletedUserPostItem extends StatelessWidget with SubscriptionPageMixin {
 
   final FeedModel post;
   final Function()? onTap;
-  const CompletedUserPostItem({super.key, required this.post, this.onTap});
+  final Function()? onLongPress;
+  const CompletedUserPostItem({super.key, required this.post, this.onTap, this.onLongPress});
 
   void likedPostUsersHandler(BuildContext context) {
 
@@ -47,19 +50,21 @@ class CompletedUserPostItem extends StatelessWidget with SubscriptionPageMixin {
   @override
   Widget build(BuildContext context) {
 
+    final authenticatedUser = context.read<AuthCubit>().state.authUser;
     // debugPrint("CustomLog mediaPath: $networkPath");
     final thumbnailPath = AppConstants.thumbnailMediaPath(mediaId: post.mediaPath ?? "");
-    return GestureDetector(
+    return CensoredFeedCheckerWidget(feed: post, child: GestureDetector(
+      onLongPress: onLongPress,
       onTap: onTap,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4),
         child: Stack(
           children: [
             SizedBox(
-                width: double.maxFinite,
-                height: double.maxFinite,
-                child:post.mediaType == FileType.video ? CustomNetworkImageWidget(imageUrl: thumbnailPath, fit: BoxFit.cover,)
-                : CustomNetworkImageWidget(imageUrl: AppConstants.imageMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,),
+              width: double.maxFinite,
+              height: double.maxFinite,
+              child:post.mediaType == FileType.video ? CustomNetworkImageWidget(imageUrl: thumbnailPath, fit: BoxFit.cover,)
+                  : CustomNetworkImageWidget(imageUrl: AppConstants.imageMediaPath(mediaId: post.mediaPath ?? ""), fit: BoxFit.cover,),
             ),
             Align(
               alignment: Alignment.bottomLeft,
@@ -68,7 +73,7 @@ class CompletedUserPostItem extends StatelessWidget with SubscriptionPageMixin {
                 child: Text(post.description ?? "", maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.darkColorScheme.onBackground,fontSize: 12),),
               ),
             ),
-            if((post.totalLikes ?? 0) > 0) ... {
+            if(post.user?.id == authenticatedUser?.id && (post.totalLikes ?? 0) > 0) ... {
               Align(
                 alignment: Alignment.topLeft,
                 child:  GestureDetector(
@@ -97,6 +102,6 @@ class CompletedUserPostItem extends StatelessWidget with SubscriptionPageMixin {
           ],
         ),
       ),
-    );
+    ));
   }
 }

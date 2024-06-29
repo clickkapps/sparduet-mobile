@@ -68,8 +68,8 @@ class App extends StatelessWidget {
 
     return MultiBlocProvider(
         providers: [
-          BlocProvider(create: (context) => HomeCubit(socketConnectionRepository: socketRepository, homeBroadcastRepository: homeBroadcastRepository)),
-          BlocProvider(create: (context) => AuthCubit(authRepository: authRepository, fileRepository: fileRepository)),
+          BlocProvider(create: (context) => HomeCubit(socketConnectionRepository: socketRepository, homeBroadcastRepository: homeBroadcastRepository, feedBroadcastRepository: feedBroadcastRepository)),
+          BlocProvider(create: (context) => AuthCubit(authRepository: authRepository, fileRepository: fileRepository, feedBroadcastRepository: feedBroadcastRepository)),
           BlocProvider(create: (context) => ThemeCubit(themeRepository: themeRepository)),
           BlocProvider(create: (context) => FeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
           BlocProvider(create: (context) => StoriesFeedsCubit(fileRepository: fileRepository, feedsRepository: feedRepository, feedBroadcastRepository: feedBroadcastRepository)),
@@ -83,8 +83,8 @@ class App extends StatelessWidget {
           BlocProvider(create: (context) => CountriesCubit(countriesRepository: countriesRepository)),
           BlocProvider(create: (context) => SearchCubit(searchRepository: searchRepository)),
           BlocProvider(create: (context) => ChatConnectionsCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository, socketConnectionRepository: socketRepository)),
-          BlocProvider(create: (context) => ChatPreviewCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository, socketConnectionRepository: socketRepository)),
-          BlocProvider(create: (context) => UserCubit(userRepository: userRepository, socketConnectionRepository: socketRepository)),
+          BlocProvider(create: (context) => ChatPreviewCubit(chatRepository: chatRepository, chatBroadcastRepository: chatBroadcastRepository, socketConnectionRepository: socketRepository, fileRepository: fileRepository)),
+          BlocProvider(create: (context) => UserCubit(userRepository: userRepository, socketConnectionRepository: socketRepository, feedBroadcastRepository: feedBroadcastRepository)),
           BlocProvider(create: (context) => PreferencesCubit(preferencesRepository: preferencesRepository)),
           BlocProvider(create: (context) => NotificationsCubit(notificationsRepository: notificationsRepository, socketConnectionRepository: socketRepository)),
           BlocProvider(create: (context) => SubscriptionCubit(subscriptionRepository: subscriptionRepository)),

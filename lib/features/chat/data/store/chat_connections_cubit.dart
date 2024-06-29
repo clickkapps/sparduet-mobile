@@ -95,7 +95,6 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
       channel?.subscribe().listen((event) {
         final data = event.data as Map<Object?, Object?>;
         final json = convertMap(data);
-        debugPrint('Ably event received:unreadMessagesUpdatedFromServerChannelId: $json');
         final connectionId = json['chatConnectionId'] as int;
         final count = json['count'] as int;
 
@@ -275,7 +274,8 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
 
   }
 
-  Future<void> fetchChatConnections({int pageKey = 1}) async {
+  // Future<void>
+  Future<(String?, List<ChatConnectionModel>?)>  fetchChatConnections({int pageKey = 1}) async {
 
 
     /// From Cache First
@@ -302,11 +302,20 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     if(either.isLeft()){
       final l = either.asLeft();
       emit(state.copyWith(status: ChatConnectionStatus.fetchChatConnectionError, message: l));
-      return;
+      return (l, null);
     }
 
-    final r = either.asRight();
-    emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: r));
+    final r = either.asRight().where((element) => element.lastMessage != null).toList();
+
+    final List<ChatConnectionModel> connections = <ChatConnectionModel>[...state.chatConnections];
+    if(pageKey == 1){
+      // if its first page request remove all existing threads
+      connections.clear();
+    }
+    connections.addAll(r);
+
+    emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: connections));
+    return (null, r);
 
   }
 

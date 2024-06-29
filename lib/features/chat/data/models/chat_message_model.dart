@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -61,6 +63,8 @@ class ChatMessageModel extends Equatable {
   @JsonKey(name: "seen_at")
   final DateTime? seenAt;
 
+  final File? attachedImageFile;
+
   const ChatMessageModel({
     this.id,
     this.chatConnectionId,
@@ -74,7 +78,8 @@ class ChatMessageModel extends Equatable {
     this.sentToId,
     this.deletedAt,
     this.deliveredAt,
-    this.seenAt
+    this.seenAt,
+    this.attachedImageFile
   });
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) => _$ChatMessageModelFromJson(json);

@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
-import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_notice_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_state.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/models/feed_broadcast_event.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
+import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
+import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
 import '../repositories/auth_repository.dart';
 
@@ -14,7 +17,32 @@ class AuthCubit extends Cubit<AuthState> {
 
   final AuthRepository authRepository;
   final FileRepository fileRepository;
-  AuthCubit({required this.authRepository, required this.fileRepository}): super(const AuthState());
+  final FeedBroadcastRepository feedBroadcastRepository;
+  StreamSubscription<FeedBroadCastEvent>? feedBroadcastRepositoryStreamListener;
+  AuthCubit({required this.authRepository, required this.fileRepository, required this.feedBroadcastRepository,}): super(const AuthState()) {
+    listenForFeedUpdate();
+  }
+
+  /// This method updates feed when there's a change in state
+  void listenForFeedUpdate() async {
+
+    await feedBroadcastRepositoryStreamListener?.cancel();
+    feedBroadcastRepositoryStreamListener = feedBroadcastRepository.stream.listen((FeedBroadCastEvent event) {
+
+      if(event.action == FeedBroadcastAction.censorUpdated){
+        final feedId = event.data['id'] as int?;
+        final disAction = event.data['action'] as String?;
+        if(feedId == state.authUser?.introductoryPost?.id) {
+          final introPostUpdated = state.authUser?.introductoryPost?.copyWith(
+            disciplinaryAction: disAction
+          );
+          setIntroductoryPost(introPostUpdated);
+        }
+      }
+
+
+    });
+  }
 
   Future<AuthUserModel?> getCurrentUserSession() async {
     AuthUserModel? user  = state.authUser;
@@ -29,7 +57,7 @@ class AuthCubit extends Cubit<AuthState> {
     return user;
   }
 
-  void setIntroductoryPost(FeedModel feedModel) {
+  void setIntroductoryPost(FeedModel? feedModel) {
     final user = state.authUser?.copyWith(
       introductoryPost: feedModel
     );
@@ -233,6 +261,23 @@ class AuthCubit extends Cubit<AuthState> {
     // final r = either.asRight();
     final noticeUpdated = state.userNotice?.copyWith(noticeReadAt: DateTime.now());
     emit(state.copyWith(status: AuthStatus.markNoticeAsReadSuccessful, userNotice: noticeUpdated));
+  }
+
+
+  void deleteAccount() async {
+
+    emit(state.copyWith(status: AuthStatus.deleteAccountInProgress));
+
+    final either = await authRepository.markAccountForDeletion();
+
+    if(either.isLeft()) {
+      final l = either.asLeft();
+      emit(state.copyWith(status: AuthStatus.deleteAccountFailed, message: l));
+      return;
+    }
+
+    emit(state.copyWith(status: AuthStatus.deleteAccountSuccessful));
+
   }
 
 

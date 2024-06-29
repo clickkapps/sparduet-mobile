@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:io';
 import 'package:ably_flutter/ably_flutter.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +15,8 @@ import 'package:sparkduet/features/chat/data/repositories/chat_broadcast_reposit
 import 'package:sparkduet/features/chat/data/repositories/chat_repository.dart';
 import 'package:sparkduet/features/chat/data/store/chat_preview_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/repositories/feed_repository.dart';
+import 'package:sparkduet/features/files/data/repositories/file_repository.dart';
 import 'package:sparkduet/features/home/data/events/home_broadcast_event.dart';
 import 'package:sparkduet/features/home/data/repositories/home_broadcast_repository.dart';
 import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
@@ -23,6 +26,7 @@ import 'package:uuid/uuid.dart';
 
 class ChatPreviewCubit extends Cubit<ChatPreviewState> {
 
+  final FileRepository fileRepository;
   final ChatRepository chatRepository;
   final ChatBroadcastRepository chatBroadcastRepository;
   StreamSubscription<ChatBroadcastEvent>? chatClientBroadcastRepositoryStreamListener;
@@ -35,7 +39,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   String? messageCreatedFromServerChannelId;
   String? unreadMessagesUpdatedFromServerChannelId;
   String? deletedMessagesFromServerChannelId;
-  ChatPreviewCubit({required this.chatRepository, required this.chatBroadcastRepository,  required this.socketConnectionRepository}): super(const ChatPreviewState());
+  ChatPreviewCubit({required this.fileRepository ,required this.chatRepository, required this.chatBroadcastRepository,  required this.socketConnectionRepository}): super(const ChatPreviewState());
 
   void setAuthenticatedUser(AuthUserModel? authUser) => authenticatedUser = authUser;
   void setServerPushChannels({required int? connectionId, required int? opponentId}) {
@@ -259,7 +263,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
 
 
 
-  Future<String?> sendMessage({required ChatConnectionModel? connection, required String message, required UserModel sentTo, ChatMessageModel? parent}) async {
+  Future<String?> sendMessage({required ChatConnectionModel? connection, required String message, required UserModel sentTo, ChatMessageModel? parent, File? attachedImageFile}) async {
 
     // once the user sends first message, it means first impression read.
     if(connection?.readFirstImpressionNoteAt == null) {
@@ -279,14 +283,33 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
       sentById: authenticatedUser?.id,
       sentToId: sentTo.id,
       parent: parent,
-      deliveredAt: DateTime.now()
+      deliveredAt: DateTime.now(),
+      attachedImageFile: attachedImageFile
     );
 
     ///! Optimistic add message to messages --
     _addMessage(clientMessage);
 
     emit(state.copyWith(status: ChatPreviewStatus.sendMessageLoading));
-    final either = await chatRepository.sendMessage(chatConnectionId: connection?.id, message: clientMessage);
+
+    String? imagePath;
+    // send file first if any
+    ///! Image section
+    if(attachedImageFile != null) {
+
+      final imageFilesResponse = await fileRepository.uploadFilesToServer(files: <File>[attachedImageFile]);
+
+      if(imageFilesResponse.isLeft()){
+        final l = imageFilesResponse.asLeft();
+        //! Update that chat wasn't sent
+        _updateClientMessage(clientMessage.copyWith(deliveredAt: null));
+        emit(state.copyWith(status: ChatPreviewStatus.sendMessageFailed, message: l));
+      }
+
+      imagePath = imageFilesResponse.asRight().first;
+    }
+
+    final either = await chatRepository.sendMessage(chatConnectionId: connection?.id, message: clientMessage, attachmentPath: imagePath);
 
     if(either?.isLeft() ?? true){
       final l = either!.asLeft();

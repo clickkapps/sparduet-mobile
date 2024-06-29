@@ -20,7 +20,7 @@ class _PeopleTabSearchPageState extends State<PeopleTabSearchPage> {
 
   // we use infinite scroll view here
   late SearchCubit cubit;
-  PagingController<int, UserModel>? pagingController;
+  PagingController<int, dynamic>? pagingController;
 
   @override
   void initState() {

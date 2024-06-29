@@ -263,4 +263,34 @@ class FeedRepository {
     }
   }
 
+
+  Future<Either<String, void>> deletePost({required int? postId}) async {
+    try{
+
+      // await Future.delayed(const Duration(seconds: 1));
+      // return const Right(null);
+
+      final path = AppApiRoutes.deletePostAction(postId: postId);
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }catch(error) {
+      return Left(error.toString());
+    }
+  }
+
 }

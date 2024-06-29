@@ -19,7 +19,7 @@ class UsersOnlinePage extends StatefulWidget {
 class _UsersOnlinePageState extends State<UsersOnlinePage> {
 
   late UserCubit cubit;
-  PagingController<int, UserModel>? pagingController;
+  PagingController<int, dynamic>? pagingController;
 
   @override
   void initState() {

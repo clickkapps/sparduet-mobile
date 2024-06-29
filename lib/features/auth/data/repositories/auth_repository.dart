@@ -115,9 +115,15 @@ class AuthRepository {
 
     try {
 
+      await localStorageProvider.setAuthTokenVal(token);
+
+      final activeAccountEither = await _checkIfAccountIsActive();
+      if(activeAccountEither.isLeft()) {
+        return Left(activeAccountEither.asLeft());
+      }
       // set the token in local storage for subsequent requests
       await FirebaseAuth.instance.signInWithCustomToken(customToken);
-      await localStorageProvider.setAuthTokenVal(token);
+
 
       // fetch and update the current loggedIn user
       final either = await fetchAuthUserProfile();
@@ -140,8 +146,72 @@ class AuthRepository {
 
   }
 
-  Future<void> setChatId() async {
+  Future<Either<String, void>> _checkIfAccountIsActive() async {
+    try {
 
+      // by default it fetches the current loggedIn User Profile
+      const path = AppApiRoutes.checkIfAccountIsActive;
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.get,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          await logout();
+          return Left(response.data["message"] as String);
+        }
+
+        final extra = response.data["extra"] as Map<String, dynamic>;
+        final active = extra['active'] as bool;
+        if(!active) {
+          await logout();
+          final reason = extra['reason'] as String;
+          return Left(reason);
+        }
+
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, void>> markAccountForDeletion() async {
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      const path = AppApiRoutes.markAccountForDeletion;
+
+      final response = await networkProvider.call(
+          path: path,
+          method: RequestMethod.post,
+          useToken: true
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        return const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
   }
 
   Future<void> saveAuthUser(AuthUserModel updatedUser) async {

@@ -168,7 +168,7 @@ class ChatRepository {
     chatConnectionsBox.clear();
   }
 
-  Future<Either<String, ChatMessageModel>>? sendMessage({required int? chatConnectionId, required ChatMessageModel message}) async {
+  Future<Either<String, ChatMessageModel>>? sendMessage({required int? chatConnectionId, required ChatMessageModel message, String? attachmentPath}) async {
 
     try {
 
@@ -179,7 +179,9 @@ class ChatRepository {
         "sent_to_id": message.sentToId,
         "client_id": message.clientId,
         "text": message.text,
-        "parent_id": message.parent?.id
+        "parent_id": message.parent?.id,
+        "attachment_path": attachmentPath,
+        "attachment_type": attachmentPath != null ? "image" : null
       };
       final response = await networkProvider.call(
           path: path,
@@ -293,7 +295,7 @@ class ChatRepository {
       const path = AppApiRoutes.fetchChatMessages;
       final queryParams = {
         "conn_id": chatConnectionId,
-        "limit": 15,
+        "limit": 200,
         "page": pageKey
       };
 
@@ -333,7 +335,7 @@ class ChatRepository {
 
       const path = AppApiRoutes.fetchChatConnections;
       final queryParams = {
-        "limit": 15,
+        "limit": 50,
         "page": pageKey
       };
 

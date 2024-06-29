@@ -19,7 +19,7 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
 
   late NotificationsCubit notificationsCubit;
-  PagingController<int, NotificationModel>? pagingController;
+  PagingController<int, dynamic>? pagingController;
   late SubscriptionCubit subscriptionCubit;
 
   @override

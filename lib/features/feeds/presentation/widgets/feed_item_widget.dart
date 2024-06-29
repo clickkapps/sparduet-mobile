@@ -17,6 +17,7 @@ import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
+import 'package:sparkduet/features/feeds/presentation/widgets/censored_feed_checker_widget.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_actions_widget.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_heart_animation_widget.dart';
@@ -109,210 +110,212 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
 
 
       },
-      child: Stack(
-        children: [
+      child: CensoredFeedCheckerWidget(feed: widget.feed,
+          child: Stack(
+            children: [
 
 
-          /// Video
-          if(widget.feed.mediaType == FileType.video) ... {
-            Builder(
-                builder: (_) {
-                  final networkUrl = widget.feed.tempId != null ? null : AppConstants.videoMediaPath(playbackId: widget.feed.mediaPath ?? "");
-                  // return GestureDetector(
-                  //   onTap: () => widget.onItemTapped?.call() ,
-                  //   behavior: HitTestBehavior.opaque,
-                  //   child: IgnorePointer(
-                  //     child: CustomVideoPlayer(
-                  //       autoPlay: widget.autoPlay,
-                  //       loop: true,
-                  //       showDefaultControls: false,
-                  //       // aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
-                  //       hls: widget.hls,
-                  //       fit: BoxFit.cover,
-                  //       useCache: widget.useCache,
-                  //       builder: widget.videoBuilder,
-                  //       // The understanding here is, if tempId is not null, then the media source is file
-                  //       networkUrl: networkUrl,
-                  //       file: widget.feed.tempId != null ? File(widget.feed.mediaPath ?? "") : null,
-                  //       videoSource: widget.feed.tempId != null ? VideoSource.file : VideoSource.network, // the post will
-                  //       onProgress: widget.onProgress,
-                  //     ),
-                  //   ),
-                  // );
-                  if(kDebugMode) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15.0),
-                        child: Text("Video is turned off in debug mode", style: TextStyle(color: Colors.white),),
-                      ),
-                    );
-                  }else {
-                    return GestureDetector(
-                      onTap: () => widget.onItemTapped?.call() ,
-                      behavior: HitTestBehavior.opaque,
-                      child: IgnorePointer(
-                        child: CustomVideoPlayer(
-                          autoPlay: widget.autoPlay,
-                          loop: true,
-                          showDefaultControls: false,
-                          // aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
-                          hls: widget.hls,
-                          fit: BoxFit.cover,
-                          useCache: widget.useCache,
-                          builder: widget.videoBuilder,
-                          // The understanding here is, if tempId is not null, then the media source is file
-                          networkUrl: networkUrl,
-                          file: widget.feed.tempId != null ? File(widget.feed.mediaPath ?? "") : null,
-                          videoSource: widget.feed.tempId != null ? VideoSource.file : VideoSource.network, // the post will
-                          onProgress: widget.onProgress,
-                          placeholder: videoPlaceholder(mediaQuery),
-                        ),
-                      ),
-                    );
-                  }
-
-                }
-            )
-          },
-
-          /// Image
-          if(widget.feed.mediaType == FileType.image) ... {
-            Builder(builder: (_) {
-              return GestureDetector(
-                onTap: () => widget.onItemTapped?.call(),
-                child: SizedBox(
-                  width: mediaQuery.size.width,
-                  height: mediaQuery.size.height,
-                  child: CustomImagePlayerWidget(
-                    imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.mediaPath ?? ""),
-                    audioUrl: audioPath ?? '',
-                    imageSource: ImageSource.network,
-                    builder: widget.imageBuilder,
-                    audioSource: AudioSource.network,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              );
-            },)
-          },
-
-          IgnorePointer(
-            ignoring: true,
-            child: Container(
-              width: double.maxFinite,
-              height: double.maxFinite,
-              color: AppColors.black.withOpacity(0.3),
-            ),
-          ),
-
-
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10, top: 50, bottom: 20),
-              child: FeedActionsWidget(feed: widget.feed, onActionTapped: (value) {
-                if(value == "liked") {
-                  isHeartAnimating.value = true;
-                }
-              },),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ConstrainedBox(constraints: BoxConstraints(maxWidth: mediaQuery.size.width* 0.8),
-                  child:  Padding(padding: const EdgeInsets.only(left: 15, bottom: 10),
-                    child: SeparatedColumn(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      separatorBuilder: (BuildContext context, int index) {
-                        return const SizedBox(height: 5,);
-                      },
-                      children: [
-                        /// Person name,
-                        GestureDetector(
-                          onTap: () => context.pushToProfile(widget.feed.user),
-                          behavior: HitTestBehavior.opaque,
-                          child: Row(
-                            children: [
-                              CustomUserAvatarWidget(
-                                imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.user?.info?.profilePicPath ?? ""), userId: widget.feed.user?.id, showBorder: false, borderWidth: 2,),
-                              const SizedBox(width: 10,),
-                              Flexible(child: Text(widget.feed.user?.name ?? "", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),)),
-                              const SizedBox(width: 10,),
-                              Text("${widget.feed.user?.info?.age ?? ''}", style: const TextStyle(color: Colors.white),)
-                            ],
+              /// Video
+              if(widget.feed.mediaType == FileType.video) ... {
+                Builder(
+                    builder: (_) {
+                      final networkUrl = widget.feed.tempId != null ? null : AppConstants.videoMediaPath(playbackId: widget.feed.mediaPath ?? "");
+                      // return GestureDetector(
+                      //   onTap: () => widget.onItemTapped?.call() ,
+                      //   behavior: HitTestBehavior.opaque,
+                      //   child: IgnorePointer(
+                      //     child: CustomVideoPlayer(
+                      //       autoPlay: widget.autoPlay,
+                      //       loop: true,
+                      //       showDefaultControls: false,
+                      //       // aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
+                      //       hls: widget.hls,
+                      //       fit: BoxFit.cover,
+                      //       useCache: widget.useCache,
+                      //       builder: widget.videoBuilder,
+                      //       // The understanding here is, if tempId is not null, then the media source is file
+                      //       networkUrl: networkUrl,
+                      //       file: widget.feed.tempId != null ? File(widget.feed.mediaPath ?? "") : null,
+                      //       videoSource: widget.feed.tempId != null ? VideoSource.file : VideoSource.network, // the post will
+                      //       onProgress: widget.onProgress,
+                      //     ),
+                      //   ),
+                      // );
+                      if(kDebugMode) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15.0),
+                            child: Text("Video is turned off in debug mode", style: TextStyle(color: Colors.white),),
                           ),
-                        ),
+                        );
+                      }else {
+                        return GestureDetector(
+                          onTap: () => widget.onItemTapped?.call() ,
+                          behavior: HitTestBehavior.opaque,
+                          child: IgnorePointer(
+                            child: CustomVideoPlayer(
+                              autoPlay: widget.autoPlay,
+                              loop: true,
+                              showDefaultControls: false,
+                              // aspectRatio: mediaQuery.size.width / mediaQuery.size.height,
+                              hls: widget.hls,
+                              fit: BoxFit.cover,
+                              useCache: widget.useCache,
+                              builder: widget.videoBuilder,
+                              // The understanding here is, if tempId is not null, then the media source is file
+                              networkUrl: networkUrl,
+                              file: widget.feed.tempId != null ? File(widget.feed.mediaPath ?? "") : null,
+                              videoSource: widget.feed.tempId != null ? VideoSource.file : VideoSource.network, // the post will
+                              onProgress: widget.onProgress,
+                              placeholder: videoPlaceholder(mediaQuery),
+                            ),
+                          ),
+                        );
+                      }
 
-                        /// description
-                        if((widget.feed.description ?? "").isNotEmpty) ... {
-                          ReadMoreText(
-                            widget.feed.description ?? "",
-                            trimMode: TrimMode.Line,
-                            trimLines: 2,
-                            colorClickableText: Colors.blue,
-                            trimCollapsedText: ' Show more',
-                            trimExpandedText: ' Show less',
-                            style: const TextStyle(color: Colors.white, fontSize: 20),
-                            moreStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
-                            lessStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
-                          )
-                        },
+                    }
+                )
+              },
 
-                        if((widget.feed.id ?? 0) > 0 && widget.feed.user?.id != authenticatedUser?.id) ... {
-                          CustomButtonWidget(text: "Show interest", onPressed: () {
-                            context.push(AppRoutes.chatPreview, extra: widget.feed.user );
-                            // send user clicks predefine and initial message for user.
-                            // eg. Hey!. I'm interested in you. Can I get to know you
-                          }, padding: const EdgeInsets.only(left: 10, right: 15, top: 7, bottom: 7),
-                            appearance: ButtonAppearance.secondary,
-                          )
-                        }
-                      ],
+              /// Image
+              if(widget.feed.mediaType == FileType.image) ... {
+                Builder(builder: (_) {
+                  return GestureDetector(
+                    onTap: () => widget.onItemTapped?.call(),
+                    child: SizedBox(
+                      width: mediaQuery.size.width,
+                      height: mediaQuery.size.height,
+                      child: CustomImagePlayerWidget(
+                        imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.mediaPath ?? ""),
+                        audioUrl: audioPath ?? '',
+                        imageSource: ImageSource.network,
+                        builder: widget.imageBuilder,
+                        audioSource: AudioSource.network,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                  ),
-                ),
-                // Container(
-                //   width: double.maxFinite,
-                //   decoration: BoxDecoration(
-                //     color: Colors.black.withOpacity(0.4)
-                //   ),
-                //   child: const Padding(
-                //     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                //     child: Text("Video topic displayed here", style: TextStyle(color: Colors.white, fontSize: 12),),
-                //   ),
-                // ),
-              ],
-            ),
-          ),
+                  );
+                },)
+              },
 
-          Align(
-            alignment: Alignment.center,
-            child: ValueListenableBuilder<bool>(valueListenable: isHeartAnimating, builder: (_, value, __) {
-              return Opacity(
-                opacity: value ? 1 : 0,
-                child: CustomHeartAnimationWidget(
-                  isAnimating: value,
-                  duration: const Duration(milliseconds: 700),
-                  onEnd: () {
-                    isHeartAnimating.value = false;
-                  },
-                  child: SeparatedRow(
-                    mainAxisSize: MainAxisSize.min,
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const SizedBox(width: 0,);
-                    },
-                    children: List.generate((widget.feed.hasLiked ?? 0).toInt(), (index) => const Icon(Icons.favorite, color: Colors.red, size: 50,)),
-                  ),
+              IgnorePointer(
+                ignoring: true,
+                child: Container(
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                  color: AppColors.black.withOpacity(0.3),
                 ),
-              );
-            }),
-          ),
+              ),
 
-        ],
+
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10, top: 50, bottom: 20),
+                  child: FeedActionsWidget(feed: widget.feed, onActionTapped: (value) {
+                    if(value == "liked") {
+                      isHeartAnimating.value = true;
+                    }
+                  },),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ConstrainedBox(constraints: BoxConstraints(maxWidth: mediaQuery.size.width* 0.8),
+                      child:  Padding(padding: const EdgeInsets.only(left: 15, bottom: 10),
+                        child: SeparatedColumn(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const SizedBox(height: 5,);
+                          },
+                          children: [
+                            /// Person name,
+                            GestureDetector(
+                              onTap: () => context.pushToProfile(widget.feed.user),
+                              behavior: HitTestBehavior.opaque,
+                              child: Row(
+                                children: [
+                                  CustomUserAvatarWidget(
+                                    imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.user?.info?.profilePicPath ?? ""), userId: widget.feed.user?.id, showBorder: false, borderWidth: 2,),
+                                  const SizedBox(width: 10,),
+                                  Flexible(child: Text(widget.feed.user?.name ?? "", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),)),
+                                  const SizedBox(width: 10,),
+                                  Text("${widget.feed.user?.info?.age ?? ''}", style: const TextStyle(color: Colors.white),)
+                                ],
+                              ),
+                            ),
+
+                            /// description
+                            if((widget.feed.description ?? "").isNotEmpty) ... {
+                              ReadMoreText(
+                                widget.feed.description ?? "",
+                                trimMode: TrimMode.Line,
+                                trimLines: 2,
+                                colorClickableText: Colors.blue,
+                                trimCollapsedText: ' Show more',
+                                trimExpandedText: ' Show less',
+                                style: const TextStyle(color: Colors.white, fontSize: 20),
+                                moreStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                                lessStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                              )
+                            },
+
+                            if((widget.feed.id ?? 0) > 0 && widget.feed.user?.id != authenticatedUser?.id) ... {
+                              CustomButtonWidget(text: "Show interest", onPressed: () {
+                                context.push(AppRoutes.chatPreview, extra: widget.feed.user );
+                                // send user clicks predefine and initial message for user.
+                                // eg. Hey!. I'm interested in you. Can I get to know you
+                              }, padding: const EdgeInsets.only(left: 10, right: 15, top: 7, bottom: 7),
+                                appearance: ButtonAppearance.secondary,
+                              )
+                            }
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Container(
+                    //   width: double.maxFinite,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.black.withOpacity(0.4)
+                    //   ),
+                    //   child: const Padding(
+                    //     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                    //     child: Text("Video topic displayed here", style: TextStyle(color: Colors.white, fontSize: 12),),
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
+
+              Align(
+                alignment: Alignment.center,
+                child: ValueListenableBuilder<bool>(valueListenable: isHeartAnimating, builder: (_, value, __) {
+                  return Opacity(
+                    opacity: value ? 1 : 0,
+                    child: CustomHeartAnimationWidget(
+                      isAnimating: value,
+                      duration: const Duration(milliseconds: 700),
+                      onEnd: () {
+                        isHeartAnimating.value = false;
+                      },
+                      child: SeparatedRow(
+                        mainAxisSize: MainAxisSize.min,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(width: 0,);
+                        },
+                        children: List.generate((widget.feed.hasLiked ?? 0).toInt(), (index) => const Icon(Icons.favorite, color: Colors.red, size: 50,)),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+
+            ],
+          ),
       ),
     );
   }

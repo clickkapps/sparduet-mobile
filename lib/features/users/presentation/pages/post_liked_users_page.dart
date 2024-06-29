@@ -19,7 +19,7 @@ class PostLikedUsersPage extends StatefulWidget {
 class _PostLikedUsersPageState extends State<PostLikedUsersPage> {
 
   late UserCubit cubit;
-  PagingController<int, UserModel>? pagingController;
+  PagingController<int, dynamic>? pagingController;
 
   @override
   void initState() {

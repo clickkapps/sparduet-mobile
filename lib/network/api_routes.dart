@@ -14,6 +14,8 @@ class AppApiRoutes {
 
   static const String submitAuthEmail = '$baseApiUrl/auth/email';
   static const String authEmail = '$baseApiUrl/auth/email/verify';
+  static const String checkIfAccountIsActive = '$baseApiUrl/auth/active-check';
+  static const String markAccountForDeletion = '$baseApiUrl/auth/mark-account-for-deletion';
 
   static String userProfile({int? userId}) {
     String url = '$baseApiUrl/user/profile';
@@ -51,6 +53,7 @@ class AppApiRoutes {
   static String togglePostBookmarkAction({int? postId}) => '$baseApiUrl/posts/bookmark/$postId';
   static String viewPostAction({int? postId}) => '$baseApiUrl/posts/view/$postId';
   static String reportPostAction({int? postId}) => '$baseApiUrl/posts/report/$postId';
+  static String deletePostAction({int? postId}) => '$baseApiUrl/posts/delete/$postId';
   // togglePostLikeAction
   // utils
   static const String uploadFiles = '$baseApiUrl/utils/upload-files';

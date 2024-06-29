@@ -7,13 +7,20 @@ class NavCubit extends Cubit<NavState> {
   NavCubit(): super(const NavState());
 
   void onTabChange(int index){
+    emit(state.copyWith(status: NavStatus.onTabChangedInProgress));
     emit(state.copyWith(previousIndex: state.currentTabIndex, currentTabIndex: index,
         status: NavStatus.onTabChanged
     ));
   }
 
   void requestTabChange(int index) {
+    emit(state.copyWith(status: NavStatus.onTabChangeRequestedInProgress));
     emit(state.copyWith(previousIndex: state.currentTabIndex, currentTabIndex: index, status: NavStatus.onTabChangeRequested));
+  }
+
+  void onActiveIndexTapped(int index) {
+    emit(state.copyWith(status: NavStatus.onActiveIndexTappedInProgress));
+    emit(state.copyWith(status: NavStatus.onActiveIndexTappedCompleted, data: index));
   }
 
 }

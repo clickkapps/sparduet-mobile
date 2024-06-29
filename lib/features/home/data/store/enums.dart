@@ -1,5 +1,5 @@
 enum NavStatus {
-  initial, onTabChanged, onTabChangeRequested
+  initial, onTabChanged, onTabChangeRequested, onTabChangedInProgress, onTabChangeRequestedInProgress, onTapExistigTab, onActiveIndexTappedInProgress, onActiveIndexTappedCompleted
 }
 
 enum HomeStatus {

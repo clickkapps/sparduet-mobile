@@ -96,6 +96,15 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
 
           }
         }}
+
+        if(event.status == NavStatus.onActiveIndexTappedCompleted) {
+          final tabIndex = event.data as int;
+          if(tabIndex == 0) {
+            _fetchData(pageKey: 1); // refresh page if user taps on home twice
+          }
+        }
+
+
     });
     userCubit.stream.listen((event) {
       if(event.status == UserStatus.getDisciplinaryRecordSuccessful) {
