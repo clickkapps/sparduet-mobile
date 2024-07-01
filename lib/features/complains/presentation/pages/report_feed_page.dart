@@ -47,7 +47,8 @@ class _ReportFeedPageState extends State<ReportFeedPage> {
     bool validated = true;
     if(messageController.text.trim().isEmpty) {
       validated = false;
-    }else if(selectedSuggestion.value.trim().isEmpty) {
+    }
+    if(!validated && selectedSuggestion.value.trim().isEmpty) {
       validated = false;
     }
 

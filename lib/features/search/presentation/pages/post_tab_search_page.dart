@@ -49,7 +49,7 @@ class _PostTabSearchPageState extends State<PostTabSearchPage> {
         context.pushScreen(StoriesPreviewsPage(feeds: cubit.state.stories, initialFeedIndex: index,));
       });
     }, builder: (controller) {
-      pagingController = controller;
+      pagingController ??= controller;
     },
       padding: const EdgeInsets.symmetric(horizontal: 15),
       crossAxisSpacing: 3,

@@ -100,7 +100,7 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
         }
     }, builder: (controller) {
       widget.builder?.call(controller);
-      pagingController = controller;
+      pagingController ??= controller;
     }, padding: const EdgeInsets.symmetric(horizontal: 15),
       crossAxisSpacing: 3,
       mainAxisSpacing: 3,

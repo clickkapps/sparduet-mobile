@@ -9,7 +9,7 @@ import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/display_settings_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/feedback_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/notifications_settings_page.dart';
-import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
+import 'package:sparkduet/features/auth/presentation/mixin/auth_mixin.dart';
 import 'package:sparkduet/features/preferences/presentation/widgets/delete_account_widget.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_state.dart';
@@ -20,7 +20,7 @@ import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 import 'dart:io' show Platform;
 
-class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, PreferencesMixin, SubscriptionPageMixin {
+class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, AuthMixin, SubscriptionPageMixin {
 
   const PreferencesPage({super.key});
 
@@ -41,7 +41,9 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, Prefe
           }
       ),
     );
-    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
+      // context.read<ThemeCubit>().setSystemUIOverlaysToDark();
+    });
   }
 
   void  showDisplaySettingsHandler(BuildContext context) {
@@ -60,7 +62,9 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, Prefe
           }
       ),
     );
-    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
+      // context.read<ThemeCubit>().setSystemUIOverlaysToDark();
+    });
   }
 
   void  showNotificationSettingsHandler(BuildContext context) {
@@ -79,7 +83,9 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, Prefe
           }
       ),
     );
-    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) => context.read<ThemeCubit>().setSystemUIOverlaysToDark());
+    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
+      // context.read<ThemeCubit>().setSystemUIOverlaysToDark();
+    });
   }
   
   @override

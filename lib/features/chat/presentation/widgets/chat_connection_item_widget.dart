@@ -1,4 +1,5 @@
 import 'package:feather_icons/feather_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -110,7 +111,9 @@ class ChatConnectionItemWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: Row(
             children: [
-              CustomUserAvatarWidget(size: 55, showBorder: false, borderWidth: 2, userId: otherParticipant.id, imageUrl: otherParticipant.info?.profilePicPath,),
+              GestureDetector(
+                onTap: () => context.pushToProfile(otherParticipant),
+                  child: CustomUserAvatarWidget(size: 55, showBorder: false, borderWidth: 2, userId: otherParticipant.id, imageUrl: otherParticipant.info?.profilePicPath,)),
               const SizedBox(width: 10,),
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

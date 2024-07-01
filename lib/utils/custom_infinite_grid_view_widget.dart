@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_emtpy_content_widget.dart';
 import 'package:sparkduet/utils/custom_no_connection_widget.dart';
@@ -39,11 +40,10 @@ class CustomInfiniteGridViewWidget<M> extends StatefulWidget {
 class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridViewWidget> {
 
   // page key is page index. Starting from 0, 1, 2 .........
-  late PagingController<int, M> pagingController;
+  late PagingController<int, M> pagingController = PagingController(firstPageKey: 1);
 
   @override
   void initState() {
-    pagingController = PagingController(firstPageKey: 1, invisibleItemsThreshold: AppConstants.gridPageSize);
     pagingController.addPageRequestListener((pageKey) async {
 
       final newItems = await fetchData(pageKey);
@@ -54,13 +54,21 @@ class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridView
       // final isLastPage = newItems.length < 20; // wrong
       if (isLastPage) {
         pagingController.appendLastPage(newItems);
+
       } else {
         final nextPageKey = pageKey + 1;
         pagingController.appendPage(newItems, nextPageKey);
+        if(pageKey == 1) {
+          widget.builder?.call(pagingController);
+        }
       }
 
+
     });
-    widget.builder?.call(pagingController);
+    // onWidgetBindingComplete(onComplete: () {
+    //
+    // }, milliseconds: 1000);
+    //widget.builder?.call(pagingController);
     super.initState();
   }
 

@@ -94,19 +94,19 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
     feedsCubit = context.read<AuthFeedsCubit>();
     feedCubitSubscription = feedsCubit.stream.listen((event) {
         if(event.status == FeedStatus.postFeedInProgress) {
-            userPostsPagingController?.itemList = <FeedModel>[...event.feeds];
+            // userPostsPagingController?.itemList = <FeedModel>[...event.feeds];
             tabController.jumpToPage(0);
             autoScrollController.scrollToIndex(aboutYouIndex, preferPosition: AutoScrollPosition.begin, duration: const Duration(milliseconds: 500));
         }
         if(event.status == FeedStatus.postFeedFailed) {
-          userPostsPagingController?.itemList = event.feeds;
+          // userPostsPagingController?.itemList = event.feeds;
         }
         if(event.status == FeedStatus.postFeedSuccessful) {
-          userPostsPagingController?.itemList = event.feeds;
+          // userPostsPagingController?.itemList = event.feeds;
           context.showSnackBar("Post created", appearance: NotificationAppearance.info);
         }
         if(event.status == FeedStatus.postFeedProcessFileCompleted) {
-          userPostsPagingController?.itemList = event.feeds;
+          // userPostsPagingController?.itemList = event.feeds;
           final feed = event.data as FeedModel;
           if(mounted) {
             //! if the purpose of the video is introduction, and there's an existing video
@@ -117,7 +117,7 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
           }
         }
         if(event.status == FeedStatus.unCompletedPostsWithFeeds) {
-          userPostsPagingController?.itemList = event.feeds;
+          // userPostsPagingController?.itemList = event.feeds;
         }
     });
     authubitSubscription = authCubit.stream.listen((event) {
@@ -133,11 +133,11 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
     tabItems = [
       {
         "key": "your-posts",
-        "page": UserPostsTabViewWidget<AuthFeedsCubit>(userId: authenticatedUser?.id, builder: (controller) => userPostsPagingController = controller,)
+        "page": UserPostsTabViewWidget<AuthFeedsCubit>(userId: authenticatedUser?.id, builder: (controller) => userPostsPagingController ??= controller,)
       },
       {
         "key": "bookmarked-posts",
-        "page": BookmarkedPostsTabViewPage<AuthBookmarkedFeedsCubit>(userId: authenticatedUser?.id, builder: (controller) => userBookmarksPagingController = controller,)
+        "page": BookmarkedPostsTabViewPage<AuthBookmarkedFeedsCubit>(userId: authenticatedUser?.id, builder: (controller) => userBookmarksPagingController ??= controller,)
       },
     ];
     tabController = PageController(initialPage: 0);

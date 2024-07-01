@@ -149,7 +149,7 @@ class _FilterFeedsPageState extends State<FilterFeedsPage> {
                   pinned: true,
                   automaticallyImplyLeading: false,
                   centerTitle: false,
-                  title: Text("Filter posts", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),),
+                  title: Text("Personalize", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),),
                   actions: [
                     TextButton(onPressed: () {
                       context.popScreen();

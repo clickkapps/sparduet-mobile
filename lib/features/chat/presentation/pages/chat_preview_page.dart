@@ -352,7 +352,12 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
           appBar: AppBar(
             elevation: 0,
             iconTheme: IconThemeData(color: theme.colorScheme.onBackground),
-            title:  Text("${widget.opponent.name} ", style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),),
+            title:  GestureDetector(
+              onTap: () {
+                 context.pushToProfile(widget.opponent);
+              },
+              child: Text("${widget.opponent.name} ", style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),),
+            ),
             centerTitle: true,
             backgroundColor: theme.colorScheme.background,
             bottom: const PreferredSize(preferredSize: Size.fromHeight(1), child: CustomBorderWidget(),),

@@ -2,6 +2,7 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:separated_column/separated_column.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/models/auth_user_model.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
@@ -20,12 +21,16 @@ class UpdateAuthProfileFormWidget extends StatefulWidget {
   final bool showBio;
   final bool showAge;
   final bool showGender;
+  final bool showRace;
+  final String? title;
   const UpdateAuthProfileFormWidget({
     super.key, this.scrollController,
     this.showName = false,
     this.showBio = false,
     this.showAge = false,
     this.showGender = false,
+    this.showRace = false,
+    this.title,
     this.onComplete
   });
 
@@ -39,6 +44,7 @@ class _UpdateAuthProfileFormWidgetState extends State<UpdateAuthProfileFormWidge
   final TextEditingController bioController = TextEditingController();
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
+  final TextEditingController raceController = TextEditingController();
   late AuthCubit authCubit;
 
   @override
@@ -55,7 +61,13 @@ class _UpdateAuthProfileFormWidgetState extends State<UpdateAuthProfileFormWidge
       ageController.text = "${authUser?.info?.age}";
     }
     if((authUser?.info?.gender ?? "").isNotEmpty) {
-      genderController.text = authUser?.info?.gender ?? "";
+      final text = AppConstants.genderList.where((element) => element["key"] == (authUser?.info?.gender ?? "")).firstOrNull?["name"];
+      genderController.text = text ?? "";
+    }
+
+    if((authUser?.info?.race ?? "").isNotEmpty) {
+      final text = AppConstants.races.where((element) => element["key"] == (authUser?.info?.race ?? "")).firstOrNull?["name"];
+      raceController.text = text ?? "";
     }
     super.initState();
   }
@@ -93,7 +105,13 @@ class _UpdateAuthProfileFormWidgetState extends State<UpdateAuthProfileFormWidge
   void authStateListener(_, AuthState event) {
     if(event.status == AuthStatus.setAuthUserInfoCompleted) {
       if((event.authUser?.info?.gender ?? "").isNotEmpty) {
-        genderController.text = event.authUser?.info?.gender ?? "";
+        final text = AppConstants.genderList.where((element) => element["key"] == (event.authUser?.info?.gender ?? "")).firstOrNull?["name"];
+        genderController.text = text ?? "";
+      }
+
+      if((event.authUser?.info?.race ?? "").isNotEmpty) {
+        final text = AppConstants.races.where((element) => element["key"] == (event.authUser?.info?.race ?? "")).firstOrNull?["name"];
+        raceController.text = text ?? "";
       }
     }
   }
@@ -102,7 +120,7 @@ class _UpdateAuthProfileFormWidgetState extends State<UpdateAuthProfileFormWidge
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Update personal data", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+        title: Text(widget.title ?? "Update personal data", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: const [
@@ -150,6 +168,14 @@ class _UpdateAuthProfileFormWidgetState extends State<UpdateAuthProfileFormWidge
                   readOnly: true,
                   onTap: () => showGenderSelectorListWidget(context),
                   controller: genderController,
+                )
+              },
+              if(widget.showRace) ... {
+                CustomTextFieldWidget(
+                  label: "Your Race",
+                  readOnly: true,
+                  onTap: () => showRaceSelectorListWidget(context),
+                  controller: raceController,
                 )
               },
 

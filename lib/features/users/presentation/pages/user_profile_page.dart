@@ -79,11 +79,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
     tabItems = [
       {
         "key": "your-posts",
-        "page": UserPostsTabViewWidget<UserFeedsCubit>(userId: widget.user.id, builder: (controller) => userPostsPagingController = controller,)
+        "page": UserPostsTabViewWidget<UserFeedsCubit>(userId: widget.user.id, builder: (controller) => userPostsPagingController ??= controller,)
       },
       {
         "key": "bookmarked-posts",
-        "page": BookmarkedPostsTabViewPage<UserBookmarkedFeedsCubit>(userId: widget.user.id,  builder: (controller) => userBookmarksPagingController = controller,)
+        "page": BookmarkedPostsTabViewPage<UserBookmarkedFeedsCubit>(userId: widget.user.id,  builder: (controller) => userBookmarksPagingController ??= controller,)
       },
     ];
     tabController = PageController(initialPage: 0);

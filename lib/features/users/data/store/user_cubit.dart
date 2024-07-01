@@ -92,7 +92,6 @@ class UserCubit extends Cubit<UserState> {
     socketConnectionRepository.realtimeInstance?.channels.get("public:user.online.status-changed")
         .subscribe().listen((event) {
       final data = event.data as Map<Object?, Object?>;
-      final status = data['status'] as String;
       final idsObjs = data['ids'] as List<Object?>;
       final ids = convertToIntList(idsObjs);
       final activeIds = ids.where((e) => e  != authUser?.id).toList();

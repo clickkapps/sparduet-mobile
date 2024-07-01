@@ -66,8 +66,8 @@ class _BookmarkedPostsTabViewPageState<C extends FeedsCubit> extends State<Bookm
         context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
       });
     }, builder: (controller) {
+      pagingController ??= controller;
       widget.builder?.call(controller);
-      pagingController = controller;
     },
       padding: const EdgeInsets.symmetric(horizontal: 15),
       crossAxisSpacing: 3,

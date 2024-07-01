@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sparkduet/core/app_assets.dart';
 import 'package:sparkduet/core/app_extensions.dart';
-import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
+import 'package:sparkduet/features/auth/presentation/mixin/auth_mixin.dart';
 import 'package:sparkduet/features/users/data/models/user_disciplinary_record_model.dart';
 import 'package:sparkduet/features/users/data/store/enums.dart';
 import 'package:sparkduet/features/users/data/store/user_cubit.dart';
@@ -19,7 +19,7 @@ class UserAccountBannedPage extends StatefulWidget {
   State<UserAccountBannedPage> createState() => _UserAccountBannedPageState();
 }
 
-class _UserAccountBannedPageState extends State<UserAccountBannedPage> with PreferencesMixin {
+class _UserAccountBannedPageState extends State<UserAccountBannedPage> with AuthMixin {
 
   late UserCubit userCubit;
   @override

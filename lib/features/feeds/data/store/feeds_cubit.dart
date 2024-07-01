@@ -115,7 +115,9 @@ class FeedsCubit extends Cubit<FeedState> {
         existingFeeds.insert(0, newFeed);
       }
 
-      emit(state.copyWith(status: FeedStatus.postFeedInProgress, feeds: existingFeeds));
+      refreshList(updatedFeeds: existingFeeds);
+      emit(state.copyWith(status: FeedStatus.postFeedInProgress));
+
     }
 
     void updatePostId(int postId) {
@@ -124,10 +126,11 @@ class FeedsCubit extends Cubit<FeedState> {
       if(existingTempFeedIndex > -1) {
         existingFeeds[existingTempFeedIndex] = existingFeeds[existingTempFeedIndex].copyWith(
           id: postId,
-          status: null
+          // status: null
         );
       }
-      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, feeds: existingFeeds, data: {"feed": existingFeeds[existingTempFeedIndex]}));
+      refreshList(updatedFeeds: existingFeeds);
+      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, data: {"feed": existingFeeds[existingTempFeedIndex]}));
     }
 
     ///! function to set post as failed
@@ -135,15 +138,19 @@ class FeedsCubit extends Cubit<FeedState> {
       final existingFeeds = <FeedModel>[...state.feeds];
       final postIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
       existingFeeds[postIndex] = existingFeeds[postIndex].copyWith(status: "failed");
-      emit(state.copyWith(status: FeedStatus.postFeedFailed, message: error, feeds: existingFeeds));
+      refreshList(updatedFeeds: existingFeeds);
+      emit(state.copyWith(status: FeedStatus.postFeedFailed, message: error));
     }
 
     ///! set Post as successful
     void setCompleted(FeedModel feed) {
       final existingFeeds = <FeedModel>[...state.feeds];
       final postIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
-      existingFeeds[postIndex] = feed;
-      emit(state.copyWith(status: FeedStatus.postFeedProcessFileCompleted, feeds: existingFeeds, data: feed));
+      if(postIndex > -1) {
+        existingFeeds[postIndex] = feed;
+      }
+      refreshList(updatedFeeds: existingFeeds);
+      emit(state.copyWith(status: FeedStatus.postFeedProcessFileCompleted, data: feed));
     }
 
     //! update ui as loading image
@@ -186,7 +193,8 @@ class FeedsCubit extends Cubit<FeedState> {
       mediaFile =  MediaModel(path: imagePath, type:  mediaType, assetId: imagePath);
 
 
-    } else {
+    }
+    else {
 
       ///! Video section
       ///
@@ -235,10 +243,10 @@ class FeedsCubit extends Cubit<FeedState> {
 
 
     final uncompletedFeeds = state.feeds.where((element) => element.id == null).toList();
-    if(uncompletedFeeds.isNotEmpty && pageKey == 1) {
-      emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
-      emit(state.copyWith(status: FeedStatus.unCompletedPostsWithFeeds, feeds: state.feeds));
-    }
+    // if(uncompletedFeeds.isNotEmpty && pageKey == 1) {
+    //   emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
+    //   emit(state.copyWith(status: FeedStatus.unCompletedPostsWithFeeds, feeds: state.feeds));
+    // }
 
     // return cached items
     // if(returnExistingFeedsForFirstPage) {
@@ -258,12 +266,14 @@ class FeedsCubit extends Cubit<FeedState> {
       return (l, null);
     }
 
-    final newItems = either.asRight();
+    var newItems = either.asRight();
     final List<FeedModel> feeds = <FeedModel>[...state.feeds];
     if(pageKey == 1){
       // if its first page request remove all existing threads
       feeds.clear();
-      feeds.addAll(uncompletedFeeds);
+      if(uncompletedFeeds.isNotEmpty) {
+        newItems = <FeedModel>[...uncompletedFeeds, ...newItems];
+      }
     }
     feeds.addAll(newItems);
 

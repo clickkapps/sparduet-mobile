@@ -56,14 +56,14 @@ class SubscriptionRepository {
     try {
 
       //todo removed Simulated subscription
-      await Future.delayed(const Duration(seconds: 2));
-      return const Right(true);
+      // await Future.delayed(const Duration(seconds: 2));
+      // return const Right(true);
 
-      // final customerInfo = await Purchases.purchasePackage(package);
-      // if (customerInfo.entitlements.all["premium"]?.isActive ?? false) {
-      //   return const Right(true);
-      // }
-      // return   const Right(false);
+      final customerInfo = await Purchases.purchasePackage(package);
+      if (customerInfo.entitlements.all["premium"]?.isActive ?? false) {
+        return const Right(true);
+      }
+      return   const Right(false);
 
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);

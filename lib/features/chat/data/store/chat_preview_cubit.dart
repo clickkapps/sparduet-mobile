@@ -260,6 +260,11 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
 
   }
 
+  void clearMessages() {
+     chatRepository.clearChatMessages();
+     clearPreviewState();
+  }
+
 
 
 

@@ -309,6 +309,67 @@ class AuthRepository {
 
   }
 
+  Future<Either<String, bool>> shouldPromptAuthUserToUpdateBasicInfo() async {
+
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      final path = AppApiRoutes.shouldPromptAuthUserToUpdateBasicInfo;
+
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.get,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        final data = response.data["extra"] as bool;
+        return  Right(data);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
+
+  }
+
+  Future<Either<String, void>> setPromptBasicInfoCompleted() async {
+
+    try {
+
+      // by default it fetches the current loggedIn User Profile
+      final path = AppApiRoutes.setPromptBasicInfoCompleted;
+
+      final response = await networkProvider.call(
+        path: path,
+        method: RequestMethod.get,
+      );
+
+      if (response!.statusCode == 200) {
+
+        if(!(response.data["status"] as bool)){
+          return Left(response.data["message"] as String);
+        }
+
+        return  const Right(null);
+
+      } else {
+        return Left(response.statusMessage ?? "");
+      }
+
+    }  catch (e) {
+      return Left(e.toString());
+    }
+
+  }
+
 
   Future<Either<String, AuthUserNoticeModel>> getUserNotice() async {
 

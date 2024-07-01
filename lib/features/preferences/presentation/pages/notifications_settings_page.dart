@@ -127,33 +127,33 @@ class _NotificationsSettingsPageState extends State<NotificationsSettingsPage> {
                                 ),
                               ),
 
-                              // GestureDetector(
-                              //   onTap: () {
-                              //     final value = !preferencesCubit.state.enableStoryViewsNotifications;
-                              //     preferencesCubit.updateUserSettings(payload: {"enable_story_views_notifications": value ? 1 : 0 });
-                              //   },
-                              //   behavior: HitTestBehavior.opaque,
-                              //   child: Container(
-                              //     padding: const EdgeInsets.symmetric(vertical: 10),
-                              //     child:  Row(
-                              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              //       children: [
-                              //         const Expanded(child: Text("Enable viewed stories notifications")),
-                              //         const SizedBox(width: 10,),
-                              //         SizedBox(
-                              //           width: 40,
-                              //           child: FittedBox(
-                              //             fit: BoxFit.contain,
-                              //             child: CupertinoSwitch(
-                              //               value: prefState.enableStoryViewsNotifications,
-                              //               onChanged: (bool value) { preferencesCubit.updateUserSettings(payload: {"enable_story_views_notifications": value ? 1 : 0}); },
-                              //             ),
-                              //           ),
-                              //         )
-                              //       ],
-                              //     ),
-                              //   ),
-                              // ),
+                              GestureDetector(
+                                onTap: () {
+                                  final value = !preferencesCubit.state.enableStoryViewsNotifications;
+                                  preferencesCubit.updateUserSettings(payload: {"enable_story_likes_notifications": value ? 1 : 0 });
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  child:  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Expanded(child: Text("Enable liked posts notifications")),
+                                      const SizedBox(width: 10,),
+                                      SizedBox(
+                                        width: 40,
+                                        child: FittedBox(
+                                          fit: BoxFit.contain,
+                                          child: CupertinoSwitch(
+                                            value: prefState.enableStoryViewsNotifications,
+                                            onChanged: (bool value) { preferencesCubit.updateUserSettings(payload: {"enable_story_likes_notifications": value ? 1 : 0}); },
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
 
                             ],
                           ),

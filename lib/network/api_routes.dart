@@ -30,6 +30,8 @@ class AppApiRoutes {
   static String fetchUnreadProfileViewers = "$baseApiUrl/user/fetch-unread-profile-viewers";
   static String countUnreadProfileViewers = "$baseApiUrl/user/count-unread-profile-views";
   static String getUserNotice = "$baseApiUrl/user/get-notice";
+  static String shouldPromptAuthUserToUpdateBasicInfo = "$baseApiUrl/auth/should-prompt-basic-info-update";
+  static String setPromptBasicInfoCompleted = "$baseApiUrl/auth/basic-info-prompted";
   static String markNoticeAsRead = "$baseApiUrl/user/mark-notice-as-read";
   static String reportUser = "$baseApiUrl/user/report-user";
   static String blockUser = "$baseApiUrl/user/block-user";

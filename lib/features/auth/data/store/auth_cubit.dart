@@ -119,6 +119,31 @@ class AuthCubit extends Cubit<AuthState> {
 
   }
 
+  Future<bool> shouldPromptAuthUserToUpdateBasicInfo() async {
+    emit(state.copyWith(status: AuthStatus.shouldPromptAuthUserToUpdateBasicInfoInProgress));
+    final either = await authRepository.shouldPromptAuthUserToUpdateBasicInfo();
+    if(either.isLeft()) {
+      final l = either.asLeft();
+      emit(state.copyWith(status: AuthStatus.shouldPromptAuthUserToUpdateBasicInfoFailed, message: l));
+      return false;
+    }
+
+    final r = either.asRight();
+    emit(state.copyWith(status: AuthStatus.shouldPromptAuthUserToUpdateBasicInfoSuccessful));
+    return r;
+  }
+
+  void setPromptBasicInfoCompleted() async {
+    emit(state.copyWith(status: AuthStatus.setPromptBasicInfoCompletedInProgress));
+    final either = await authRepository.setPromptBasicInfoCompleted();
+    if(either.isLeft()) {
+      final l = either.asLeft();
+      emit(state.copyWith(status: AuthStatus.setPromptBasicInfoCompletedFailed, message: l));
+      return;
+    }
+    emit(state.copyWith(status: AuthStatus.setPromptBasicInfoCompletedSuccessful));
+  }
+
   void setupAuthUserLocation() async {
     emit(state.copyWith(status: AuthStatus.setupAuthUserLocationInProgress));
     final either = await authRepository.determinePosition();

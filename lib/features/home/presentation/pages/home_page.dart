@@ -19,6 +19,7 @@ import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_injector.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
 import 'package:sparkduet/features/auth/presentation/mixin/auth_profile_mixin.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
@@ -37,7 +38,7 @@ import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/home/data/repositories/socket_connection_repository.dart';
 import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
-import 'package:sparkduet/features/preferences/presentation/ui_mixins/preferences_mixin.dart';
+import 'package:sparkduet/features/auth/presentation/mixin/auth_mixin.dart';
 import 'package:sparkduet/features/search/data/store/search_cubit.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/users/data/models/user_disciplinary_record_model.dart';
@@ -60,15 +61,15 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver, PreferencesMixin {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMixin, AuthUIMixin {
 
   int activeIndex = 0;
   late NavCubit navCubit;
-  late FeedsCubit feedsCubit;
+  late AuthFeedsCubit authFeedsCubit;
   late AuthCubit authCubit;
   late UserCubit userCubit;
   StreamSubscription? navCubitStreamSubscription;
-  StreamSubscription? feedsCubitStreamSubscription;
+  StreamSubscription? authFeedsCubitStreamSubscription;
   StreamSubscription? cubeChatConnectionStateStream;
   AppLifecycleState? appState;
   final newVersion = NewVersionPlus();
@@ -77,7 +78,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
   void initState() {
     navCubit = context.read<NavCubit>();
     authCubit = context.read<AuthCubit>();
-    feedsCubit = context.read<FeedsCubit>();
+    authFeedsCubit = context.read<AuthFeedsCubit>();
     userCubit = context.read<UserCubit>();
     navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChangeRequested) {
@@ -110,8 +111,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
       }
     });
 
-    feedsCubitStreamSubscription = feedsCubit.stream.listen((event) {
-      if(event.status == FeedStatus.postFeedSuccessful) {
+    authFeedsCubitStreamSubscription = authFeedsCubit.stream.listen((event) async {
+
+      if(event.status == FeedStatus.postFeedSuccessful){
+          // check if we should as user to update bio
+          promptUserToUpdatePersonalData();
+      }
+
+      if(event.status == FeedStatus.postFeedProcessFileCompleted) {
         final data = event.data as Map<String, dynamic>;
         // Post has just been created by he user
 
@@ -127,7 +134,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
 
       }
       if(event.status == FeedStatus.postFeedFailed) {
-        context.showSnackBar(event.message, appearance: NotificationAppearance.error);
+        if(mounted){
+          context.showSnackBar(event.message, appearance: NotificationAppearance.error);
+        }
+
       }
     });
 
@@ -142,7 +152,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
   @override
   void dispose() {
     navCubitStreamSubscription?.cancel();
-    feedsCubitStreamSubscription?.cancel();
+    authFeedsCubitStreamSubscription?.cancel();
     cubeChatConnectionStateStream?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -265,6 +275,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
 
   }
 
+  void promptUserToUpdatePersonalData() async{
+    final prompt = await context.read<AuthCubit>().shouldPromptAuthUserToUpdateBasicInfo();
+    if(prompt && mounted) {
+      showAuthProfileUpdateModal(context, showName: true, showAge: true, showBio: true, showGender: true, showRace: true, title: "Let's update your bio now").then((value) {
+        context.read<AuthCubit>().setPromptBasicInfoCompleted();
+      });
+    }
+  }
+
   /// Listen for push notifications section -----
   void listenForPushNotifications() {
 
@@ -372,95 +391,102 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Prefer
 
   }
 
-  void promptUserToUpdateApp() async {
-    final versionStatus = await newVersion.getVersionStatus();
-    debugPrint("versionStatus?.canUpdate ${versionStatus?.canUpdate}"); // (true)
-    debugPrint("versionStatus?.localVersion ${versionStatus?.localVersion}"); // // (1.2.1)
-    debugPrint("versionStatus?.storeVersion ${versionStatus?.storeVersion}"); // (1.2.3)
-    debugPrint("versionStatus?.appStoreLink ${versionStatus?.appStoreLink}"); // (https://itunes.apple.com/us/app/google/id284815942?mt=8)
+  Future<void> promptUserToUpdateApp() async {
+    try{
+      final versionStatus = await newVersion.getVersionStatus();
+      debugPrint("versionStatus?.canUpdate ${versionStatus?.canUpdate}"); // (true)
+      debugPrint("versionStatus?.localVersion ${versionStatus?.localVersion}"); // // (1.2.1)
+      debugPrint("versionStatus?.storeVersion ${versionStatus?.storeVersion}"); // (1.2.3)
+      debugPrint("versionStatus?.appStoreLink ${versionStatus?.appStoreLink}"); // (https://itunes.apple.com/us/app/google/id284815942?mt=8)
 
-    //&& versionStatus.canUpdate
-    if(versionStatus != null && versionStatus.canUpdate) {
+      //&& versionStatus.canUpdate
+      if(versionStatus != null && versionStatus.canUpdate) {
 
-      final remoteConfig = FirebaseRemoteConfig.instance;
-      await remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(minutes: 1),
-        // minimumFetchInterval: kReleaseMode ? const Duration(hours: 1) : const Duration(seconds: 1),
-        minimumFetchInterval: const Duration(hours: 1),
-      ));
+        final remoteConfig = FirebaseRemoteConfig.instance;
+        await remoteConfig.setConfigSettings(RemoteConfigSettings(
+          fetchTimeout: const Duration(minutes: 1),
+          // minimumFetchInterval: kReleaseMode ? const Duration(hours: 1) : const Duration(seconds: 1),
+          minimumFetchInterval: const Duration(hours: 1),
+        ));
 
-      var storeVersionAndroid = versionStatus.storeVersion;
-      var storeVersionIOS = versionStatus.storeVersion;
-      var  releaseNotesAndroid ="Get the latest version of the app";
-      var releaseNotesIOS = "Get the latest version of the app";
-      var forceUpdateAndroid = false;
-      var forceUpdateIOS = false;
+        var storeVersionAndroid = versionStatus.storeVersion;
+        var storeVersionIOS = versionStatus.storeVersion;
+        var  releaseNotesAndroid ="Get the latest version of the app";
+        var releaseNotesIOS = "Get the latest version of the app";
+        var forceUpdateAndroid = false;
+        var forceUpdateIOS = false;
 
-      await remoteConfig.setDefaults( {
-        "storeVersionAndroid": storeVersionAndroid,
-        "storeVersionIOS": storeVersionIOS,
-        "releaseNotesAndroid": releaseNotesAndroid,
-        "releaseNotesIOS": releaseNotesIOS,
-        "forceUpdateAndroid": forceUpdateAndroid,
-        "forceUpdateIOS": forceUpdateIOS
-      });
+        await remoteConfig.setDefaults( {
+          "storeVersionAndroid": storeVersionAndroid,
+          "storeVersionIOS": storeVersionIOS,
+          "releaseNotesAndroid": releaseNotesAndroid,
+          "releaseNotesIOS": releaseNotesIOS,
+          "forceUpdateAndroid": forceUpdateAndroid,
+          "forceUpdateIOS": forceUpdateIOS
+        });
 
-      await remoteConfig.ensureInitialized();
-      await remoteConfig.fetchAndActivate();
+        await remoteConfig.ensureInitialized();
+        await remoteConfig.fetchAndActivate();
 
-      if(!mounted){
-        return;
-      }
-
-      storeVersionAndroid = remoteConfig.getString("storeVersionAndroid");
-      storeVersionIOS = remoteConfig.getString("storeVersionIOS");
-      releaseNotesAndroid = remoteConfig.getString("releaseNotesAndroid");
-      releaseNotesIOS = remoteConfig.getString("releaseNotesIOS");
-      forceUpdateAndroid = remoteConfig.getBool("forceUpdateAndroid");
-      forceUpdateIOS = remoteConfig.getBool("forceUpdateIOS");
-
-      if(Platform.isAndroid) {
-
-        if(storeVersionAndroid == versionStatus.storeVersion) {
-          // remote config for the latest update and description
-          context.showConfirmDialog(title: 'Update available',
-            subtitle: releaseNotesAndroid,
-            showCancelButton: forceUpdateAndroid ? false : true,
-            isDismissible: forceUpdateAndroid ? false : true,
-            showCloseButton: forceUpdateAndroid ? false : true,
-            confirmAction: "Update",
-            onConfirmTapped: () async {
-
-              _openStore();
-
-            },
-          );
+        if(!mounted){
+          return;
         }
 
-      }else if(Platform.isIOS) {
+        storeVersionAndroid = remoteConfig.getString("storeVersionAndroid");
+        storeVersionIOS = remoteConfig.getString("storeVersionIOS");
+        releaseNotesAndroid = remoteConfig.getString("releaseNotesAndroid");
+        releaseNotesIOS = remoteConfig.getString("releaseNotesIOS");
+        forceUpdateAndroid = remoteConfig.getBool("forceUpdateAndroid");
+        forceUpdateIOS = remoteConfig.getBool("forceUpdateIOS");
 
-        if(storeVersionIOS == versionStatus.storeVersion) {
+        if(Platform.isAndroid) {
 
-          // remote config for the latest update and description
-          context.showConfirmDialog(title: 'Update available',
-            subtitle: releaseNotesIOS,
-            isDismissible: forceUpdateIOS ? false : true,
-            showCancelButton: forceUpdateIOS ? false : true,
-            showCloseButton: forceUpdateIOS ? false : true,
-            confirmAction: "Update",
-            onConfirmTapped: () async {
+          if(storeVersionAndroid == versionStatus.storeVersion) {
+            // remote config for the latest update and description
+            context.showConfirmDialog(title: 'Update available',
+              subtitle: releaseNotesAndroid,
+              showCancelButton: forceUpdateAndroid ? false : true,
+              isDismissible: forceUpdateAndroid ? false : true,
+              showCloseButton: forceUpdateAndroid ? false : true,
+              confirmAction: "Update",
+              onConfirmTapped: () async {
 
-              _openStore();
+                _openStore();
 
-            },
-          );
+              },
+            );
+          }
+
+        }else if(Platform.isIOS) {
+
+          if(storeVersionIOS == versionStatus.storeVersion) {
+
+            // remote config for the latest update and description
+            context.showConfirmDialog(title: 'Update available',
+              subtitle: releaseNotesIOS,
+              isDismissible: forceUpdateIOS ? false : true,
+              showCancelButton: forceUpdateIOS ? false : true,
+              showCloseButton: forceUpdateIOS ? false : true,
+              confirmAction: "Update",
+              onConfirmTapped: () async {
+
+                _openStore();
+
+              },
+            );
+
+          }
+
 
         }
 
 
       }
-
-
+      else{
+        promptUserToUpdatePersonalData();
+      }
+    }catch(e) {
+      promptUserToUpdatePersonalData();
     }
 
   }

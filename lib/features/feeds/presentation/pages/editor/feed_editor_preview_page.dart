@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:file_picker/file_picker.dart';
@@ -13,6 +14,8 @@ import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
+import 'package:sparkduet/features/feeds/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_image_preview_widget.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_editor_video_preview_widget.dart';
@@ -45,6 +48,8 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
   double? _startVideoDuration;
   double? _endVideoDuration;
   bool additionalInfoSeen = false;
+  late StreamSubscription streamSubscription;
+  late FeedsCubit feedsCubit;
 
 
   @override
@@ -53,11 +58,20 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
     if(widget.feedPurpose != null) {
       descriptionTextEditingController.text = widget.feedPurpose?.description ?? "";
     }
+    feedsCubit = context.read<AuthFeedsCubit>();
+    streamSubscription = feedsCubit.stream.listen((event) {
+      if(event.status == FeedStatus.postFeedSuccessful) {
+      }
+      if(event.status == FeedStatus.postFeedFailed) {
+        // context.showSnackBar(event.message, appearance: NotificationAppearance.error);
+      }
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    streamSubscription.cancel();
     super.dispose();
   }
 
@@ -125,7 +139,9 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
                                     placeHolder: "eg. I'm the sweetest person ever",
                                   ),
                                   const SizedBox(height: 10,),
-                                  CustomButtonWidget(text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', onPressed: () => validateAndPostFeedHandler(context), expand: true,)
+                                  CustomButtonWidget(
+                                    text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', onPressed: () => validateAndPostFeedHandler(context), expand: true,
+                                  )
                                 ],
                               ),
                             ),
@@ -203,6 +219,8 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
           onSave: (String? outputPath) {
             if (outputPath != null) {
               onSuccess?.call(File(outputPath));
+            }else {
+              context.showSnackBar("Sorry!, This video couldn't be trimmed.");
             }
           });
     }
@@ -317,7 +335,10 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
                   children: [
                     Expanded(child: CustomButtonWidget(onPressed: () => showVideoInfoHandler(context), text: "Add info", appearance: ButtonAppearance.secondary, expand: true,)),
                     const SizedBox(width: 10,),
-                    Expanded(child: CustomButtonWidget(onPressed: () => validateAndPostFeedHandler(context), text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', appearance: ButtonAppearance.primary, expand: true,)),
+                    Expanded(child: CustomButtonWidget(
+                      onPressed: () => validateAndPostFeedHandler(context), text: 'Post ${ widget.fileType == FileType.video ? "video": "photo"}', appearance: ButtonAppearance.primary, expand: true,
+                    )
+                    ),
                   ],
                 ),
               ),

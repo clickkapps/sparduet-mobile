@@ -197,15 +197,15 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                   );
                 },)
               },
-
-              IgnorePointer(
-                ignoring: true,
-                child: Container(
-                  width: double.maxFinite,
-                  height: double.maxFinite,
-                  color: AppColors.black.withOpacity(0.3),
-                ),
-              ),
+              //
+              // IgnorePointer(
+              //   ignoring: true,
+              //   child: Container(
+              //     width: double.maxFinite,
+              //     height: double.maxFinite,
+              //     color: AppColors.black.withOpacity(0.3),
+              //   ),
+              // ),
 
 
               Align(

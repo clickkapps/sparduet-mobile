@@ -34,7 +34,10 @@ class CustomNetworkImageWidget extends StatelessWidget {
       height: height,
       progressIndicatorBuilder: (context, url, downloadProgress) => progressChild ??
           const Center(child: CupertinoActivityIndicator(),),
-      errorWidget: (context, url, error) => errorChild ?? const Center(child: Icon(Icons.error_outline),),
+      errorWidget: (context, url, error) {
+        debugPrint("Error image url = $imageUrl");
+        return errorChild ?? const Center(child: Icon(Icons.error_outline),);
+      },
     );
   }
 }

@@ -46,7 +46,6 @@ class UncompletedUserPostItem extends StatelessWidget {
 
               if(post.mediaType == FileType.image) ... {
 
-
                 CustomImagePlayerWidget(
                   imageUrl: post.mediaPath ?? "",
                   audioUrl: AppConstants.defaultAudioLink,
@@ -64,14 +63,14 @@ class UncompletedUserPostItem extends StatelessWidget {
                   alignment: Alignment.bottomLeft,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Posting...", maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.darkColorScheme.onBackground,fontSize: 12),),
+                    child: Text("Processing...", maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.darkColorScheme.onBackground,fontSize: 12),),
                   ),
                 ),
-                ColoredBox(color: AppColors.darkColorScheme.background.withOpacity(0.3),
-                  child: const Center(
-                    child: CustomAdaptiveCircularIndicator(),
-                  ),
-                )
+                // ColoredBox(color: AppColors.darkColorScheme.background.withOpacity(0.3),
+                //   child: const Center(
+                //     child: CustomAdaptiveCircularIndicator(),
+                //   ),
+                // )
               },
 
               if(post.status == "failed") ... {

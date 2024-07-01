@@ -10,7 +10,7 @@ import 'package:sparkduet/features/auth/presentation/widgets/update_auth_profile
 import 'package:sparkduet/features/users/data/models/user_info_model.dart';
 
 mixin AuthUIMixin {
-    void showAuthProfileUpdateModal(BuildContext context, {bool showName = false, bool showBio = false, bool showAge = false, bool showGender = false}) {
+    Future<void> showAuthProfileUpdateModal(BuildContext context, {bool showName = false, bool showBio = false, bool showAge = false, bool showGender = false, bool showRace = false, String? title}) {
       final ch = GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.pop(context),
@@ -22,6 +22,8 @@ mixin AuthUIMixin {
               return ClipRRect(
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
                 child: UpdateAuthProfileFormWidget(showName: showName, showBio: showBio, showAge: showAge, showGender: showGender,
+                  showRace: showRace,
+                  title: title,
                   scrollController: controller,
                   onComplete: () => context.popScreen(),),
               );
@@ -29,7 +31,7 @@ mixin AuthUIMixin {
         ),
       );
 
-      context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+      return context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
     }
 
 
