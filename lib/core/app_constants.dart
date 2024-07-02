@@ -25,7 +25,12 @@ abstract final class AppConstants {
   // static String videoMediaPath({required mediaId}) => "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/$mediaId.mp4";
   // static String imageMediaPath({required mediaId}) => "https://res.cloudinary.com/dhhyl4ygy/image/upload/f_auto,q_auto/v1/sparkduet/$mediaId";
   static String videoMediaPath({required String playbackId}) => "https://stream.mux.com/$playbackId.m3u8";
-  static String imageMediaPath({required String mediaId}) => "https://d2e46virtl8cds.cloudfront.net/$mediaId";
+  static String imageMediaPath({required String mediaId}) {
+    if(mediaId.isEmpty) {
+      return '';
+    }
+    return "https://d2e46virtl8cds.cloudfront.net/$mediaId";
+  }
   static String audioMediaPath({required String mediaId}) => "https://d2e46virtl8cds.cloudfront.net/$mediaId";
   static String thumbnailMediaPath({required String mediaId}) => "https://image.mux.com/$mediaId/thumbnail.png";
   static String defaultAudioLink = "https://d2e46virtl8cds.cloudfront.net/track_1.mp3";

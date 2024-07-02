@@ -63,7 +63,7 @@ class ChatMessageModel extends Equatable {
   @JsonKey(name: "seen_at")
   final DateTime? seenAt;
 
-  final File? attachedImageFile;
+  final String? attachedImageFilePath;
 
   const ChatMessageModel({
     this.id,
@@ -79,7 +79,7 @@ class ChatMessageModel extends Equatable {
     this.deletedAt,
     this.deliveredAt,
     this.seenAt,
-    this.attachedImageFile
+    this.attachedImageFilePath
   });
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) => _$ChatMessageModelFromJson(json);

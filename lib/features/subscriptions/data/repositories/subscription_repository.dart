@@ -42,7 +42,7 @@ class SubscriptionRepository {
 
       final offerings = await Purchases.getOfferings();
       debugPrint("All offerings => $offerings");
-      final offering = offerings.getOffering("sale-v2");
+      final offering = offerings.getOffering("sale-v3");
       return  Right(offering);
 
     }catch(e){
@@ -67,9 +67,13 @@ class SubscriptionRepository {
 
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
-      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
         // purchase was cancelled
         return const Left("Purchase cancelled");
+      }
+      if (errorCode == PurchasesErrorCode.productAlreadyPurchasedError) {
+        // purchase was cancelled
+        return  const Right(true);
       }
       return const Left("Purchase cancelled");
     }

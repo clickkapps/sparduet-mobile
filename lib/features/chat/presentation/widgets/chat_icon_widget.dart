@@ -45,9 +45,10 @@ class _ChatIconWidgetState extends State<ChatIconWidget> {
               Positioned(right: -5, top: -3,child: Container(
                 width: 17,
                 height: 17,
+                padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppColors.buttonBlue,
+                    color: theme.colorScheme.error,
                 ),
                 child: Center(
                   child: FittedBox(fit: BoxFit.scaleDown,child: Text("$unreadMessages", style: const TextStyle(fontSize: 12, color: Colors.white),),),

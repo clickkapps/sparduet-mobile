@@ -172,6 +172,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     context.read<ChatConnectionsCubit>().fetchSuggestedChatUsers();
     context.read<PreferencesCubit>().fetchUserSettings();
     promptUserToSubscribeToPushNotification(authUser?.username ?? "");
+    listenForPushNotifications();
     context.read<UserCubit>().addOnlineUser(userId: authUser?.id); // set user as online
     context.read<UserCubit>().getDisciplinaryRecord(userId: authUser?.id);
     context.read<HomeCubit>().initializeSocketConnection().then((value) {
@@ -368,8 +369,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
             final currentUser = context.read<AuthCubit>().state.authUser;
             if(currentUser == null) {return;}
             // go to chat preview page
-            final chatId = data["chatConnectionId"] as int;
-            final chatConnection = await context.read<ChatConnectionsCubit>().getChatConnectionById(chatConnectionId: chatId);
+            final chatIdString = data["chatConnectionId"] as String;
+            final chatId = int.tryParse(chatIdString);
+            if(chatId == null) { return; }
+            final chatConnection = await context.read<ChatConnectionsCubit>().getChatConnectionById(chatConnectionId: chatId.toInt());
             if(chatConnection == null) {return;}
             final otherParticipant = chatConnection.participants?.where((participant) => participant.id != currentUser.id).firstOrNull;
             if(otherParticipant == null) {return;}

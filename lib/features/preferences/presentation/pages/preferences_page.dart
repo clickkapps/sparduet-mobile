@@ -226,6 +226,8 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, AuthM
                            trailing: Text(state.subscribed ? "Paid" : "Free", style: theme.textTheme.bodyMedium?.copyWith(color: state.subscribed ? null : AppColors.buttonBlue),),
                            onTap: () {
                              if(state.subscribed) {
+                               // const url = 'http://play.google.com/store/account/subscriptions';
+                               // launchBrowser(url);
                                final store = Platform.isAndroid ? "Play Store" : "App Store";
                                context.showSnackBar("You are currently on the paid subscription. To unsubscribe, kindly visit your $store. Thanks");
                                return;

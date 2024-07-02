@@ -40,7 +40,9 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   String? unreadMessagesUpdatedFromServerChannelId;
   String? deletedMessagesFromServerChannelId;
   ChatPreviewCubit({required this.fileRepository ,required this.chatRepository, required this.chatBroadcastRepository,  required this.socketConnectionRepository}): super(const ChatPreviewState());
-
+  void clearState() {
+    emit(const ChatPreviewState());
+  }
   void setAuthenticatedUser(AuthUserModel? authUser) => authenticatedUser = authUser;
   void setServerPushChannels({required int? connectionId, required int? opponentId}) {
     messageCreatedFromServerChannelId = "connections.$connectionId.messages.${authenticatedUser?.id}.created";
@@ -289,7 +291,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
       sentToId: sentTo.id,
       parent: parent,
       deliveredAt: DateTime.now(),
-      attachedImageFile: attachedImageFile
+      attachedImageFilePath: attachedImageFile?.path
     );
 
     ///! Optimistic add message to messages --

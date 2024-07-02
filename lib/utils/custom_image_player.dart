@@ -2,21 +2,22 @@ import 'dart:io';
 // import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:sparkduet/core/app_audio_service.dart';
 import 'package:sparkduet/utils/custom_network_image_widget.dart';
 
 enum ImageSource { file, network, asset }
-enum AudioSource { file, network }
+enum AppAudioSource { file, network }
 class CustomImagePlayerWidget extends StatefulWidget {
 
   final String imageUrl;
   final String audioUrl;
   final ImageSource imageSource;
-  final AudioSource audioSource;
+  final AppAudioSource audioSource;
   final BoxFit? fit;
   final bool loop;
   final bool animate;
-  final Function(void)? builder;
+  final Function(AudioPlayer)? builder;
   final bool autoPlay;
   const CustomImagePlayerWidget({super.key, required this.imageUrl, this.builder,
     required this.audioUrl,
@@ -35,6 +36,7 @@ class CustomImagePlayerWidget extends StatefulWidget {
 class _CustomImagePlayerWidgetState extends State<CustomImagePlayerWidget> with SingleTickerProviderStateMixin  {
 
   // final assetsAudioPlayer = AssetsAudioPlayer();
+  final player = AudioPlayer();
 
 
   @override
@@ -55,37 +57,42 @@ class _CustomImagePlayerWidgetState extends State<CustomImagePlayerWidget> with 
 
     // try {
     //
-    //   if(widget.audioSource == AudioSource.file) {
-    //     await assetsAudioPlayer.open(
-    //         Audio.file(widget.audioUrl),
-    //         autoStart: false,
-    //         loopMode: widget.loop ? LoopMode.single : LoopMode.none
-    //     );
-    //   }
-    //   else if (widget.audioSource == AudioSource.network) {
-    //
-    //     // See if you can get the cached version
-    //     final file = await AppAudioService.getAudioLocalFile(widget.audioUrl);
-    //      if(file != null) {
-    //        await assetsAudioPlayer.open(
-    //            Audio.file(widget.audioUrl),
-    //            autoStart: false,
-    //            loopMode: widget.loop ? LoopMode.single : LoopMode.none
-    //        );
-    //      }else {
-    //        await assetsAudioPlayer.open(
-    //            Audio.network(widget.audioUrl),
-    //            autoStart: false,
-    //            loopMode: widget.loop ? LoopMode.single : LoopMode.none
-    //        );
-    //      }
-    //
-    //   }
-    //
-    //   widget.builder?.call(assetsAudioPlayer);
-    //   if(widget.autoPlay) {
-    //     assetsAudioPlayer.play();
-    //   }
+      if(widget.audioSource == AppAudioSource.file) {
+        // await assetsAudioPlayer.open(
+        //     Audio.file(widget.audioUrl),
+        //     autoStart: false,
+        //     loopMode: widget.loop ? LoopMode.single : LoopMode.none
+        // );
+        await player.setFilePath(widget.audioUrl, preload: true);
+      }
+      else if (widget.audioSource == AppAudioSource.network) {
+
+        // See if you can get the cached version
+        final file = await AppAudioService.getAudioLocalFile(widget.audioUrl);
+         if(file != null) {
+           // await assetsAudioPlayer.open(
+           //     Audio.file(widget.audioUrl),
+           //     autoStart: false,
+           //     loopMode: widget.loop ? LoopMode.single : LoopMode.none
+           // );
+          await player.setFilePath(file.path, preload: true);
+         }else {
+           // await assetsAudioPlayer.open(
+           //     Audio.network(widget.audioUrl),
+           //     autoStart: false,
+           //     loopMode: widget.loop ? LoopMode.single : LoopMode.none
+           // );
+          await player.setUrl(widget.audioUrl, preload: true);
+         }
+
+      }
+
+      await player.setLoopMode(LoopMode.one);
+
+      widget.builder?.call(player);
+      if(widget.autoPlay) {
+        player.play();
+      }
     //
     // } catch (t) {
     //   //stream unreachable

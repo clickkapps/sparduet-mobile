@@ -206,39 +206,41 @@ class FeedActionsWidget extends StatelessWidget {
         },
 
         /// Personalize
-        GestureDetector(
-          onTap: () {
-            filterPostsHandler(context);
-          },
-          behavior: HitTestBehavior.opaque,
-          child:  Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomHeartAnimationWidget(
-                  isAnimating: false,
-                  alwayAnimate: true,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      // Calculate icon size based on parent constraints
-                      double iconSize = constraints.maxWidth * 0.07; // 10% of parent width
+        if(!isCreator) ... {
+          GestureDetector(
+            onTap: () {
+              filterPostsHandler(context);
+            },
+            behavior: HitTestBehavior.opaque,
+            child:  Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomHeartAnimationWidget(
+                    isAnimating: false,
+                    alwayAnimate: true,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Calculate icon size based on parent constraints
+                        double iconSize = constraints.maxWidth * 0.07; // 10% of parent width
 
-                      // Ensure the icon size is not too small or too large
-                      if (iconSize < 24) {
-                        iconSize = 24;
-                      } else if (iconSize > 100) {
-                        iconSize = 100;
-                      }
+                        // Ensure the icon size is not too small or too large
+                        if (iconSize < 24) {
+                          iconSize = 24;
+                        } else if (iconSize > 100) {
+                          iconSize = 100;
+                        }
 
-                      return Icon(FeatherIcons.sliders, size: iconSize, color: Colors.white,);
-                    },
-                  )
+                        return Icon(FeatherIcons.sliders, size: iconSize, color: Colors.white,);
+                      },
+                    )
 
-              ),
-              const SizedBox(width: 5,),
-              const Text("Personalize", style: TextStyle(color: Colors.white, fontSize:11),),
-            ],
-          ),
-        ),
+                ),
+                const SizedBox(width: 5,),
+                const Text("Filter", style: TextStyle(color: Colors.white, fontSize:11),),
+              ],
+            ),
+          )
+        },
 
         /// Report
         if(!isCreator) ... {

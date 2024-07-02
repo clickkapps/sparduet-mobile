@@ -10,6 +10,10 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
   final SubscriptionRepository subscriptionRepository;
   SubscriptionCubit({required this.subscriptionRepository}) : super( const SubscriptionState());
 
+  void clearState() {
+    emit(const SubscriptionState());
+  }
+
   Future<void> initializeSubscription(String authUserId) async {
     await subscriptionRepository.initSubscription(authUserId);
   }
@@ -46,6 +50,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
 
     final r = either.asRight();
     setSubscriptionStatus(r);
+    if(r == false) {
+      emit(state.copyWith(status: SubscriptionStatus.makePurchaseFailed, message: "Purchase not completed!"));
+    }
     emit(state.copyWith(status: SubscriptionStatus.makePurchaseSuccessful));
 
     return (null, r);

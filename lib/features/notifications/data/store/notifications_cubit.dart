@@ -43,6 +43,10 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     return super.close();
   }
 
+  void clearState() {
+    emit(const NotificationsState());
+  }
+
   void countUnseenNotifications() async {
     emit(state.copyWith(status: NotificationStatus.countUnseenNotificationsInProgress));
     final either = await notificationsRepository.countUnseenNotifications();

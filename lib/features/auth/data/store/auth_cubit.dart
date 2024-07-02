@@ -23,6 +23,10 @@ class AuthCubit extends Cubit<AuthState> {
     listenForFeedUpdate();
   }
 
+  void clearState() {
+    emit(const AuthState());
+  }
+
   /// This method updates feed when there's a change in state
   void listenForFeedUpdate() async {
 
@@ -83,6 +87,11 @@ class AuthCubit extends Cubit<AuthState> {
   void setAuthUserInfo({required AuthUserModel updatedAuthUser}) {
     emit(state.copyWith(status: AuthStatus.setAuthUserInfoInProgress));
     emit(state.copyWith(authUser: updatedAuthUser, status: AuthStatus.setAuthUserInfoCompleted));
+  }
+
+  void filtersApplied() {
+    emit(state.copyWith(status: AuthStatus.filtersAppliedInProgress));
+    emit(state.copyWith(status: AuthStatus.filtersAppliedCompleted));
   }
 
   // update user profile on the server

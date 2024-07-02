@@ -27,6 +27,10 @@ class FeedsCubit extends Cubit<FeedState> {
     listenForFeedUpdate();
   }
 
+  void clearState() {
+    emit(const FeedState());
+  }
+
   /// This method updates feed when there's a change in state
   void listenForFeedUpdate() async {
 
@@ -248,6 +252,8 @@ class FeedsCubit extends Cubit<FeedState> {
     //   emit(state.copyWith(status: FeedStatus.unCompletedPostsWithFeeds, feeds: state.feeds));
     // }
 
+    // if(pageKey == )
+
     // return cached items
     // if(returnExistingFeedsForFirstPage) {
     //   if(pageKey == 1 && state.feeds.isNotEmpty) {
@@ -258,7 +264,7 @@ class FeedsCubit extends Cubit<FeedState> {
     //   }
     // }
 
-    emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
+    emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress, ));
     final either = await feedsRepository.fetchFeeds(path, queryParams: queryParams);
     if(either.isLeft()){
       final l = either.asLeft();

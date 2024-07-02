@@ -2,6 +2,7 @@
 import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
@@ -23,7 +24,7 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
 
   late int activeFeedIndex ;
   final Map<int, BetterPlayerController?> videoControllers = {};
-  // final Map<int, AssetsAudioPlayer?> imageControllers = {};
+  final Map<int, AudioPlayer?> imageControllers = {};
   late StoriesPreviewsCubit storiesPreviewsCubit;
   late PreloadPageController preloadPageController;
   bool activeStoryPlaying = true;
@@ -67,26 +68,26 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
-    // imageControllers[activeFeedIndex]?.pause();
+    imageControllers[activeFeedIndex]?.pause();
     activeStoryPlaying = false;
   }
 
   Future<void> resetActiveStory() async {
     videoControllers[activeFeedIndex]?.seekTo(Duration.zero);
-    // imageControllers[activeFeedIndex]?.seek(Duration.zero);
+    imageControllers[activeFeedIndex]?.seek(Duration.zero);
   }
 
   void resumeActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.play();
-    // imageControllers[activeFeedIndex]?.play();
+    imageControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
 
   void playActiveStory() async {
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
-    // imageControllers[activeFeedIndex]?.play();
+    imageControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
 
@@ -144,7 +145,7 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
                               playActiveStory();
                             },
                             imageBuilder: (controller) {
-                              // imageControllers[i] = controller;
+                              imageControllers[i] = controller;
                               playActiveStory();
                             },
                             onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),

@@ -21,6 +21,10 @@ class UserCubit extends Cubit<UserState> {
   final FeedBroadcastRepository feedBroadcastRepository;
   StreamSubscription<FeedBroadCastEvent>? feedBroadcastRepositoryStreamListener;
 
+  void clearState() {
+    emit(const UserState());
+  }
+
   UserCubit({required this.userRepository, required this.socketConnectionRepository, required this.feedBroadcastRepository}) : super(const UserState()) {
     listenForFeedUpdate();
   }

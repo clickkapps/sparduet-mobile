@@ -11,13 +11,16 @@ class PreferencesState extends Equatable {
   final bool enableChatNotifications;
   final bool enableProfileViewsNotifications;
   final bool enableStoryViewsNotifications;
+  final bool enableStoryLikesNotifications;
   final String preferredThemeAppearance;
   final String? preferredFontFamily;
   final bool? showSwipeUpStoriesHint;
+
   const PreferencesState({
     this.status = PreferencesStatus.initial,
     this.enableChatNotifications = true,
     this.enableProfileViewsNotifications = true,
+    this.enableStoryLikesNotifications = true,
     this.enableStoryViewsNotifications = true,
     this.showSwipeUpStoriesHint = false,
     this.preferredFontFamily,

@@ -49,7 +49,7 @@ class _FilterFeedsPageState extends State<FilterFeedsPage> {
     super.initState();
   }
 
-  void setPreferredGendersHandler(List<String> existingSelectedGenders, String gender) {
+  void setPreferredGendersHandler(List<String> existingSelectedGenders, String gender) async {
 
     if(existingSelectedGenders.contains(gender)){
       existingSelectedGenders.remove(gender);
@@ -71,13 +71,15 @@ class _FilterFeedsPageState extends State<FilterFeedsPage> {
     }
 
     final encoded = json.encode(existingSelectedGenders);
-    authCubit.updateAuthUserProfile(payload: {"preferred_gender": encoded},
+    await authCubit.updateAuthUserProfile(payload: {"preferred_gender": encoded},
       authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(preferredGender: encoded)) //this will cause immediate update
     );
 
+    authCubit.filtersApplied();
+
   }
 
-  void setPreferredRaceHandler(List<String> existingSelectedRace, String race) {
+  void setPreferredRaceHandler(List<String> existingSelectedRace, String race) async {
 
     if(existingSelectedRace.contains(race)){
       existingSelectedRace.remove(race);
@@ -99,39 +101,43 @@ class _FilterFeedsPageState extends State<FilterFeedsPage> {
     }
 
     final encoded = json.encode(existingSelectedRace);
-    authCubit.updateAuthUserProfile(payload: {"preferred_races": encoded},
+    await authCubit.updateAuthUserProfile(payload: {"preferred_races": encoded},
         authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(preferredRaces: encoded)) //this will cause immediate update
     );
+    authCubit.filtersApplied();
 
   }
 
   void setPreferredMinAge(String? age) {
-    EasyDebounce.debounce('update-min-age', const Duration(milliseconds: 1000), () {
+    EasyDebounce.debounce('update-min-age', const Duration(milliseconds: 1000), () async {
       if(age == null) {return;}
       if(int.tryParse(age) == null){return;}
       final ageAsNumber = int.parse(age);
       final minAge = ageAsNumber < 18 ? 18 : ageAsNumber;
-      authCubit.updateAuthUserProfile(payload: {"preferred_min_age": minAge},
+      await authCubit.updateAuthUserProfile(payload: {"preferred_min_age": minAge},
           authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(preferredMinAge: minAge)));
+      authCubit.filtersApplied();
     });
   }
   void setPreferredMaxAge(String? age) {
-    EasyDebounce.debounce('update-max-age', const Duration(milliseconds: 1000), () {
+    EasyDebounce.debounce('update-max-age', const Duration(milliseconds: 1000), () async {
       if(age == null) {return;}
       if(int.tryParse(age) == null){return;}
       final maxAge = int.parse(age);
-      authCubit.updateAuthUserProfile(payload: {"preferred_max_age": maxAge},
+      await authCubit.updateAuthUserProfile(payload: {"preferred_max_age": maxAge},
       authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(preferredMaxAge: maxAge)));
+      authCubit.filtersApplied();
     });
   }
 
-  void setPreferredNationalities(String key, List<String> values) {
+  void setPreferredNationalities(String key, List<String> values)  async {
     final encoded = json.encode({
       'key': key,
       'values': values
     });
-    authCubit.updateAuthUserProfile(payload: {"preferred_nationalities": encoded},
+    await authCubit.updateAuthUserProfile(payload: {"preferred_nationalities": encoded},
         authUser: authCubit.state.authUser?.copyWith(info: authCubit.state.authUser?.info?.copyWith(preferredNationalities: encoded)));
+    authCubit.filtersApplied();
   }
 
   @override
@@ -149,7 +155,7 @@ class _FilterFeedsPageState extends State<FilterFeedsPage> {
                   pinned: true,
                   automaticallyImplyLeading: false,
                   centerTitle: false,
-                  title: Text("Personalize", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),),
+                  title: Text("Filter", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),),
                   actions: [
                     TextButton(onPressed: () {
                       context.popScreen();

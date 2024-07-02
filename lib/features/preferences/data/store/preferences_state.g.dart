@@ -14,6 +14,9 @@ abstract class _$PreferencesStateCWProxy {
   PreferencesState enableProfileViewsNotifications(
       bool enableProfileViewsNotifications);
 
+  PreferencesState enableStoryLikesNotifications(
+      bool enableStoryLikesNotifications);
+
   PreferencesState enableStoryViewsNotifications(
       bool enableStoryViewsNotifications);
 
@@ -35,6 +38,7 @@ abstract class _$PreferencesStateCWProxy {
     PreferencesStatus? status,
     bool? enableChatNotifications,
     bool? enableProfileViewsNotifications,
+    bool? enableStoryLikesNotifications,
     bool? enableStoryViewsNotifications,
     bool? showSwipeUpStoriesHint,
     String? preferredFontFamily,
@@ -60,6 +64,11 @@ class _$PreferencesStateCWProxyImpl implements _$PreferencesStateCWProxy {
   PreferencesState enableProfileViewsNotifications(
           bool enableProfileViewsNotifications) =>
       this(enableProfileViewsNotifications: enableProfileViewsNotifications);
+
+  @override
+  PreferencesState enableStoryLikesNotifications(
+          bool enableStoryLikesNotifications) =>
+      this(enableStoryLikesNotifications: enableStoryLikesNotifications);
 
   @override
   PreferencesState enableStoryViewsNotifications(
@@ -93,6 +102,7 @@ class _$PreferencesStateCWProxyImpl implements _$PreferencesStateCWProxy {
     Object? status = const $CopyWithPlaceholder(),
     Object? enableChatNotifications = const $CopyWithPlaceholder(),
     Object? enableProfileViewsNotifications = const $CopyWithPlaceholder(),
+    Object? enableStoryLikesNotifications = const $CopyWithPlaceholder(),
     Object? enableStoryViewsNotifications = const $CopyWithPlaceholder(),
     Object? showSwipeUpStoriesHint = const $CopyWithPlaceholder(),
     Object? preferredFontFamily = const $CopyWithPlaceholder(),
@@ -116,6 +126,12 @@ class _$PreferencesStateCWProxyImpl implements _$PreferencesStateCWProxy {
               ? _value.enableProfileViewsNotifications
               // ignore: cast_nullable_to_non_nullable
               : enableProfileViewsNotifications as bool,
+      enableStoryLikesNotifications:
+          enableStoryLikesNotifications == const $CopyWithPlaceholder() ||
+                  enableStoryLikesNotifications == null
+              ? _value.enableStoryLikesNotifications
+              // ignore: cast_nullable_to_non_nullable
+              : enableStoryLikesNotifications as bool,
       enableStoryViewsNotifications:
           enableStoryViewsNotifications == const $CopyWithPlaceholder() ||
                   enableStoryViewsNotifications == null

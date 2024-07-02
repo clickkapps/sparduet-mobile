@@ -110,7 +110,7 @@ class _NotificationsSettingsPageState extends State<NotificationsSettingsPage> {
                                   child:  Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Expanded(child: Text("Enable profile view notifications")),
+                                      const Expanded(child: Text("Enable profile views notifications")),
                                       const SizedBox(width: 10,),
                                       SizedBox(
                                         width: 40,
@@ -129,7 +129,7 @@ class _NotificationsSettingsPageState extends State<NotificationsSettingsPage> {
 
                               GestureDetector(
                                 onTap: () {
-                                  final value = !preferencesCubit.state.enableStoryViewsNotifications;
+                                  final value = !preferencesCubit.state.enableStoryLikesNotifications;
                                   preferencesCubit.updateUserSettings(payload: {"enable_story_likes_notifications": value ? 1 : 0 });
                                 },
                                 behavior: HitTestBehavior.opaque,
@@ -145,7 +145,7 @@ class _NotificationsSettingsPageState extends State<NotificationsSettingsPage> {
                                         child: FittedBox(
                                           fit: BoxFit.contain,
                                           child: CupertinoSwitch(
-                                            value: prefState.enableStoryViewsNotifications,
+                                            value: prefState.enableStoryLikesNotifications,
                                             onChanged: (bool value) { preferencesCubit.updateUserSettings(payload: {"enable_story_likes_notifications": value ? 1 : 0}); },
                                           ),
                                         ),

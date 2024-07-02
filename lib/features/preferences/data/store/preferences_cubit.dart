@@ -18,6 +18,7 @@ class PreferencesCubit extends Cubit<PreferencesState> {
         enableChatNotifications: args.containsKey("enable_chat_notifications") ? (args["enable_chat_notifications"] as int) == 1 : state.enableChatNotifications,
         enableProfileViewsNotifications: args.containsKey("enable_profile_views_notifications") ? (args["enable_profile_views_notifications"] as int) == 1 : state.enableProfileViewsNotifications,
         enableStoryViewsNotifications: args.containsKey("enable_story_views_notifications") ? (args["enable_story_views_notifications"] as int) == 1 : state.enableStoryViewsNotifications,
+        enableStoryLikesNotifications: args.containsKey("enable_story_likes_notifications") ? (args["enable_story_likes_notifications"] as int) == 1 : state.enableStoryLikesNotifications,
         preferredThemeAppearance: args.containsKey("theme_appearance") ? args['theme_appearance'] as String? : state.preferredThemeAppearance,
         preferredFontFamily: args.containsKey("font_family") ? args['font_family'] as String? : state.preferredFontFamily,
         showSwipeUpStoriesHint: args.containsKey("show_swipe_up_stories_hint") ? (args["show_swipe_up_stories_hint"] as int) == 1 : state.enableChatNotifications

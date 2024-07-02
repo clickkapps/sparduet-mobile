@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'package:background_fetch/background_fetch.dart';
 // import 'package:background_fetch/background_fetch.dart';
 import 'package:better_player/better_player.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
@@ -14,6 +14,8 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
+import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/auth/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
@@ -57,11 +59,12 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   late ThemeCubit themeCubit;
   late NavCubit navCubit;
   late UserCubit userCubit;
+  late AuthCubit authCubit;
   int activeFeedIndex = 0;
   double percentageOfTimeSpentOnActiveFeed = 0;
   bool canMarkActiveFeedAsWatched = true;
   final Map<int, BetterPlayerController?> videoControllers = {};
-  // final Map<int, AssetsAudioPlayer?> imageControllers = {};
+  final Map<int, AudioPlayer?> imageControllers = {};
   final Map<int, BetterPlayerController?> requestPostFeedVideoControllers = {};
   int pageKey = 1;
   final preloadPageController = PreloadPageController();
@@ -81,6 +84,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     themeCubit = context.read<ThemeCubit>();
     navCubit = context.read<NavCubit>();
     userCubit = context.read<UserCubit>();
+    authCubit = context.read<AuthCubit>();
     navCubitSubscription = navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChanged) {{
           if(event.currentTabIndex == 0) {
@@ -115,6 +119,13 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
         }
       }
     });
+
+    authCubit.stream.listen((event) {
+      if(event.status == AuthStatus.filtersAppliedCompleted) {
+        _fetchData(pageKey: 1); // refresh page if user applies new filters
+      }
+    });
+
     storiesFeedsCubit = context.read<StoriesFeedsCubit>();
     // fetch first page
     _fetchData(pageKey: pageKey);
@@ -127,16 +138,6 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     super.initState();
   }
 
-  void presentPaywall() async {
-    // final offering = await context.read<SubscriptionCubit>().getOffering();
-    // if(offering == null){
-    //   debugPrint("Unable to fetch offering");
-    //   return;
-    // }
-    // final paywallResult = await RevenueCatUI.presentPaywall(offering: offering);
-    // debugPrint('Paywall result: $paywallResult');
-    showSubscriptionPaywall(context);
-  }
 
   void initHint() {
     _hintController = AnimationController(
@@ -202,48 +203,15 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     themeCubit.setSystemUIOverlaysToLight();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    // Configure BackgroundFetch.
-    int status = await BackgroundFetch.configure(BackgroundFetchConfig(
-        minimumFetchInterval: 15,
-        stopOnTerminate: false,
-        enableHeadless: true,
-        requiresBatteryNotLow: false,
-        requiresCharging: false,
-        requiresStorageNotLow: false,
-        requiresDeviceIdle: false,
-        requiredNetworkType: NetworkType.NONE
-    ), (String taskId) async {  // <-- Event handler
-      // This is the fetch-event callback.
-      debugPrint("[BackgroundFetch] Event received $taskId");
-      // IMPORTANT:  You must signal completion of your task or the OS can punish your app
-      // for taking too long in the background.
-
-
-      // fetch stories in the background
-      pageKey = 1;
-      _fetchData(pageKey: pageKey, returnExistingFeedsForFirstPage: false);
-
-      BackgroundFetch.finish(taskId);
-    }, (String taskId) async {  // <-- Task timeout handler.
-      // This task has exceeded its allowed running-time.  You must stop what you're doing and immediately .finish(taskId)
-      debugPrint("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
-      BackgroundFetch.finish(taskId);
-    });
-    debugPrint('[BackgroundFetch] configure success: $status');
-    BackgroundFetch.start();
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-  }
 
   // returnExistingFeedsForFirstPage = will enable caching and fast serving of feeds
   _fetchData({required int pageKey, bool returnExistingFeedsForFirstPage = true}) {
+      this.pageKey = pageKey;
       const path = AppApiRoutes.feeds;
       final queryParams = { "page": pageKey, "limit": 3 };
+      if(pageKey == 1) {
+        pauseActiveStory();
+      }
       storiesFeedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: queryParams, returnExistingFeedsForFirstPage: returnExistingFeedsForFirstPage);
   }
 
@@ -268,7 +236,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
-    // imageControllers[activeFeedIndex]?.pause();
+    imageControllers[activeFeedIndex]?.pause();
     requestPostFeedVideoControllers[activeFeedIndex]?.pause();
     activeStoryPlaying = false;
   }
@@ -276,13 +244,13 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   Future<void> resetActiveStory() async {
      videoControllers[activeFeedIndex]?.seekTo(Duration.zero);
      requestPostFeedVideoControllers[activeFeedIndex]?.seekTo(Duration.zero);
-     // imageControllers[activeFeedIndex]?.seek(Duration.zero);
+     imageControllers[activeFeedIndex]?.seek(Duration.zero);
   }
 
   void resumeActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.play();
-    // imageControllers[activeFeedIndex]?.play();
+    imageControllers[activeFeedIndex]?.play();
     requestPostFeedVideoControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
   }
@@ -292,7 +260,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     requestPostFeedVideoControllers[activeFeedIndex]?.play();
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
-    // imageControllers[activeFeedIndex]?.play();
+    imageControllers[activeFeedIndex]?.play();
     activeStoryPlaying = true;
     //mark video as seen
     if(feed != null) {
@@ -480,7 +448,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                                         }
                                       },
                                         imageBuilder: (controller) {
-                                          // imageControllers[i] = controller;
+                                          imageControllers[i] = controller;
                                           if(!initialStoryViewed && i == 0) {
                                             // after initialization mark post as seen
                                             context.read<FeedsCubit>().viewPost(postId: feed.id, action: "seen");

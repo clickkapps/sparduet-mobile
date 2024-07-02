@@ -33,6 +33,8 @@ abstract class _$ChatMessageModelCWProxy {
 
   ChatMessageModel seenAt(DateTime? seenAt);
 
+  ChatMessageModel attachedImageFilePath(String? attachedImageFilePath);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatMessageModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -53,6 +55,7 @@ abstract class _$ChatMessageModelCWProxy {
     DateTime? deletedAt,
     DateTime? deliveredAt,
     DateTime? seenAt,
+    String? attachedImageFilePath,
   });
 }
 
@@ -106,6 +109,10 @@ class _$ChatMessageModelCWProxyImpl implements _$ChatMessageModelCWProxy {
   ChatMessageModel seenAt(DateTime? seenAt) => this(seenAt: seenAt);
 
   @override
+  ChatMessageModel attachedImageFilePath(String? attachedImageFilePath) =>
+      this(attachedImageFilePath: attachedImageFilePath);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ChatMessageModel(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -127,6 +134,7 @@ class _$ChatMessageModelCWProxyImpl implements _$ChatMessageModelCWProxy {
     Object? deletedAt = const $CopyWithPlaceholder(),
     Object? deliveredAt = const $CopyWithPlaceholder(),
     Object? seenAt = const $CopyWithPlaceholder(),
+    Object? attachedImageFilePath = const $CopyWithPlaceholder(),
   }) {
     return ChatMessageModel(
       id: id == const $CopyWithPlaceholder()
@@ -181,6 +189,11 @@ class _$ChatMessageModelCWProxyImpl implements _$ChatMessageModelCWProxy {
           ? _value.seenAt
           // ignore: cast_nullable_to_non_nullable
           : seenAt as DateTime?,
+      attachedImageFilePath:
+          attachedImageFilePath == const $CopyWithPlaceholder()
+              ? _value.attachedImageFilePath
+              // ignore: cast_nullable_to_non_nullable
+              : attachedImageFilePath as String?,
     );
   }
 }
@@ -294,6 +307,7 @@ ChatMessageModel _$ChatMessageModelFromJson(Map<String, dynamic> json) =>
       seenAt: json['seen_at'] == null
           ? null
           : DateTime.parse(json['seen_at'] as String),
+      attachedImageFilePath: json['attachedImageFilePath'] as String?,
     );
 
 Map<String, dynamic> _$ChatMessageModelToJson(ChatMessageModel instance) =>
@@ -311,4 +325,5 @@ Map<String, dynamic> _$ChatMessageModelToJson(ChatMessageModel instance) =>
       'deleted_at': instance.deletedAt?.toIso8601String(),
       'delivered_at': instance.deliveredAt?.toIso8601String(),
       'seen_at': instance.seenAt?.toIso8601String(),
+      'attachedImageFilePath': instance.attachedImageFilePath,
     };

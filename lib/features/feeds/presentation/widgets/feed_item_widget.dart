@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:readmore/readmore.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:separated_row/separated_row.dart';
@@ -29,7 +30,7 @@ import 'package:sparkduet/utils/custom_user_avatar_widget.dart';
 class FeedItemWidget extends StatefulWidget {
 
   final Function(BetterPlayerController)? videoBuilder;
-  final Function(void)? imageBuilder;
+  final Function(AudioPlayer)? imageBuilder;
   final FeedModel feed;
   final Function()? onItemTapped;
   final bool autoPlay;
@@ -190,7 +191,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                         audioUrl: audioPath ?? '',
                         imageSource: ImageSource.network,
                         builder: widget.imageBuilder,
-                        audioSource: AudioSource.network,
+                        audioSource: AppAudioSource.network,
                         fit: BoxFit.contain,
                       ),
                     ),

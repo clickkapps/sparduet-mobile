@@ -39,6 +39,9 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     matchedConnectionFromServerChannelId = 'connection.user.${authenticatedUser?.id}.matched';
   }
 
+  void clearState() {
+    emit(const ChatConnectionState());
+  }
 
   @override
   Future<void> close() {
@@ -202,9 +205,13 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
     if(connectionIndex < 0){
       return;
     }
-    connectionList[connectionIndex] = connectionList[connectionIndex].copyWith(
+    final updatedConnectionItem = connectionList[connectionIndex].copyWith(
       lastMessage: message
     );
+    // put this connection item at the top
+    connectionList.removeAt(connectionIndex);
+    connectionList.insert(0, updatedConnectionItem);
+
     emit(state.copyWith(status: ChatConnectionStatus.lastMessageUpdatedInProgress));
     emit(state.copyWith(status: ChatConnectionStatus.refreshChatConnectionsCompleted, chatConnections: connectionList));
     ///! Refresh chat connectios list

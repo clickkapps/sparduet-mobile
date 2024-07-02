@@ -54,7 +54,7 @@ class UncompletedUserPostItem extends StatelessWidget {
                   imageSource: ImageSource.file,
                   fit: BoxFit.cover,
                   animate: false,
-                  audioSource: AudioSource.network,
+                  audioSource: AppAudioSource.network,
                 )
               },
 

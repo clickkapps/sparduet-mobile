@@ -1,11 +1,9 @@
 // import 'package:background_fetch/background_fetch.dart';
-import 'package:background_fetch/background_fetch.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sparkduet/app/app.dart';
 import 'package:sparkduet/core/app_constants.dart';
