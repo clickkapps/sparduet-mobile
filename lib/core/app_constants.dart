@@ -42,37 +42,37 @@ abstract final class AppConstants {
     audioMediaPath(mediaId: "track_5.mp3"),
   ];
   static PostFeedPurpose introductoryPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋, Let's get started",
-      subTitle: "Introduce yourself to potential suitors. A good 30 sec video will attract the best suitors",
+      title: "Let's get started",
+      subTitle: "Hi✋, introduce yourself to potential suitors. A good 30 sec video will attract the best suitors",
       key: "introduction",
       description: "Hey✋, let's connect and know more about each other.",
       expectedFile: ExpectedFiles.video
   );
   static PostFeedPurpose nextRelationshipExpectationPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋! Expectations in your next relationship",
-      subTitle: "You can share a quick 30-second video talking about your expectations in your next relationship",
+      title: "Your Expectations",
+      subTitle: "Hi✋!, You can share a quick 30-second video talking about your expectations in your next relationship",
       key: "expectations",
       description: "What I'm looking for in my next relationship",
       expectedFile: ExpectedFiles.video
   );
 
   static PostFeedPurpose previousRelationshipPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋! Your past relationships.",
-      subTitle: "You can share a quick 30-second video about your experience in your past relationships",
+      title: "Your previous relationships.",
+      subTitle: "Hi✋!, You can share a quick 30-second video about your experience in your past relationships",
       key: "previousRelationship",
       description: "My experiences in my previous relationship",
       expectedFile: ExpectedFiles.video
   );
   static PostFeedPurpose yourCareerPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋! Your career",
-      subTitle: "Share a quick 30-second video about what you currently do to potential matches. PS: DO NOT reveal confidential issues",
+      title: "Your career",
+      subTitle: "Hi✋!, share a quick 30-second video about what you currently do for potential matches. PS: DO NOT reveal confidential issues",
       key: "career",
       description: "What I do currently",
       expectedFile: ExpectedFiles.video
   );
   static PostFeedPurpose otherPostFeedPurpose = const PostFeedPurpose(
-      title: "Hi✋! what's on your mind?",
-      subTitle: "Share a quick 30-second video to potential suitors",
+      title: "What's on your mind?",
+      subTitle: "Hi✋! share a quick 30-second video for your potential suitors",
       key: "other",
       description: "",
       expectedFile: ExpectedFiles.video

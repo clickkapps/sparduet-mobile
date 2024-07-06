@@ -17,6 +17,10 @@ import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
+import 'package:sparkduet/features/chat/presentation/pages/chat_preview_page.dart';
+import 'package:sparkduet/features/feeds/data/classes/post_feed_purpose.dart';
+import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/users/data/models/user_model.dart';
 import 'package:sparkduet/features/users/presentation/pages/user_profile_page.dart';
 import 'package:sparkduet/utils/custom_border_widget.dart';
@@ -156,14 +160,37 @@ extension ContextExtension on BuildContext {
     }
   }
 
-  void pushToProfile(UserModel? user) {
+  Future<Object?> pushToProfile(UserModel? user) async {
     if(read<AuthCubit>().state.authUser?.id == user?.id) {
-      push(AppRoutes.authProfile);
+      return await push(AppRoutes.authProfile);
     }else {
-      if(user == null) { return; }
-      pushScreen(UserProfilePage(user: user,));
+      if(user == null) { return null; }
+      return await pushScreen(UserProfilePage(user: user,), rootNavigator: true);
     }
   }
+
+  Future<Object?> pushToChatPreview(dynamic extra) async {
+    late UserModel opponent;
+    ChatConnectionModel? chatConnection;
+    if(extra is Map<String, dynamic>) {
+      final map = extra;
+      chatConnection = map["connection"] as ChatConnectionModel?;
+      opponent = map["user"] as UserModel;
+    }else {
+      opponent = extra as UserModel;
+    }
+
+    return await pushScreen(ChatPreviewPage(opponent: opponent, connection: chatConnection,), rootNavigator: true);
+  }
+
+  Future<Object?> pushToCamera(dynamic extra) async {
+    final map = extra as Map<String, dynamic>;
+    final cameras = map['cameras'] as List<CameraDescription>;
+    final feedPurpose = map["feedPurpose"] as PostFeedPurpose?;
+    return await pushScreen(FeedEditorCameraPage(cameras: cameras, purpose: feedPurpose,), rootNavigator: true);
+  }
+
+
 
   void showConfirmDialog(
       {required VoidCallback onConfirmTapped,

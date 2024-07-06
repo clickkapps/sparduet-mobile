@@ -226,7 +226,12 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
     }
   }
 
-  void validateAndPostFeedHandler(BuildContext ctx) {
+  void validateAndPostFeedHandler(BuildContext ctx) async {
+
+    if(!(await isNetworkConnected()) && mounted) {
+      context.showSnackBar("Kindly check your network connection and try again");
+      return;
+    }
 
     if(!additionalInfoSeen) {
       showVideoInfoHandler(context);
@@ -252,14 +257,20 @@ class _FeedEditorPreviewPageState extends State<FeedEditorPreviewPage> with File
   }
 
   ///! Post / Sumbit Feed
-  submitFeed({required File file, required FileType fileType}) {
+  submitFeed({required File file, required FileType fileType}) async {
+
+    if(!(await isNetworkConnected()) && mounted) {
+    context.showSnackBar("Kindly check your network connection and try again");
+    return;
+    }
+
     final authUser = context.read<AuthCubit>().state.authUser;
     context.read<AuthFeedsCubit>().postFeed(file: file, mediaType: fileType, description: descriptionTextEditingController.text.trim(), purpose: widget.feedPurpose?.key, flipFile: widget.frontCameraVideo, user: authUser);
     if(widget.appTheme.brightness == Brightness.light) {
       context.read<ThemeCubit>().setSystemUIOverlaysToLight();
     }
     context.go(AppRoutes.authProfile, extra: {"focusOnYourPosts":true});
-    // context.read<NavCubit>().requestTabChange(NavPosition.profile);//
+    context.read<NavCubit>().requestTabChange(NavPosition.profile, data: {"focusOnYourPosts":true});//
   }
 
   @override

@@ -1,13 +1,17 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:lottie/lottie.dart';
+import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_assets.dart';
 import 'package:sparkduet/core/app_classes.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
@@ -32,6 +36,8 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
   PagingController<int, dynamic>? pagingController;
   late C feedsCubit;
   late StreamSubscription streamSubscription;
+  bool userPostsInitialized = false;
+  StreamSubscription? cubeChatConnectionStateStream;
 
   @override
   void initState() {
@@ -48,19 +54,38 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
       }
 
     });
+    establishConnection();
     super.initState();
   }
 
   @override
   void dispose() {
     pagingController?.dispose();
+    cubeChatConnectionStateStream?.cancel();
     streamSubscription.cancel();
     super.dispose();
   }
 
+  void establishConnection() async {
+
+    // reconnect if connection is lost
+    cubeChatConnectionStateStream = Connectivity().onConnectivityChanged.listen((connectivityType) async {
+      if(await isNetworkConnected() && mounted) {
+        if(!userPostsInitialized && pagingController != null) {
+          pagingController?.refresh();
+        }
+      }
+
+    });
+  }
+
   Future<(String?, List<FeedModel>?)> fetchData(int pageKey) async {
     final path = AppApiRoutes.userPosts(userId: widget.userId);
-     return await feedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: {"page": pageKey, "limit": AppConstants.gridPageSize});
+     final result = await feedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: {"page": pageKey, "limit": AppConstants.gridPageSize});
+    if(pageKey == 1 && result.$2 != null) {
+      userPostsInitialized = true;
+    }
+    return result;
   }
 
   void showDeleteOption(BuildContext context, FeedModel post) {
@@ -91,7 +116,10 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
           },);
         }else{
          return CompletedUserPostItem(post: post, onTap: () {
-           context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
+           final initialIndex = feedsCubit.state.feeds.indexWhere((element) => element.id == post.id);
+           context.push(AppRoutes.feedPreviewPage, extra: {'feeds': feedsCubit.state.feeds, 'initialIndex': initialIndex });
+           // context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: ,));
+           // context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
          }, onLongPress: () {
            if(authenticatedUser?.id == post.user?.id) {
              showDeleteOption(context, post);

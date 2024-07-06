@@ -40,6 +40,7 @@
 
     <application
         android:label="Sparkduet"
+        tools:replace="android:label"
         android:name="${applicationName}"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">

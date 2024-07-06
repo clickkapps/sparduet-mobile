@@ -335,7 +335,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                              },
                              children: [
                                UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.solidMessage, onTap: () {
-                                 context.push(AppRoutes.chatPreview, extra: widget.user );
+                                 context.pushToChatPreview(widget.user );
                                },),
                                UserProfileActionWidget(size: actionIconSize, icon: FontAwesomeIcons.solidFlag, onTap: () {
                                  reportUserHandler(context);

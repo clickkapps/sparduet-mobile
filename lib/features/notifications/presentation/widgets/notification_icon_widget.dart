@@ -19,14 +19,13 @@ class _NotificationIconWidgetState extends State<NotificationIconWidget> {
   @override
   void initState() {
     notificationsCubit = context.read<NotificationsCubit>();
-    notificationsCubit.countUnseenNotifications();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     // Calculate icon size based on parent constraints
-    double iconSize = MediaQuery.of(context).size.width * 0.065; // 10% of parent width
+    double iconSize = MediaQuery.of(context).size.width * 0.05; // 10% of parent width
 
     // Ensure the icon size is not too small or too large
     if (iconSize < 24) {

@@ -124,7 +124,11 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
   void _addMessage(ChatMessageModel? message) {
     if(message == null){return;}
     final messagesList = [...state.linearMessagesList];
-    messagesList.add(message);
+
+    final msgExistsIndex = messagesList.indexWhere((element) => element.clientId == message.clientId);
+    if(msgExistsIndex < 0) {
+      messagesList.add(message);
+    }
     emit(state.copyWith(status: ChatPreviewStatus.addNewMessageInProgress));
     emit(state.copyWith(status: ChatPreviewStatus.addNewMessageCompleted, linearMessagesList: messagesList));
     ///! Refresh chat messages list

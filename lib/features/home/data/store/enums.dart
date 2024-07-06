@@ -3,7 +3,7 @@ enum NavStatus {
 }
 
 enum HomeStatus {
-  initial
+  initial, didPushToNextInProgress, didPushToNextCompleted, didPopFromNextInProgress, didPopFromNextCompleted
 }
 
 enum HomeBroadcastAction {

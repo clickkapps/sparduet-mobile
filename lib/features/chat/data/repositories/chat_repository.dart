@@ -145,7 +145,10 @@ class ChatRepository {
   // get data from cache
   Future<List<ChatMessageModel>> fetchChatMessagesFromCache({required int? connectionId}) async {
     // Retrieve data from cache first
-    final cachedMessagesList = chatMessagesBox.values.where((element) => element.chatConnectionId == connectionId).toList();
+    final cachedMessagesList = chatMessagesBox.values
+        .where((element) => element.clientId != null)
+        .where((element) => element.createdAt != null)
+        .where((element) => element.chatConnectionId == connectionId).toList();
     return cachedMessagesList;
   }
 
@@ -213,13 +216,24 @@ class ChatRepository {
 
   }
 
-  void deleteMessageFromCache(int? messageId) {
+  Future<void> deleteMessageFromCache(int? messageId) async {
     final index = chatMessagesBox.values.toList().indexWhere((element) => element.id == messageId);
-    chatMessagesBox.deleteAt(index);
+    await chatMessagesBox.deleteAt(index);
   }
 
-  void addMessageToCache(ChatMessageModel message) {
+  void addMessageToCache(ChatMessageModel message) async {
+    if(message.id == null) {
+      // all messages must have id
+      return;
+    }
+    final list = await fetchChatMessagesFromCache(connectionId: message.chatConnectionId);
+    final existingMessageIndex = list.indexWhere((element) => element.clientId == message.clientId);
+    if(existingMessageIndex > -1) {
+      // await deleteMessageFromCache(message.id);
+      return;
+    }
     chatMessagesBox.add(message);
+
   }
 
   Future<Either<String, void>>? deleteMessage({required int? messageId, required int? opponentId}) async {

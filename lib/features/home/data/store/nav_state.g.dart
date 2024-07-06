@@ -17,6 +17,8 @@ abstract class _$NavStateCWProxy {
 
   NavState previousIndex(int previousIndex);
 
+  NavState requestedTabIndex(int? requestedTabIndex);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `NavState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -29,6 +31,7 @@ abstract class _$NavStateCWProxy {
     dynamic data,
     int? currentTabIndex,
     int? previousIndex,
+    int? requestedTabIndex,
   });
 }
 
@@ -56,6 +59,10 @@ class _$NavStateCWProxyImpl implements _$NavStateCWProxy {
       this(previousIndex: previousIndex);
 
   @override
+  NavState requestedTabIndex(int? requestedTabIndex) =>
+      this(requestedTabIndex: requestedTabIndex);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `NavState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -69,6 +76,7 @@ class _$NavStateCWProxyImpl implements _$NavStateCWProxy {
     Object? data = const $CopyWithPlaceholder(),
     Object? currentTabIndex = const $CopyWithPlaceholder(),
     Object? previousIndex = const $CopyWithPlaceholder(),
+    Object? requestedTabIndex = const $CopyWithPlaceholder(),
   }) {
     return NavState(
       status: status == const $CopyWithPlaceholder() || status == null
@@ -93,6 +101,10 @@ class _$NavStateCWProxyImpl implements _$NavStateCWProxy {
               ? _value.previousIndex
               // ignore: cast_nullable_to_non_nullable
               : previousIndex as int,
+      requestedTabIndex: requestedTabIndex == const $CopyWithPlaceholder()
+          ? _value.requestedTabIndex
+          // ignore: cast_nullable_to_non_nullable
+          : requestedTabIndex as int?,
     );
   }
 }

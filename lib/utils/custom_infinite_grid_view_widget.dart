@@ -40,7 +40,7 @@ class CustomInfiniteGridViewWidget<M> extends StatefulWidget {
 class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridViewWidget> {
 
   // page key is page index. Starting from 0, 1, 2 .........
-  late PagingController<int, M> pagingController = PagingController(firstPageKey: 1);
+  late PagingController<int, M> pagingController = PagingController(firstPageKey: 1, invisibleItemsThreshold: 9);
 
   @override
   void initState() {
@@ -52,15 +52,18 @@ class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridView
       }
       final isLastPage = newItems.isEmpty;  //correct
       // final isLastPage = newItems.length < 20; // wrong
+
+      if(pageKey == 1) {
+        widget.builder?.call(pagingController);
+      }
+
       if (isLastPage) {
         pagingController.appendLastPage(newItems);
 
       } else {
         final nextPageKey = pageKey + 1;
         pagingController.appendPage(newItems, nextPageKey);
-        if(pageKey == 1) {
-          widget.builder?.call(pagingController);
-        }
+
       }
 
 
@@ -76,6 +79,9 @@ class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridView
   Future<List<M>?> fetchData(int pageKey) async {
     final response = await widget.fetchData(pageKey);
     if(response.$1 != null){
+      if(pageKey == 1) {
+        widget.builder?.call(pagingController);
+      }
       pagingController.error = response.$1;
       return null;
     }
@@ -112,7 +118,7 @@ class _CustomInfiniteGridViewWidgetState<M> extends State<CustomInfiniteGridView
           "Restore connection and retry ...", onRetry: widget.onRetryTapped,
           ),
           newPageErrorIndicatorBuilder: (_) => const SizedBox.shrink(),
-          newPageProgressIndicatorBuilder: (_) => const SizedBox.shrink(),
+          newPageProgressIndicatorBuilder: (_) => const SizedBox(height: 30, child: Center(child: CustomAdaptiveCircularIndicator(),),),
       ),
     );
   }

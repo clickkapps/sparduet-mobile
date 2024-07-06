@@ -260,6 +260,14 @@ class ChatConnectionsCubit extends Cubit<ChatConnectionState> {
   Future<(String?, ChatConnectionModel?)> createChatConnection(UserModel opponent, bool createConnectionIfNotExist) async {
 
     emit(state.copyWith(status: ChatConnectionStatus.createChatConnectionLoading));
+
+    //! check if there is an existing connection locally
+    final existingCon = state.chatConnections.where((conn) => (conn.participants?.where((p) => p.id == opponent.id).firstOrNull != null)).firstOrNull;
+    if(existingCon != null) {
+      emit(state.copyWith(status: ChatConnectionStatus.createChatConnectionSuccessful));
+      return (null, existingCon);
+    }
+
     const displayErrorMessage = "Oops! kindly restore your connection and try again";
 
     if(!(await isNetworkConnected ())) {

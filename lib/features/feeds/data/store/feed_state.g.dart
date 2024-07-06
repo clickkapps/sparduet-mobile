@@ -15,6 +15,8 @@ abstract class _$FeedStateCWProxy {
 
   FeedState data(dynamic data);
 
+  FeedState backgroundHasRefreshedFeeds(bool backgroundHasRefreshedFeeds);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -26,6 +28,7 @@ abstract class _$FeedStateCWProxy {
     String? message,
     List<FeedModel>? feeds,
     dynamic data,
+    bool? backgroundHasRefreshedFeeds,
   });
 }
 
@@ -48,6 +51,10 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
   FeedState data(dynamic data) => this(data: data);
 
   @override
+  FeedState backgroundHasRefreshedFeeds(bool backgroundHasRefreshedFeeds) =>
+      this(backgroundHasRefreshedFeeds: backgroundHasRefreshedFeeds);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FeedState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -60,6 +67,7 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
     Object? message = const $CopyWithPlaceholder(),
     Object? feeds = const $CopyWithPlaceholder(),
     Object? data = const $CopyWithPlaceholder(),
+    Object? backgroundHasRefreshedFeeds = const $CopyWithPlaceholder(),
   }) {
     return FeedState(
       status: status == const $CopyWithPlaceholder() || status == null
@@ -78,6 +86,12 @@ class _$FeedStateCWProxyImpl implements _$FeedStateCWProxy {
           ? _value.data
           // ignore: cast_nullable_to_non_nullable
           : data as dynamic,
+      backgroundHasRefreshedFeeds:
+          backgroundHasRefreshedFeeds == const $CopyWithPlaceholder() ||
+                  backgroundHasRefreshedFeeds == null
+              ? _value.backgroundHasRefreshedFeeds
+              // ignore: cast_nullable_to_non_nullable
+              : backgroundHasRefreshedFeeds as bool,
     );
   }
 }

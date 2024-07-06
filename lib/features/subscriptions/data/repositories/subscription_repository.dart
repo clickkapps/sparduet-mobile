@@ -56,8 +56,8 @@ class SubscriptionRepository {
     try {
 
       //todo removed Simulated subscription
-      // await Future.delayed(const Duration(seconds: 2));
-      // return const Right(true);
+      await Future.delayed(const Duration(seconds: 2));
+      return const Right(true);
 
       final customerInfo = await Purchases.purchasePackage(package);
       if (customerInfo.entitlements.all["premium"]?.isActive ?? false) {

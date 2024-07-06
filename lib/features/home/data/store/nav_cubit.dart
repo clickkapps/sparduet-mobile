@@ -13,9 +13,12 @@ class NavCubit extends Cubit<NavState> {
     ));
   }
 
-  void requestTabChange(int index) {
+  void requestTabChange(int index, {dynamic data}) {
     emit(state.copyWith(status: NavStatus.onTabChangeRequestedInProgress));
-    emit(state.copyWith(previousIndex: state.currentTabIndex, currentTabIndex: index, status: NavStatus.onTabChangeRequested));
+    emit(state.copyWith(
+        requestedTabIndex: index,
+        // previousIndex: state.currentTabIndex, currentTabIndex: index,
+        status: NavStatus.onTabChangeRequested, data: data));
   }
 
   void onActiveIndexTapped(int index) {

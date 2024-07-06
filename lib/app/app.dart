@@ -96,7 +96,13 @@ class App extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               theme: themeState.themeData,
               routerConfig: router,
-              builder: (ctx, widget) =>_InitializeApp(child: widget ?? const SizedBox.shrink()),
+              // routeInformationParser: router.routeInformationParser,
+              // routerDelegate: router.routerDelegate,
+              // routeInformationProvider: router.routeInformationProvider,
+              // routeInformationParser: router.routeInformationParser,
+              // routerDelegate: router.routerDelegate,
+
+              builder: (ctx, widget) => _InitializeApp(child: widget ?? const SizedBox.shrink()),
             );
           },
         ),

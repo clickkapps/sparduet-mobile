@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +14,7 @@ import 'package:sparkduet/features/chat/data/store/chat_connections_state.dart';
 import 'package:sparkduet/features/chat/data/store/enums.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/chat_connection_item_widget.dart';
 import 'package:sparkduet/features/chat/presentation/widgets/empty_chat_widget.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_cubit.dart';
 import 'package:sparkduet/features/users/data/store/user_state.dart';
@@ -29,8 +32,12 @@ class ChatConnectionsPage extends StatefulWidget {
 
 class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
 
+
   late ChatConnectionsCubit chatConnectionsCubit;
   PagingController<int, dynamic>? pagingController;
+  ScrollController scrollController = ScrollController();
+  late StreamSubscription navStreamSubscription;
+  late NavCubit navCubit;
   @override
   void initState() {
     chatConnectionsCubit = context.read<ChatConnectionsCubit>();
@@ -40,17 +47,27 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
     //     // pagingController?.itemList = [];
     //   }
     // });
+    navCubit = context.read<NavCubit>();
+    navStreamSubscription = navCubit.stream.listen((event) {
 
-    chatConnectionsCubit.fetchChatConnections().then((value) {
-      chatConnectionsCubit.setServerPushChannels();
-      chatConnectionsCubit.listenToServerChatUpdates();
+      if(event.status == NavStatus.onActiveIndexTappedCompleted) {
+        final tabIndex = event.data as int;
+        if(tabIndex == 1) {
+          scrollController.animateTo(0.00, duration: const Duration(milliseconds: 275), curve: Curves.linear);
+        }
+      }
+
+
     });
+    chatConnectionsCubit.fetchChatConnections().then((value) {});
     super.initState();
   }
 
   @override
   void dispose() {
     pagingController?.dispose();
+    navStreamSubscription.cancel();
+    scrollController.dispose();
     // chatConnectionsCubit.cancelChatConnectionsListener();
     super.dispose();
   }
@@ -83,7 +100,9 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: NestedScrollView(headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+      body: NestedScrollView(
+        controller: scrollController,
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
 
         return [
           SliverAppBar(
@@ -150,7 +169,7 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
                     final user = chatState.suggestedChatUsers[i];
                     return  GestureDetector(
                       onTap: () {
-                        context.push(AppRoutes.chatPreview, extra: user );
+                        context.pushToChatPreview( user );
                       },
                       behavior: HitTestBehavior.opaque,
                       child: ConstrainedBox(

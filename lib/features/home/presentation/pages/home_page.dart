@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:background_fetch/background_fetch.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:feather_icons/feather_icons.dart';
@@ -13,10 +14,12 @@ import 'package:http/http.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:open_store/open_store.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
+import 'package:sparkduet/app/routing/routes.dart';
 import 'package:sparkduet/core/app_audio_service.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/core/app_injector.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
@@ -55,13 +58,14 @@ import '../../../../core/app_injector.dart' as di;
 class HomePage extends StatefulWidget {
 
   final Widget child;
-  const HomePage({super.key, required this.child});
+  final List<GlobalKey<NavigatorState>> navigatorKeys;
+  const HomePage({super.key, required this.child, required this.navigatorKeys});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMixin, AuthUIMixin {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMixin, AuthUIMixin, RouteAware  {
 
   int activeIndex = 0;
   late NavCubit navCubit;
@@ -73,6 +77,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
   StreamSubscription? cubeChatConnectionStateStream;
   AppLifecycleState? appState;
   final newVersion = NewVersionPlus();
+  bool appInitialized = false;
+
 
   @override
   void initState() {
@@ -82,7 +88,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     userCubit = context.read<UserCubit>();
     navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChangeRequested) {
-            onItemTapped(event.currentTabIndex);
+          if(event.requestedTabIndex != null) {
+            if(event.requestedTabIndex == NavPosition.profile) {
+              onItemTapped(event.requestedTabIndex!, data: event.data);
+              return;
+            }
+            onItemTapped(event.requestedTabIndex!);
+          }
+
         }
     });
 
@@ -106,7 +119,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     authCubit.stream.listen((event) {
       if(event.status == AuthStatus.setAuthUserInfoCompleted) {
           if((event.authUser?.info?.preferredNationalities ?? "").isEmpty){
-            logout(context);
+            if(mounted) {
+              logout(context);
+            }
+
           }
       }
     });
@@ -142,7 +158,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     });
 
     // fetch and update user profile info
-    initialize();
+    attemptInitializations();
     establishConnection();
     appState = WidgetsBinding.instance.lifecycleState;
     WidgetsBinding.instance.addObserver(this);
@@ -155,35 +171,77 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     authFeedsCubitStreamSubscription?.cancel();
     cubeChatConnectionStateStream?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    homePageRouteObserver.unsubscribe(this);
     super.dispose();
   }
 
+  @override
+  void didPush() {
+    // This route was pushed onto the navigator and is now topmost.
+    debugPrint('HomePage: didPush');
+  }
+
+  @override
+  void didPopNext() {
+    // This route is again the top route.
+    context.read<HomeCubit>().didPopFromNext(tabIndex: activeIndex);
+    debugPrint('HomePage: didPopNext');
+  }
+
+  @override
+  void didPop() {
+    // This route was popped off the navigator.
+    debugPrint('HomePage: didPop');
+  }
+
+  @override
+  void didPushNext() {
+    // Another route has been pushed above this one.
+    context.read<HomeCubit>().didPushToNext(tabIndex: activeIndex);
+    debugPrint('HomePage: didPushNext');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    homePageRouteObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
   // this is called when app initializes and as well as when there a change in network connection
-  void initialize() async {
-    context.read<AuthCubit>().fetchAuthUserInfo();
-    AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
-    context.read<CountriesCubit>().fetchAllCountries();
-    context.read<SearchCubit>().fetchPopularSearchTerms();
-    context.read<SearchCubit>().fetchRecentSearchTerms();
-    final authUser = context.read<AuthCubit>().state.authUser;
-    context.read<ChatConnectionsCubit>().setAuthenticatedUser(authUser);
-    context.read<ChatPreviewCubit>().setAuthenticatedUser(authUser);
-    context.read<ChatConnectionsCubit>().fetchChatConnections();
-    context.read<ChatConnectionsCubit>().fetchSuggestedChatUsers();
-    context.read<PreferencesCubit>().fetchUserSettings();
-    promptUserToSubscribeToPushNotification(authUser?.username ?? "");
-    listenForPushNotifications();
-    context.read<UserCubit>().addOnlineUser(userId: authUser?.id); // set user as online
-    context.read<UserCubit>().getDisciplinaryRecord(userId: authUser?.id);
-    context.read<HomeCubit>().initializeSocketConnection().then((value) {
-      context.read<UserCubit>().listenToServerNotificationUpdates(authUser: authUser);
-      context.read<NotificationsCubit>().listenToServerNotificationUpdates(authUser: authUser);
-      context.read<ChatConnectionsCubit>().setServerPushChannels();
-      context.read<ChatConnectionsCubit>().getTotalUnreadChatMessages();
-    });
-    context.read<SubscriptionCubit>().initializeSubscription(authUser?.publicKey ?? "").then((value) {
-      context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
-    });
+  void attemptInitializations() async {
+    if(await isNetworkConnected() && mounted) {
+      context.read<AuthCubit>().fetchAuthUserInfo();
+      AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
+      context.read<CountriesCubit>().fetchAllCountries();
+      context.read<SearchCubit>().fetchPopularSearchTerms();
+      context.read<SearchCubit>().fetchRecentSearchTerms();
+      final authUser = context.read<AuthCubit>().state.authUser;
+      context.read<ChatConnectionsCubit>().setAuthenticatedUser(authUser);
+      context.read<ChatPreviewCubit>().setAuthenticatedUser(authUser);
+      context.read<ChatConnectionsCubit>().fetchChatConnections();
+      context.read<ChatConnectionsCubit>().fetchSuggestedChatUsers();
+      context.read<PreferencesCubit>().fetchUserSettings();
+      promptUserToSubscribeToPushNotification(authUser?.username ?? "");
+      listenForPushNotifications();
+      context.read<NotificationsCubit>().countUnseenNotifications();
+      context.read<UserCubit>().addOnlineUser(userId: authUser?.id); // set user as online
+      context.read<UserCubit>().getDisciplinaryRecord(userId: authUser?.id);
+      context.read<HomeCubit>().initializeSocketConnection().then((value) {
+        context.read<UserCubit>().listenToServerNotificationUpdates(authUser: authUser);
+        context.read<NotificationsCubit>().listenToServerNotificationUpdates(authUser: authUser);
+        context.read<ChatConnectionsCubit>().setServerPushChannels();
+        context.read<ChatConnectionsCubit>().listenToServerChatUpdates();
+        context.read<ChatConnectionsCubit>().getTotalUnreadChatMessages();
+
+      });
+      context.read<SubscriptionCubit>().initializeSubscription(authUser?.publicKey ?? "").then((value) {
+        context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
+      });
+      Future.delayed(const Duration(seconds: 2) , () {
+        appInitialized = true;
+      });
+    }
+
 
   }
 
@@ -237,6 +295,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     // reconnect if connection is lost
     cubeChatConnectionStateStream = Connectivity().onConnectivityChanged.listen((connectivityType) {
       if (AppLifecycleState.resumed != appState) return;
+      if(!appInitialized) {
+        attemptInitializations();
+      }
 
     });
   }
@@ -296,12 +357,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
 
 
     OneSignal.User.pushSubscription.addObserver((state) {
-      debugPrint("customLog -> Onesignal: pushSubscription-> ${state.current.jsonRepresentation()}");
-      // context.showSnackBar("pushNotificationTappedListener called");
-      if(state.current.optedIn) {
-        final currentUser = context.read<AuthCubit>().state.authUser;
-        if(currentUser?.username != null) {
-          registerUserForPushNotification(currentUser!.username!);
+      if(mounted) {
+        debugPrint("customLog -> Onesignal: pushSubscription-> ${state.current.jsonRepresentation()}");
+        // context.showSnackBar("pushNotificationTappedListener called");
+        if(state.current.optedIn) {
+          final currentUser = context.read<AuthCubit>().state.authUser;
+          if(currentUser?.username != null) {
+            registerUserForPushNotification(currentUser!.username!);
+          }
         }
       }
 
@@ -345,6 +408,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
           //     // fetch interest and navigate user to interest preview
           //   }
           // }
+          //     context.push(AppRoutes.)
 
 
         }            // <-- The target method
@@ -378,12 +442,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
             if(otherParticipant == null) {return;}
 
             if(mounted) {
-              context.push(AppRoutes.chatPreview, extra: {
+              context.pushToChatPreview({
                 "user": otherParticipant,
-                "chatConnection": chatConnection
+                "connection": chatConnection
               });
             }
 
+          }else {
+            // currently all notification are related to auth user profile, this will cange
+            // in the future.
+            onWidgetBindingComplete(onComplete: () {
+              context.read<NavCubit>().requestTabChange(NavPosition.profile);//
+            });
           }
 
         }            // <-- The target method
@@ -511,7 +581,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
         context.read<UserCubit>().removeOnlineUser(userId: authUser.id);
       }
 
-
     } else if (AppLifecycleState.resumed == state) {
       debugPrint("didChangeAppLifecycleState: resumed");
       // just for an example user was saved in the local storage
@@ -525,6 +594,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
         });
 
       }
+
+
     }
   }
 
@@ -540,7 +611,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
   }
 
 
-  void initiatePost(BuildContext context) {
+  void initiatePost(BuildContext context) async {
+    const newIndex = 2;
     // videoControllers[activeFeedIndex]?.pause();
     // final theme = Theme.of(context);
     // check if this is user's first feed. Then show introductory video page
@@ -548,7 +620,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     // Else show the list of options user can talk about
     final authUser = context.read<AuthCubit>().state.authUser;
     if(authUser?.introductoryPost != null) {
-      openFeedCamera(context);
+      // activeIndex = newIndex;
+      // context.read<NavCubit>().onTabChange(newIndex);
+      await openFeedCamera(context);
+      // an existing active index has been tapped again
+      // if(context.mounted) {
+      //   final previousTab = context.read<NavCubit>().state.previousIndex;
+      //   context.read<NavCubit>().onTabChange(previousTab);
+      // }
       return;
     }
 
@@ -559,41 +638,51 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
         child: IntroductionWidget(onAccept: (purpose) async{
           context.popScreen();
-          openFeedCamera(context, purpose: purpose);
+          await openFeedCamera(context, purpose: purpose);
+          // if(context.mounted) {
+          //   final previousTab = context.read<NavCubit>().state.previousIndex;
+          //   context.read<NavCubit>().onTabChange(previousTab);
+          // }
+
         },),
       )
     );
 
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
-
+      // final previousTab = context.read<NavCubit>().state.previousIndex;
+      // context.read<NavCubit>().onTabChange(previousTab);
     });
 
   }
   
 
   /// Switch between pages when user taps on any of the bottom navigation bar menus
-  void onItemTapped(int index) {
+  void onItemTapped(int newIndex, {dynamic data}) {
 
     if(!context.mounted) {
       return;
     }
 
-    // an existing active index has been tapped again
-    context.read<NavCubit>().onTabChange(index);
+    // Pop all inner pages in the current tab
+    widget.navigatorKeys[activeIndex].currentState?.popUntil((route) => route.isFirst);
+    Navigator.of(context).popUntil((Route<dynamic> route) {return route.isFirst;});
 
-    if(index == 2) {
-      activeIndex = index;
+    if(newIndex == 2) {
       initiatePost(context);
       return;
     }
 
-    if(index == activeIndex) {
-      context.read<NavCubit>().onActiveIndexTapped(index);
+    // an existing active index has been tapped again
+    context.read<NavCubit>().onTabChange(newIndex);
+
+    if(newIndex == activeIndex) {
+      context.read<NavCubit>().onActiveIndexTapped(newIndex);
       return;
     }
 
-    activeIndex = index;
-    switch (index) {
+
+    activeIndex = newIndex;
+    switch (newIndex) {
       case 0:
         context.go(AppRoutes.home);
         break;
@@ -601,7 +690,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
         context.go(AppRoutes.inbox);
         break;
       case 3:
-        context.go(AppRoutes.authProfile);
+        context.go(AppRoutes.authProfile, extra: data);
       case 4:
         context.go(AppRoutes.preferences);
         break;

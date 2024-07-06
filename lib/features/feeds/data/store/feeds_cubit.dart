@@ -80,6 +80,11 @@ class FeedsCubit extends Cubit<FeedState> {
     super.close();
   }
 
+  void setBackgroundHasRefreshedFeed({bool hasRefreshed = false}) async {
+    emit(state.copyWith(status: FeedStatus.setBackgroundHasRefreshedFeedInProgress));
+    emit(state.copyWith(status: FeedStatus.setBackgroundHasRefreshedFeedCompleted, backgroundHasRefreshedFeeds: hasRefreshed));
+  }
+
   /// Create a new feed // This is automatically triggered
   void postFeed({
     required File file,
@@ -243,7 +248,7 @@ class FeedsCubit extends Cubit<FeedState> {
 
 
   //! Fetch feeds and update the app's state as well as the UI
-  Future<(String?, List<FeedModel>?)> fetchFeeds({required String path, required int pageKey, Map<String, dynamic>? queryParams, bool returnExistingFeedsForFirstPage = true}) async {
+  Future<(String?, List<FeedModel>?)> fetchFeeds({required String path, required int pageKey, Map<String, dynamic>? queryParams, bool returnExistingFeedsForFirstPage = false}) async {
 
 
     final uncompletedFeeds = state.feeds.where((element) => element.id == null).toList();
@@ -254,17 +259,18 @@ class FeedsCubit extends Cubit<FeedState> {
 
     // if(pageKey == )
 
-    // return cached items
-    // if(returnExistingFeedsForFirstPage) {
-    //   if(pageKey == 1 && state.feeds.isNotEmpty) {
-    //     emit(state.copyWith(status: FeedStatus.fetchFeedsSuccessful,
-    //         data: { "pageKey": pageKey }
-    //     ));
-    //     return (null, state.feeds);
-    //   }
-    // }
-
     emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress, ));
+
+    // return cached items
+    if(returnExistingFeedsForFirstPage) {
+      if(pageKey == 1 && state.feeds.isNotEmpty) {
+        emit(state.copyWith(status: FeedStatus.fetchFeedsSuccessful,
+            data: { "pageKey": pageKey }
+        ));
+        return (null, state.feeds);
+      }
+    }
+
     final either = await feedsRepository.fetchFeeds(path, queryParams: queryParams);
     if(either.isLeft()){
       final l = either.asLeft();

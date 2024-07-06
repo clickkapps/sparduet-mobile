@@ -44,7 +44,7 @@ class UserListItemWidget extends StatelessWidget {
               const SizedBox(width: 10,),
               if(showMessageButton) ... {
                 UserProfileActionWidget(size: 40, icon: FontAwesomeIcons.solidMessage, onTap: () {
-                  context.push(AppRoutes.chatPreview, extra: user);
+                  context.pushToChatPreview(user);
                 },)
               }
             ],

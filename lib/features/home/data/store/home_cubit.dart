@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/feeds/data/repositories/feed_broadcast_repository.dart';
 import 'package:sparkduet/features/home/data/repositories/home_broadcast_repository.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
 import 'package:sparkduet/features/home/data/store/home_state.dart';
 import '../repositories/socket_connection_repository.dart';
 
@@ -33,6 +34,17 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> close() {
     socketConnectionRepository.realtimeInstance?.close();
     return super.close();
+  }
+
+
+  void didPushToNext({required int tabIndex }) {
+    emit(state.copyWith(status: HomeStatus.didPushToNextInProgress));
+    emit(state.copyWith(status: HomeStatus.didPushToNextCompleted, data: { "tabIndex": tabIndex }));
+  }
+
+  void didPopFromNext({required int tabIndex}) {
+    emit(state.copyWith(status: HomeStatus.didPopFromNextInProgress));
+    emit(state.copyWith(status: HomeStatus.didPopFromNextCompleted, data: { "tabIndex": tabIndex }));
   }
 
 }

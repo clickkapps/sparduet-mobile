@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,10 +31,11 @@ Future<String?> openFeedCamera(BuildContext context, {PostFeedPurpose? purpose})
     return  "No cameras detected on your device";
   }
   if(context.mounted) {
-    return context.push(AppRoutes.camera, extra: {"cameras": cameras, "feedPurpose": purpose}).then((value) {
+    return context.pushToCamera({"cameras": cameras, "feedPurpose": purpose}).then((value) {
         if(currentTheme.brightness == Brightness.light) {
           context.read<ThemeCubit>().setSystemUIOverlaysToLight();
         }
+        return null;
     });
   }
   return null;

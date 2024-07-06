@@ -33,6 +33,7 @@ import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/censored_feed_checker_widget.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
@@ -76,6 +77,8 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
   StreamSubscription? authubitSubscription;
   ValueNotifier<int> activeTab = ValueNotifier(0);
   dynamic profilePhoto;
+  late StreamSubscription navStreamSubscription;
+  late NavCubit navCubit;
 
   @override
   void initState() {
@@ -129,6 +132,20 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
         }
         // if(even)
     });
+
+    navCubit = context.read<NavCubit>();
+    navStreamSubscription = navCubit.stream.listen((event) {
+
+      if(event.status == NavStatus.onActiveIndexTappedCompleted) {
+        final tabIndex = event.data as int;
+        if(tabIndex == 3) {
+          autoScrollController.animateTo(0.00, duration: const Duration(milliseconds: 275), curve: Curves.linear);
+        }
+      }
+
+
+    });
+
     final authenticatedUser = authCubit.state.authUser;
     tabItems = [
       {
@@ -158,6 +175,8 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
   void dispose() {
     tabController.dispose();
     feedCubitSubscription?.cancel();
+    navStreamSubscription.cancel();
+    authubitSubscription?.cancel();
     super.dispose();
   }
 
@@ -690,7 +709,15 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                   return const SizedBox(width: 0,);
                                 },
                                 children: [
-                                  CustomChipWidget(label: "Your posts", active: val == 0, onTap: () {
+                                  CustomChipWidget(labelWidget: Row(
+                                     children: [
+                                       Text("Your Posts", style: TextStyle(color: val == 0 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,),),
+                                       if(val == 0) ... {
+                                         const SizedBox(width: 5,)
+,                                         Icon(Icons.refresh, size: 16, color: val == 0 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,)
+                                       }
+                                     ],
+                                  ), active: val == 0, onTap: () {
                                     if(activeTab.value == 0) {
                                       userPostsPagingController?.refresh();
                                       return;
@@ -698,7 +725,18 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                     activeTab.value = 0;
                                     tabController.animateToPage(0, duration: const Duration(milliseconds: 357), curve: Curves.linear);
                                   },),
-                                  CustomChipWidget(label: "Bookmarked posts", active: val == 1, onTap: () {
+                                  CustomChipWidget(
+                                    // label: "Bookmarked posts",
+                                    labelWidget: Row(
+                                      children: [
+                                        Text("Bookmarked posts", style: TextStyle(color: val == 1 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,),),
+                                        if(val == 1) ... {
+                                          const SizedBox(width: 5,),
+                                          Icon(Icons.refresh, size: 16, color: val == 1 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,)
+                                        }
+                                      ],
+                                    ),
+                                    active: val == 1, onTap: () {
                                     if(activeTab.value == 1) {
                                       userBookmarksPagingController?.refresh();
                                       return;

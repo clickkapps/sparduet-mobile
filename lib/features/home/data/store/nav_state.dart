@@ -11,9 +11,10 @@ class NavState extends Equatable {
   final String? message;
   final int previousIndex;
   final int currentTabIndex;
+  final int? requestedTabIndex;
   final dynamic data;
 
-  const NavState({this.status = NavStatus.initial, this.message, this.data, this.currentTabIndex = 0, this.previousIndex = 0});
+  const NavState({this.status = NavStatus.initial, this.message, this.data, this.currentTabIndex = 0, this.previousIndex = 0, this.requestedTabIndex});
 
   @override
   List<Object?> get props => [status, currentTabIndex];

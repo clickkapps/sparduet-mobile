@@ -47,8 +47,7 @@ class _CustomImagePlayerWidgetState extends State<CustomImagePlayerWidget> with 
 
   @override
   void dispose() {
-
-    // assetsAudioPlayer.dispose();
+    player.dispose();
     super.dispose();
   }
 

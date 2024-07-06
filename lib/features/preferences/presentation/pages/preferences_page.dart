@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +7,7 @@ import 'package:separated_column/separated_column.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
+import 'package:sparkduet/features/home/data/store/enums.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/display_settings_page.dart';
 import 'package:sparkduet/features/preferences/presentation/pages/feedback_page.dart';
@@ -20,10 +23,36 @@ import 'package:sparkduet/utils/custom_border_widget.dart';
 import 'package:sparkduet/utils/custom_card.dart';
 import 'dart:io' show Platform;
 
-class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, AuthMixin, SubscriptionPageMixin {
+class PreferencesPage extends StatefulWidget {
 
   const PreferencesPage({super.key});
 
+  @override
+  State<PreferencesPage> createState() => _PreferencesPageState();
+}
+
+class _PreferencesPageState extends State<PreferencesPage> with LaunchExternalAppMixin, AuthMixin, SubscriptionPageMixin {
+
+  ScrollController scrollController = ScrollController();
+  late StreamSubscription navStreamSubscription;
+  late NavCubit navCubit;
+
+  @override
+  void initState() {
+    navCubit = context.read<NavCubit>();
+    navStreamSubscription = navCubit.stream.listen((event) {
+
+      if(event.status == NavStatus.onActiveIndexTappedCompleted) {
+        final tabIndex = event.data as int;
+        if(tabIndex == 4) {
+          scrollController.animateTo(0.00, duration: const Duration(milliseconds: 275), curve: Curves.linear);
+        }
+      }
+
+
+    });
+    super.initState();
+  }
 
   void  showCreateFeedbackHandler(BuildContext context) {
     final ch = GestureDetector(
@@ -87,7 +116,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, AuthM
       // context.read<ThemeCubit>().setSystemUIOverlaysToDark();
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -114,6 +143,7 @@ class PreferencesPage extends StatelessWidget with LaunchExternalAppMixin, AuthM
         ],
       ),
       body: SingleChildScrollView(
+        controller: scrollController,
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: SeparatedColumn(
            separatorBuilder: (BuildContext context, int index) {

@@ -14,12 +14,14 @@ class FeedState extends Equatable {
   final String message;
   final List<FeedModel>  feeds;
   final dynamic data; // temporal data
+  final bool backgroundHasRefreshedFeeds;
 
   const FeedState({
     this.status = FeedStatus.initial,
     this.message = "There's an issue with your connection",
     this.feeds = const  [],
     this.data,
+    this.backgroundHasRefreshedFeeds = false
     // this.postFeedRequest = const PostFeedRequest()
   });
 

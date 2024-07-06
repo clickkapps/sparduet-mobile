@@ -13,8 +13,7 @@ import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.d
 import 'package:sparkduet/features/users/data/store/user_cubit.dart';
 
 mixin AuthMixin {
-  void logout(BuildContext context) {
-    context.read<AuthCubit>().logout();
+  void logout(BuildContext context) async {
     final authUser = context.read<AuthCubit>().state.authUser;
     context.read<UserCubit>().removeOnlineUser(userId: authUser?.id);
     context.read<ChatPreviewCubit>().clearMessages();
@@ -28,7 +27,10 @@ mixin AuthMixin {
     context.read<NotificationsCubit>().clearState();
     context.read<SubscriptionCubit>().clearState();
     context.read<UserCubit>().clearState();
-    context.go(AppRoutes.login);
+    await context.read<AuthCubit>().logout();
+    if(context.mounted){
+      context.go(AppRoutes.login);
+    }
   }
 
   void deleteAccount(BuildContext context) {

@@ -22,11 +22,12 @@ class FeedActionsWidget extends StatelessWidget {
 
   final FeedModel feed;
   final Function(String)? onActionTapped;
+  final Function(bool)? onChangePage;
 
-  const FeedActionsWidget({super.key, required this.feed, this.onActionTapped});
+  const FeedActionsWidget({super.key, required this.feed, this.onActionTapped, this.onChangePage});
 
 
-  void filterPostsHandler(BuildContext context) {
+  void filterPostsHandler(BuildContext context) async {
     final ch = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
@@ -43,10 +44,12 @@ class FeedActionsWidget extends StatelessWidget {
           }
       ),
     );
-    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+    onChangePage?.call(true);
+    await context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+    onChangePage?.call(false);
   }
 
-  void reportPostHandler(BuildContext context) {
+  void reportPostHandler(BuildContext context) async {
     final ch = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
@@ -62,7 +65,9 @@ class FeedActionsWidget extends StatelessWidget {
           }
       ),
     );
-    context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+    onChangePage?.call(true);
+    await context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
+    onChangePage?.call(false);
   }
 
 
@@ -128,8 +133,10 @@ class FeedActionsWidget extends StatelessWidget {
         /// Chat
         if(!isCreator) ... {
           GestureDetector(
-            onTap: () {
-              context.push(AppRoutes.chatPreview, extra: feed.user );
+            onTap: () async {
+              onChangePage?.call(true);
+              await context.pushToChatPreview(feed.user);
+              onChangePage?.call(false);
             },
             behavior: HitTestBehavior.opaque,
             child: Column(

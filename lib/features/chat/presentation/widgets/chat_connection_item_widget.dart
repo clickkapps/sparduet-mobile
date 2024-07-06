@@ -97,7 +97,7 @@ class ChatConnectionItemWidget extends StatelessWidget {
       onLongPress: () => _showContextMenu(context),
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        context.push(AppRoutes.chatPreview, extra: {
+        context.pushToChatPreview({
           "user": otherParticipant,
           "connection": chatConnection
         });

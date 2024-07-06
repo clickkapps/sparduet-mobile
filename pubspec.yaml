@@ -24,7 +24,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # ---> run: dart run flutter_native_splash:create  --- to create splash screen
 # ---> run: dart run flutter_launcher_icons  --- to generate launcher icon
 
-version: 1.1.6+16
+version: 1.2.2+22
 
 environment:
   sdk: '>=3.3.3 <4.0.0'
@@ -122,7 +122,7 @@ dependencies:
   notification_permissions: ^0.6.1
   firebase_remote_config: ^4.4.4
   pusher_channels_flutter: ^2.2.1
-#  background_fetch: ^1.3.5
+  background_fetch: ^1.3.5
   firebase_crashlytics: ^3.5.7
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -132,6 +132,7 @@ dependencies:
   geocoding: ^3.0.0
   ably_flutter: ^1.2.33
   just_audio: ^0.9.38
+  loading_animation_widget: ^1.2.1
 
 dependency_overrides:
   wakelock: 0.6.2

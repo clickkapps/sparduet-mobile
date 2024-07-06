@@ -235,6 +235,10 @@ class FeedRepository {
   Future<Either<String, void>> viewPost({required int? postId, required String action}) async {
     try{
 
+      if((postId ?? 0) < 1) {
+        return const Right(null);
+      }
+
       final path = AppApiRoutes.viewPostAction(postId: postId);
 
       final body = {
