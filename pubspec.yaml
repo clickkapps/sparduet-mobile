@@ -24,7 +24,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # ---> run: dart run flutter_native_splash:create  --- to create splash screen
 # ---> run: dart run flutter_launcher_icons  --- to generate launcher icon
 
-version: 1.2.2+22
+version: 1.2.3+23
 
 environment:
   sdk: '>=3.3.3 <4.0.0'

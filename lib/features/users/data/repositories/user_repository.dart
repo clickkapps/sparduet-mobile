@@ -245,7 +245,7 @@ class UserRepository {
         }
 
         final dynamicList = response.data["extra"]["data"] as List<dynamic>;
-        final list = List<UserModel>.from(dynamicList.map((x) => UserModel.fromJson(x['user'])));
+        final list = List<UserModel>.from(dynamicList.map((x) => UserModel.fromJson(x)));
 
         return  Right(list);
 

@@ -101,18 +101,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
 
     userCubit.stream.listen((event) {
       if(event.status == UserStatus.getDisciplinaryRecordSuccessful) {
-        if(event.disciplinaryRecord != null && mounted) {
-          if(event.disciplinaryRecord?.disciplinaryAction == "banned") {
-            showUserAccountBannedPage(context, event.disciplinaryRecord!);
-          }
-          if(event.disciplinaryRecord?.disciplinaryAction == "warned" && event.disciplinaryRecord?.userReadAt == null) {
-            showUserAccountWarnedPage(context, event.disciplinaryRecord!);
-          }
-          if(event.disciplinaryRecord?.disciplinaryAction == "notice"  && event.disciplinaryRecord?.userReadAt == null) {
-            showUserAccountNoticePage(context, event.disciplinaryRecord!);
-          }
 
-        }
+        EasyDebounce.debounce('disciplinary-action', const Duration(milliseconds: 5000), () {
+          if(event.disciplinaryRecord != null && mounted) {
+            if(event.disciplinaryRecord?.disciplinaryAction == "banned") {
+              showUserAccountBannedPage(context, event.disciplinaryRecord!);
+            }
+            if(event.disciplinaryRecord?.disciplinaryAction == "warned" && event.disciplinaryRecord?.userReadAt == null) {
+              showUserAccountWarnedPage(context, event.disciplinaryRecord!);
+            }
+            if(event.disciplinaryRecord?.disciplinaryAction == "notice"  && event.disciplinaryRecord?.userReadAt == null) {
+              showUserAccountNoticePage(context, event.disciplinaryRecord!);
+            }
+          }
+        });
+
+
       }
     });
 
@@ -450,9 +454,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
 
           }else {
             // currently all notification are related to auth user profile, this will cange
-            // in the future.
+            // in the future. profile_views
             onWidgetBindingComplete(onComplete: () {
-              context.read<NavCubit>().requestTabChange(NavPosition.profile);//
+              if((data?.containsKey("pushType") ?? false) && data!['pushType'] == "profile_views") {
+                context.read<NavCubit>().requestTabChange(NavPosition.profile);//
+              }
+
+              if((data?.containsKey("pushType") ?? false) && data!['pushType'] == "story_likes") {
+                context.read<NavCubit>().requestTabChange(NavPosition.profile);//
+              }
+
             });
           }
 

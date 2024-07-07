@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
@@ -93,11 +94,13 @@ class UserCubit extends Cubit<UserState> {
 
    });
 
-    socketConnectionRepository.realtimeInstance?.channels.get("public:user.online.status-changed")
+    socketConnectionRepository.realtimeInstance?.channels.get("public:users.${authUser?.id}.online-users.status-changed")
         .subscribe().listen((event) {
       final data = event.data as Map<Object?, Object?>;
       final idsObjs = data['ids'] as List<Object?>;
       final ids = convertToIntList(idsObjs);
+      debugPrint("ids online: $ids");
+      debugPrint("auth user id: ${authUser?.id}");
       final activeIds = ids.where((e) => e  != authUser?.id).toList();
       emit(state.copyWith(status: UserStatus.refreshOnlineListInProgress));
       emit(state.copyWith(status: UserStatus.refreshOnlineListCompleted, onlineUserIds: activeIds));

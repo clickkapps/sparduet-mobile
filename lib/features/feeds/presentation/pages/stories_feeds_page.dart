@@ -147,11 +147,29 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     });
     userCubit.stream.listen((event) {
       if(event.status == UserStatus.getDisciplinaryRecordSuccessful) {
-        if(event.disciplinaryRecord != null) {
-          Future.delayed(const Duration(seconds: 1), () {
-            pauseActiveStory();  // pause story if user has a disciplinary case
-          });
-        }
+
+        // Future.delayed(const Duration(seconds: 1), () {
+        //   if(event.disciplinaryRecord != null && mounted) {
+        //
+        //     if(event.disciplinaryRecord?.disciplinaryAction == "banned") {
+        //       pauseActiveStory();
+        //     }
+        //     if(event.disciplinaryRecord?.disciplinaryAction == "warned" && event.disciplinaryRecord?.userReadAt == null) {
+        //       pauseActiveStory();
+        //     }
+        //     if(event.disciplinaryRecord?.disciplinaryAction == "notice"  && event.disciplinaryRecord?.userReadAt == null) {
+        //       pauseActiveStory();
+        //     }
+        //
+        //   }
+        //   // pauseActiveStory();  // pause story if user has a disciplinary case
+        // });
+
+        // if(event.disciplinaryRecord != null) {
+        //   Future.delayed(const Duration(seconds: 1), () {
+        //     pauseActiveStory();  // pause story if user has a disciplinary case
+        //   });
+        // }
       }
     });
 
@@ -301,26 +319,46 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
         // playRequestFeedVideo(position)
        if(storyPageActive) {
          bool requiresFullRefresh = false;
+         final backgroundHasRefreshedFeeds = context.read<StoriesFeedsCubit>().state.backgroundHasRefreshedFeeds;
          if (_lastPauseTime != null) {
            final timeInBackground = DateTime.now().difference(_lastPauseTime!);
            final difInSeconds = timeInBackground.inSeconds;
-           final backgroundHasRefreshedFeeds = context.read<StoriesFeedsCubit>().state.backgroundHasRefreshedFeeds;
-           if(backgroundHasRefreshedFeeds) {
-             activeFeedIndex = 0; // since background refreshed all pages we need to reset activeIndex
-           }
-           if (difInSeconds >= (5 * 60) && !backgroundHasRefreshedFeeds) {
+
+           //2 * 60
+           if (difInSeconds >= (3 * 60) && !backgroundHasRefreshedFeeds) {
              // If background has not refresh feeds and the user has delayed for more than 30 seconds before getting back to the app, refresh
+             activeFeedIndex = 0;
              _fetchData(pageKey: 1);
              requiresFullRefresh = true;
            }
          }
          if(!requiresFullRefresh) {
-           // resumePlayingIfItWasPlaying();
-           onWidgetBindingComplete(onComplete: () {
-             // resumeActiveStory();
-             resumePlayingIfItWasPlaying();
+           if(backgroundHasRefreshedFeeds) {
+             activeFeedIndex = 0;
+             _fetchData(pageKey: 1, returnExistingFeedsForFirstPage: true); // for quick access to feeds
+           }else {
+             // background has not refreshed feeds yet
+             try{
+               if(videoControllers[activeFeedIndex] == null && imageControllers[activeFeedIndex] == null) {
+                 // if the active controller turns null, fetch all feeds again
+                 activeFeedIndex = 0;
+                 _fetchData(pageKey: 1);
+               }else {
 
-           });
+                 // resumePlayingIfItWasPlaying();
+                 onWidgetBindingComplete(onComplete: () {
+                   // resumeActiveStory();
+                   resumePlayingIfItWasPlaying();
+
+                 });
+
+               }
+             }catch(e) {
+               activeFeedIndex = 0;
+               _fetchData(pageKey: 1);
+             }
+           }
+
          }
          _lastPauseTime = null;
        }
@@ -379,7 +417,9 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
       this.pageKey = pageKey;
       const path = AppApiRoutes.feeds;
       final queryParams = { "page": pageKey, "limit": 20 };
-      if(pageKey == 1) { pauseActiveStory(); } // We do this to stop video and then refresh to avoid duplicate sounds
+      if(pageKey == 1) {
+        pauseActiveStory();
+      } // We do this to stop video and then refresh to avoid duplicate sounds
       final res = await storiesFeedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: queryParams, returnExistingFeedsForFirstPage: returnExistingFeedsForFirstPage);
       if(res.$2 != null && pageKey == 1) {
         onWidgetBindingComplete(onComplete: () {

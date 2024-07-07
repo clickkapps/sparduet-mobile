@@ -227,6 +227,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                         builder: widget.imageBuilder,
                         audioSource: AppAudioSource.network,
                         fit: BoxFit.contain,
+                        autoPlay: widget.autoPlay,
                       ),
                     ),
                   );

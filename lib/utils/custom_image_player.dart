@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:sparkduet/core/app_audio_service.dart';
+import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
 import 'package:sparkduet/utils/custom_network_image_widget.dart';
 
 enum ImageSource { file, network, asset }
@@ -120,7 +121,7 @@ class _CustomImagePlayerWidgetState extends State<CustomImagePlayerWidget> with 
       return SizedBox(
         width: double.maxFinite,
         height: double.maxFinite,
-        child: buildImageWithAnimation(child: CustomNetworkImageWidget(imageUrl: widget.imageUrl, fit: fit)),
+        child: buildImageWithAnimation(child: CustomNetworkImageWidget(imageUrl: widget.imageUrl, fit: fit, progressChild: const Center(child: SizedBox(width: 30, height: 30, child: CustomAdaptiveCircularIndicator(),)),)),
       );
     }
 
