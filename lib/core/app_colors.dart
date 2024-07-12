@@ -5,6 +5,7 @@ abstract final class AppColors {
   static const Color buttonBlue = Color(0xFF29B6F6);
   static const Color navyBlue = Color(0xFF1a73e8);
   static const Color oldSilver = Color(0xFF828282);
+  static const Color onlineGreen = Color(0xFF0ff446);
 
   static const MaterialColor black = MaterialColor(
     darkColor,

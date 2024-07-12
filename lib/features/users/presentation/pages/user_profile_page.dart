@@ -98,39 +98,51 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void reportUserHandler(BuildContext context) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: ReportUserPage(controller: controller, user: widget.user,)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: ReportUserPage(controller: controller, user: widget.user,)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
 
   void blockUserHandler(BuildContext context) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: BlockUserPage(controller: controller, user: widget.user,)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: BlockUserPage(controller: controller, user: widget.user,)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(
         child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
@@ -311,13 +323,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                                             ClipRRect(
                                               borderRadius: BorderRadius.circular(100),
-                                              child: CustomUserAvatarWidget(size: headerIconSize, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover,
-                                                imageUrl: AppConstants.imageMediaPath(mediaId: user.info?.profilePicPath ?? ''),
+                                              child: CustomUserAvatarWidget(size: headerIconSize - 6, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover,
+                                                imageUrl: AppConstants.imageMediaPath(mediaId: user.info?.profilePicPath ?? ''), placeHolderName: user.name ?? user.username
                                               ),
                                             )
 
                                           }else ... {
-                                            CustomUserAvatarWidget(size: headerIconSize, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover)
+                                            CustomUserAvatarWidget(size: headerIconSize - 6, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover, placeHolderName: user.name ?? user.username,)
                                           }
                                         ],
                                       ),

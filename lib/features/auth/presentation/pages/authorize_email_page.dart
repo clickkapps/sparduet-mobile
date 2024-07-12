@@ -41,6 +41,12 @@ class _AuthorizeEmailPageState extends State<AuthorizeEmailPage> with FormMixin 
     super.initState();
   }
 
+  @override
+  void dispose() {
+    codeFocusNode.dispose();
+    super.dispose();
+  }
+
   // user enters the verification code received and submit
   void _onSubmitVerificationCodeTapped(BuildContext ctx) {
 

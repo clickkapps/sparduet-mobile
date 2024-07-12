@@ -30,7 +30,10 @@ class UserListItemWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: Row(
             children: [
-              CustomUserAvatarWidget(size: 55, showBorder: false, borderWidth: 1, imageUrl: AppConstants.imageMediaPath(mediaId: user.info?.profilePicPath ?? '') ),
+              CustomUserAvatarWidget(size: 55, showBorder: false, borderWidth: 1,
+                  imageUrl: AppConstants.imageMediaPath(mediaId: user.info?.profilePicPath ?? '') ,
+                  placeHolderName: user.name ?? user.username,
+              ),
               const SizedBox(width: 10,),
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

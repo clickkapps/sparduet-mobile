@@ -18,6 +18,7 @@ abstract final class AppConstants {
   static const String privacyPolicy = "$website/privacy-policy";
   static const String faq = "$website/faq";
   static Cloudinary? cloudinary;
+  static bool deviceIsEmulator = false;
   // static const String testVideoUrl = "https://stream.mux.com/qDoywC02xt9SvqU1S2n00phorcTHPFOATBvCggHt005lds.m3u8";
   // static String requestPostFeedAudioUrl = "https://res.cloudinary.com/dhhyl4ygy/video/upload/f_auto:video,q_auto/v1/sparkduet/fbcuueotbitapy16lyva.mp3";
   // static String requestPostFeedAudioUrl = "https://stream.mux.com/bJXeC2UGUynh7wz8XoUECaIk82xsNefGYzPoT5hIet8.m3u8";
@@ -29,7 +30,8 @@ abstract final class AppConstants {
     if(mediaId.isEmpty) {
       return '';
     }
-    return "https://d2e46virtl8cds.cloudfront.net/$mediaId";
+    // return "https://d2e46virtl8cds.cloudfront.net/$mediaId";
+    return "https://res.cloudinary.com/ddnzrzwjx/image/upload/f_auto,q_auto/$mediaId";
   }
   static String audioMediaPath({required String mediaId}) => "https://d2e46virtl8cds.cloudfront.net/$mediaId";
   static String thumbnailMediaPath({required String mediaId}) => "https://image.mux.com/$mediaId/thumbnail.png";
@@ -71,11 +73,11 @@ abstract final class AppConstants {
       expectedFile: ExpectedFiles.video
   );
   static PostFeedPurpose otherPostFeedPurpose = const PostFeedPurpose(
-      title: "What's on your mind?",
-      subTitle: "Hi✋! share a quick 30-second video for your potential suitors",
+      title: "Create New Post",
+      subTitle: "What's on your mind? share a quick 30-second video about it",
       key: "other",
       description: "",
-      expectedFile: ExpectedFiles.video
+      expectedFile: ExpectedFiles.any
   );
 
 

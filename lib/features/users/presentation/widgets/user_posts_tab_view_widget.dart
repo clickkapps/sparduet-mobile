@@ -88,10 +88,19 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
     return result;
   }
 
-  void showDeleteOption(BuildContext context, FeedModel post) {
+  void showPostOptions(BuildContext context, FeedModel post) {
     context.showCustomListBottomSheet(items: [ const ListItem(id: "delete", title: "Delete Post")], onItemTapped: (item) {
       if(item.id == "delete") {
         context.read<C>().deletePost(post: post);
+      }
+    });
+        // working on delete option and realtime showing of censor
+  }
+
+  void showTempPostOptions(BuildContext context, FeedModel post) {
+    context.showCustomListBottomSheet(items: [ const ListItem(id: "delete", title: "Delete Post")], onItemTapped: (item) {
+      if(item.id == "delete") {
+        context.read<C>().deleteTempPost(post: post);
       }
     });
         // working on delete option and realtime showing of censor
@@ -113,6 +122,8 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
             if(post.id != null) {
               context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
             }
+          }, onLongPress: () {
+            showPostOptions(context, post);
           },);
         }else{
          return CompletedUserPostItem(post: post, onTap: () {
@@ -122,7 +133,7 @@ class _UserPostsTabViewWidgetState<C extends FeedsCubit> extends State<UserPosts
            // context.pushScreen(StoriesPreviewsPage(feeds: feedsCubit.state.feeds, initialFeedIndex: feedsCubit.state.feeds.indexWhere((element) => element.id == post.id),));
          }, onLongPress: () {
            if(authenticatedUser?.id == post.user?.id) {
-             showDeleteOption(context, post);
+             showTempPostOptions(context, post);
            }
          },);
         }

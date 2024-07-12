@@ -63,6 +63,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin, WidgetsBi
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _emailController.dispose();
+    emailFocusNode.dispose();
     super.dispose();
   }
 
@@ -138,22 +139,28 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin, WidgetsBi
 
   void openAuthorizeEmailModal(BuildContext context, {required String email}) {
 
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 1.0,
-          minChildSize: 0.9,
-          builder: (_ , controller) {
-            return ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-              child: AuthorizeEmailPage(email: email, onSuccess: (token, customToken) {
-                _authCubit.login(token: token, customToken: customToken);
-              },),
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 1.0,
+            minChildSize: 0.9,
+            builder: (_ , controller) {
+              return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                child: AuthorizeEmailPage(email: email, onSuccess: (token, customToken) {
+                  _authCubit.login(token: token, customToken: customToken);
+                },),
+              );
+            }
+        ),
+      ],
     );
 
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) =>  _themeCubit.setSystemUIOverlaysToPrimary());
@@ -162,22 +169,28 @@ class _AuthLoginPageState extends State<AuthLoginPage> with FormMixin, WidgetsBi
 
 
   void openAuthorizeSocialModal(BuildContext context, {required String loginType}) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 1.0,
-          minChildSize: 0.9,
-          builder: (_ , controller) {
-            return ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(20)),
-              child: AuthorizeSocialPage(loginType: loginType, onSuccess: (token, customToken) {
-                _authCubit.login(token: token, customToken: customToken);
-              },),
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 1.0,
+            minChildSize: 0.9,
+            builder: (_ , controller) {
+              return ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(20)),
+                child: AuthorizeSocialPage(loginType: loginType, onSuccess: (token, customToken) {
+                  _authCubit.login(token: token, customToken: customToken);
+                },),
+              );
+            }
+        ),
+      ],
     );
 
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) =>  _themeCubit.setSystemUIOverlaysToPrimary());

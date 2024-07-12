@@ -29,20 +29,26 @@ class CompletedUserPostItem extends StatelessWidget with SubscriptionPageMixin {
       return;
     }
 
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: PostLikedUsersPage(controller: controller, postId: post.id,)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: PostLikedUsersPage(controller: controller, postId: post.id,)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }

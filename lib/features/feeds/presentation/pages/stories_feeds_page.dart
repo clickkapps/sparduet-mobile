@@ -1,16 +1,21 @@
 import 'dart:async';
-import 'package:background_fetch/background_fetch.dart';
 import 'package:better_player/better_player.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:sparkduet/app/routing/routes.dart';
+import 'package:sparkduet/core/app_classes.dart';
 import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/auth/data/store/auth_cubit.dart';
+import 'package:sparkduet/features/auth/data/store/auth_feeds_cubit.dart';
 import 'package:sparkduet/features/auth/data/store/enums.dart';
 import 'package:sparkduet/features/chat/data/store/chat_connections_cubit.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
@@ -18,19 +23,17 @@ import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/stories_feeds_cubit.dart';
+import 'package:sparkduet/features/feeds/presentation/pages/stories_explanation_page.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/feed_item_widget.dart';
 import 'package:sparkduet/features/feeds/presentation/widgets/request_post_feed_item_widget.dart';
 import 'package:sparkduet/features/files/mixin/file_manager_mixin.dart';
 import 'package:sparkduet/features/home/data/store/enums.dart';
 import 'package:sparkduet/features/home/data/store/home_cubit.dart';
 import 'package:sparkduet/features/home/data/store/nav_cubit.dart';
-import 'package:sparkduet/features/notifications/data/store/notifications_cubit.dart';
-import 'package:sparkduet/features/notifications/data/store/notifications_state.dart';
 import 'package:sparkduet/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:sparkduet/features/notifications/presentation/widgets/notification_icon_widget.dart';
 import 'package:sparkduet/features/preferences/data/store/preferences_cubit.dart';
 import 'package:sparkduet/features/search/presentation/pages/top_search_page.dart';
-import 'package:sparkduet/features/subscriptions/data/store/subscription_cubit.dart';
 import 'package:sparkduet/features/subscriptions/presentation/ui_mixin/subsription_page_mixin.dart';
 import 'package:sparkduet/features/theme/data/store/theme_cubit.dart';
 import 'package:sparkduet/features/users/data/store/enums.dart';
@@ -39,7 +42,6 @@ import 'package:sparkduet/features/users/data/store/user_state.dart';
 import 'package:sparkduet/features/users/presentation/pages/users_online_page.dart';
 import 'package:sparkduet/network/api_routes.dart';
 import 'package:sparkduet/utils/custom_adaptive_circular_indicator.dart';
-import 'package:sparkduet/utils/custom_badge_icon.dart';
 import 'package:sparkduet/utils/custom_button_widget.dart';
 import 'package:sparkduet/utils/custom_error_content_widget.dart';
 import 'package:sparkduet/utils/custom_fast_page_scroll_physics.dart';
@@ -69,14 +71,16 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   final Map<int, BetterPlayerController?> requestPostFeedVideoControllers = {};
   int pageKey = 1;
   final preloadPageController = PreloadPageController();
-  bool activeStoryPlaying = true;
-  bool storyPlayingBeforeLeavingPage = true; // This records the state before user navigates from the page
   StreamSubscription? navCubitSubscription;
+  StreamSubscription? homeCubitSubscription;
+  StreamSubscription? userCubitSubscription;
+  StreamSubscription? authCubitSubscription;
   int lastPositionFetched = -1;
-  bool initialStoryViewed = false;
+  // bool initialStoryViewed = false;
   DateTime? _lastPauseTime;
-  bool storyPageActive = true;
-  final ValueNotifier<bool> showPauseIcon = ValueNotifier(false);
+  // bool storyPageActive = true;
+  final CurrentPageIsActiveNotifier currentPageIsActiveNotifier = CurrentPageIsActiveNotifier();
+  final ValueNotifier<bool> showPlayIcon = ValueNotifier(false);
 
   ///! Hint user to swipe up for more ...
   late AnimationController _hintController;
@@ -93,15 +97,14 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     navCubitSubscription = navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChanged) {{
           if(event.currentTabIndex == 0) {
-            resumePlayingIfItWasPlaying();
-            storyPageActive = true;
+            // resumePlayingIfItWasPlaying();
+            currentPageIsActiveNotifier.value = true;
            } else  {
-            // This is a fix. we set storyPlayingBeforeLeavingPage if only use is leaving the home page
-            if(event.previousIndex == 0) {
-              setPlayingStateBeforeLeavingAndPauseStory();
-            }
-            storyPageActive = false;
-
+            // // This is a fix. we set storyPlayingBeforeLeavingPage if only use is leaving the home page
+            // if(event.previousIndex == 0) {
+            //   setPlayingStateBeforeLeavingAndPauseStory();
+            // }
+            currentPageIsActiveNotifier.value = false;
           }
         }}
 
@@ -114,19 +117,19 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
 
 
     });
-    homeCubit.stream.listen((event) {
+    homeCubitSubscription = homeCubit.stream.listen((event) {
       if(event.status == HomeStatus.didPushToNextCompleted) {
         final data = event.data as Map<String, dynamic>;
         final int tabIndex = data['tabIndex'];
-        if(tabIndex == 0 ){
+        if(tabIndex == 0 && currentPageIsActiveNotifier.value){
           didPushNext();
         }
-        if(tabIndex == 2) { // this means if user clicks on create post from the home page
-          final previousActiveIndex = context.read<NavCubit>().state.previousIndex;
-          if(previousActiveIndex == 0) {
-            didPushNext();
-          }
-        }
+        // if(tabIndex == 2) { // this means if user clicks on create post from the home page
+        //   final previousActiveIndex = context.read<NavCubit>().state.previousIndex;
+        //   if(previousActiveIndex == 0 && currentPageIsActiveNotifier.value) {
+        //     didPushNext();
+        //   }
+        // }
       }
 
       // Next problem is when the create new post (camera) button is clicked
@@ -137,15 +140,15 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
         if(tabIndex == 0){
           didPopNext();
         }
-        if(tabIndex == 2) {
-          final previousActiveIndex = context.read<NavCubit>().state.previousIndex;
-          if(previousActiveIndex == 0) {
-            didPopNext();
-          }
-        }
+        // if(tabIndex == 2 && currentPageIsActiveNotifier.value) {
+        //   final previousActiveIndex = context.read<NavCubit>().state.previousIndex;
+        //   if(previousActiveIndex == 0) {
+        //     didPopNext();
+        //   }
+        // }
       }
     });
-    userCubit.stream.listen((event) {
+    userCubitSubscription = userCubit.stream.listen((event) {
       if(event.status == UserStatus.getDisciplinaryRecordSuccessful) {
 
         // Future.delayed(const Duration(seconds: 1), () {
@@ -173,7 +176,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
       }
     });
 
-    authCubit.stream.listen((event) {
+    authCubitSubscription = authCubit.stream.listen((event) {
       if(event.status == AuthStatus.filtersAppliedCompleted) {
         _fetchData(pageKey: 1); // refresh page if user applies new filters
       }
@@ -188,13 +191,38 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     });
     WidgetsBinding.instance.addObserver(this);
     initHint();
-    configureBackgroundFetch();
     // initPlatformState();
     // onWidgetBindingComplete(onComplete: () {
     //   routeObserver.subscribe(this, ModalRoute.of(context)!);
     // });
+    currentPageIsActiveNotifier.addListener(currentPageIsActiveListener);
     super.initState();
 
+  }
+
+  void currentPageIsActiveListener() {
+    final pageIsActive = currentPageIsActiveNotifier.value;
+    if(pageIsActive) {
+      if(
+      (videoControllers.containsKey(activeFeedIndex) && videoControllers[activeFeedIndex] != null)
+      || (imageControllers.containsKey(activeFeedIndex) && imageControllers[activeFeedIndex] != null)
+      || (requestPostFeedVideoControllers.containsKey(activeFeedIndex) && requestPostFeedVideoControllers[activeFeedIndex] != null)
+      ) {
+        playActiveStory();
+      }
+
+    }else{
+      pauseActiveStory();
+    }
+  }
+
+  void firstPostInitialized() {
+    // activeIndex is expected to be 0 here.
+    if(currentPageIsActiveNotifier.value) {
+      playActiveStory();
+    }else {
+      pauseActiveStory();
+    }
   }
 
 
@@ -229,45 +257,6 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     });
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> configureBackgroundFetch() async {
-    // Configure BackgroundFetch.
-    int status = await BackgroundFetch.configure(BackgroundFetchConfig(
-        minimumFetchInterval: 15,
-        stopOnTerminate: false,
-        enableHeadless: true,
-        requiresBatteryNotLow: false,
-        requiresCharging: false,
-        requiresStorageNotLow: false,
-        requiresDeviceIdle: false,
-        requiredNetworkType: NetworkType.NONE
-    ), (String taskId) async {  // <-- Event handler
-      // This is the fetch-event callback.
-      debugPrint("[BackgroundFetch] Event received $taskId");
-
-      // We fetch fetch feeds for the first page and store it for faster load times
-      const path = AppApiRoutes.feeds;
-      final queryParams = { "page": 1, "limit": 20 };
-      final results = await context.read<StoriesFeedsCubit>().fetchFeeds(path: path, pageKey: pageKey, queryParams: queryParams);
-      if(results.$2 != null && mounted) {
-        context.read<StoriesFeedsCubit>().setBackgroundHasRefreshedFeed(hasRefreshed: true);
-      }
-
-      // IMPORTANT:  You must signal completion of your task or the OS can punish your app
-      // for taking too long in the background.
-      BackgroundFetch.finish(taskId);
-    }, (String taskId) async {  // <-- Task timeout handler.
-      // This task has exceeded its allowed running-time.  You must stop what you're doing and immediately .finish(taskId)
-      debugPrint("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
-      BackgroundFetch.finish(taskId);
-    });
-    debugPrint('[BackgroundFetch] configure success: $status');
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-  }
 
   @override
   void dispose() {
@@ -275,7 +264,12 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     pauseActiveStory();
     preloadPageController.dispose();
     navCubitSubscription?.cancel();
+    homeCubitSubscription?.cancel();
+    userCubitSubscription?.cancel();
+    authCubitSubscription?.cancel();
     _hintController.dispose();
+    currentPageIsActiveNotifier.dispose();
+    resetControllers();
     super.dispose();
   }
 
@@ -289,24 +283,19 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    // if(state == AppLifecycleState.hidden) {
+    //
+    // }
+
     if (state == AppLifecycleState.paused) {
 
-      if(storyPageActive) {
-        // App is in background
-        //  requestPostFeedAudioControllers[activeFeedIndex]?.;
-        _lastPauseTime = DateTime.now();
-        setPlayingStateBeforeLeavingAndPauseStory();
+      if(currentPageIsActiveNotifier.value) {
+        pauseActiveStory();
       }
 
-      // Start the background fetch when user leaves the app.
-      BackgroundFetch.start().then((int status) {
-        debugPrint('[BackgroundFetch] start success: $status');
-      }).catchError((e) {
-        debugPrint('[BackgroundFetch] start FAILURE: $e');
-      });
-
-
     } else if (state == AppLifecycleState.resumed) {
+
+      // Stop the background fetch when user gets back to the app.
 
       // if (ModalRoute.of(context)?.isCurrent ?? false) {
       //   // The widget is visible and the app has resumed
@@ -317,7 +306,8 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
         debugPrint("in current");
         // App is in foreground
         // playRequestFeedVideo(position)
-       if(storyPageActive) {
+       if(currentPageIsActiveNotifier.value) {
+
          bool requiresFullRefresh = false;
          final backgroundHasRefreshedFeeds = context.read<StoriesFeedsCubit>().state.backgroundHasRefreshedFeeds;
          if (_lastPauseTime != null) {
@@ -327,34 +317,33 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
            //2 * 60
            if (difInSeconds >= (3 * 60) && !backgroundHasRefreshedFeeds) {
              // If background has not refresh feeds and the user has delayed for more than 30 seconds before getting back to the app, refresh
-             activeFeedIndex = 0;
              _fetchData(pageKey: 1);
              requiresFullRefresh = true;
            }
          }
          if(!requiresFullRefresh) {
            if(backgroundHasRefreshedFeeds) {
-             activeFeedIndex = 0;
              _fetchData(pageKey: 1, returnExistingFeedsForFirstPage: true); // for quick access to feeds
            }else {
              // background has not refreshed feeds yet
              try{
                if(videoControllers[activeFeedIndex] == null && imageControllers[activeFeedIndex] == null) {
                  // if the active controller turns null, fetch all feeds again
-                 activeFeedIndex = 0;
                  _fetchData(pageKey: 1);
                }else {
 
                  // resumePlayingIfItWasPlaying();
-                 onWidgetBindingComplete(onComplete: () {
-                   // resumeActiveStory();
-                   resumePlayingIfItWasPlaying();
+                 // resumePlayingIfItWasPlaying();
 
+                 // on widget binding complete is important here
+                 onWidgetBindingComplete(onComplete: () {
+                   if(currentPageIsActiveNotifier.value) {
+                     playActiveStory();
+                   }
                  });
 
                }
              }catch(e) {
-               activeFeedIndex = 0;
                _fetchData(pageKey: 1);
              }
            }
@@ -363,11 +352,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
          _lastPauseTime = null;
        }
 
-      // Stop the background fetch when user gets back to the app.
-      BackgroundFetch.stop().then((int status) {
-        debugPrint('[BackgroundFetch] stop success: $status');
-        context.read<StoriesFeedsCubit>().setBackgroundHasRefreshedFeed(hasRefreshed: false);
-      });
+
 
     }
   }
@@ -375,35 +360,33 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   @override
   void didPush() {
     // This route was pushed onto the navigator and is now topmost.
-    storyPageActive = true;
+    currentPageIsActiveNotifier.value = true;
     debugPrint('SecondPage: didPush');
   }
 
   @override
   void didPopNext() {
     // This route is again the top route.
-    storyPageActive = true;
-    resumePlayingIfItWasPlaying();
+    currentPageIsActiveNotifier.value = true;
+    // resumePlayingIfItWasPlaying();
     debugPrint('SecondPage: didPopNext');
   }
 
   @override
   void didPop() {
     // This route was popped off the navigator.
-    storyPageActive = false;
+    currentPageIsActiveNotifier.value = false;
     debugPrint('SecondPage: didPop');
-    setPlayingStateBeforeLeavingAndPauseStory();
+    // setPlayingStateBeforeLeavingAndPauseStory();
   }
 
   @override
   void didPushNext() {
     // Another route has been pushed above this one.
-    storyPageActive = false;
+    currentPageIsActiveNotifier.value = false;
     debugPrint('SecondPage: didPushNext');
-    setPlayingStateBeforeLeavingAndPauseStory();
+    // setPlayingStateBeforeLeavingAndPauseStory();
   }
-
-
 
 
   _setLight() {
@@ -415,20 +398,18 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
   // returnExistingFeedsForFirstPage = will enable caching and fast serving of feeds
   _fetchData({required int pageKey, bool returnExistingFeedsForFirstPage = false}) async {
       this.pageKey = pageKey;
-      const path = AppApiRoutes.feeds;
-      final queryParams = { "page": pageKey, "limit": 20 };
       if(pageKey == 1) {
+        // the order is important here
         pauseActiveStory();
+        activeFeedIndex = 0;
+        resetActiveStory();
+        resetControllers();
       } // We do this to stop video and then refresh to avoid duplicate sounds
-      final res = await storiesFeedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: queryParams, returnExistingFeedsForFirstPage: returnExistingFeedsForFirstPage);
-      if(res.$2 != null && pageKey == 1) {
-        onWidgetBindingComplete(onComplete: () {
-          showPauseIcon.value = false;
-          activeFeedIndex = 0;
-          playActiveStory();
-        });
-      } // we do this to resume video after refresh
+      const path = AppApiRoutes.feeds;
+      final queryParams = { "page": pageKey, "limit": 5 };
+      await storiesFeedsCubit.fetchFeeds(path: path, pageKey: pageKey, queryParams: queryParams, returnExistingFeedsForFirstPage: returnExistingFeedsForFirstPage);
   }
+
 
   void feedCubitListener(BuildContext ctx, FeedState event) {
     if(event.status == FeedStatus.fetchFeedsSuccessful) {
@@ -448,76 +429,114 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     }
   }
 
-  void setPlayingStateBeforeLeavingAndPauseStory() {
-    storyPlayingBeforeLeavingPage = activeStoryPlaying;
-    debugPrint("storyPlayingBeforeLeavingPage: $storyPlayingBeforeLeavingPage");
-    pauseActiveStory();
-    debugPrint("storyPlayingBeforeLeavingPage: $storyPlayingBeforeLeavingPage");
-  }
-
-  void resumePlayingIfItWasPlaying() {
-    if(storyPlayingBeforeLeavingPage) {
-      resumeActiveStory();
-    }
-  }
 
   void pauseActiveStory() async {
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
     imageControllers[activeFeedIndex]?.pause();
     requestPostFeedVideoControllers[activeFeedIndex]?.pause();
-    activeStoryPlaying = false;
   }
 
   Future<void> resetActiveStory() async {
      videoControllers[activeFeedIndex]?.seekTo(Duration.zero);
      requestPostFeedVideoControllers[activeFeedIndex]?.seekTo(Duration.zero);
      imageControllers[activeFeedIndex]?.seek(Duration.zero);
-     activeStoryPlaying = true;
-     showPauseIcon.value = false;
   }
 
-  void resumeActiveStory() async {
-    // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
-    videoControllers[activeFeedIndex]?.play();
-    imageControllers[activeFeedIndex]?.play();
-    requestPostFeedVideoControllers[activeFeedIndex]?.play();
-    activeStoryPlaying = true;
+  Future<void> resetControllers() async {
+    videoControllers.forEach((key, value) {
+      videoControllers[key]?.dispose();
+    });
+    imageControllers.forEach((key, value) {
+      imageControllers[key]?.dispose();
+    });
+    requestPostFeedVideoControllers.forEach((key, value) {
+      requestPostFeedVideoControllers[key]?.dispose();
+    });
+    videoControllers.clear();
+    requestPostFeedVideoControllers.clear();
+    imageControllers.clear();
   }
 
-  void playActiveStory({FeedModel? feed}) async {
+  // void resumeActiveStory() async {
+  //   // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
+  //   videoControllers[activeFeedIndex]?.play();
+  //   imageControllers[activeFeedIndex]?.play();
+  //   requestPostFeedVideoControllers[activeFeedIndex]?.play();
+  //   activeStoryPlaying = true;
+  // }
+
+  void playActiveStory() async {
     // "request post feed"
-    requestPostFeedVideoControllers[activeFeedIndex]?.play();
+
+    showPlayIcon.value = false;
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
     imageControllers[activeFeedIndex]?.play();
-    activeStoryPlaying = true;
+    requestPostFeedVideoControllers[activeFeedIndex]?.play();
     //mark video as seen
-    if(feed != null) {
+    final feeds = context.read<StoriesFeedsCubit>().state.feeds;
+    final feed = feeds[activeFeedIndex];
+    if((feed.id ?? 0) > 0) {
       context.read<FeedsCubit>().viewPost(postId: feed.id, action: "seen");
     }
   }
 
   void usersOnlineHandler(BuildContext context) async {
 
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: UsersOnlinePage(controller: controller)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: UsersOnlinePage(controller: controller)
+              );
+            }
+        ),
+      ],
     );
 
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
 
+  }
+
+  void showFindLoveExplanationModal(BuildContext context) {
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.9,
+            shouldCloseOnMinExtent: true,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: StoriesExplanationPage(controller: controller,)
+              );
+            }
+        ),
+      ],
+    );
+    context.showCustomBottomSheet(
+        child: ch,
+        isDismissible: true,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
 
 
@@ -528,9 +547,15 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text("Find love ❤️", style: TextStyle(color: Colors.white,
-            // fontSize: 16
-        ),),
+        title:  GestureDetector(
+          onTap: () {
+            showFindLoveExplanationModal(context);
+          },
+          behavior: HitTestBehavior.opaque,
+          child: const Text("Find love ❤️", style: TextStyle(color: Colors.white,
+              // fontSize: 16
+          ),),
+        ),
         actions:  [
 
           BlocSelector<UserCubit, UserState, num>(
@@ -560,8 +585,8 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
 
                         return Row(
                             children: [
-                              Icon(Icons.person, size: iconSize, color: Colors.green,),
-                              Text(convertToCompactFigure(onlineUsersCount.toInt()), style: theme.textTheme.bodyMedium?.copyWith(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 14),)
+                              Icon(Icons.person, size: iconSize, color: AppColors.onlineGreen,),
+                              Text(convertToCompactFigure(onlineUsersCount.toInt()), style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.onlineGreen, fontWeight: FontWeight.bold, fontSize: 14),)
                             ],
                           );
                       }
@@ -660,12 +685,10 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                                         if((feed.id  ?? 0) < 0) {
                                           return RequestPostFeedItem(feedId: feed.id!, builder: (videoController) {
                                             requestPostFeedVideoControllers[i] = videoController;
-                                            // play first after initializing
-                                            if(!initialStoryViewed && i == 0) { playActiveStory(); }
+                                            if(i == 0)  { firstPostInitialized(); }
                                           },
                                             onTap: () {
-                                              activeStoryPlaying ? pauseActiveStory() : resumeActiveStory();
-                                              showPauseIcon.value = activeStoryPlaying ? false : true;
+                                              (requestPostFeedVideoControllers[i]?.isPlaying() ?? false) ? pauseActiveStory() : playActiveStory();
                                             },
                                             onFeedEditorOpened: () {
                                               // setPlayingStateBeforeLeavingAndPauseStory();
@@ -682,21 +705,21 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                                               preloadPageController: preloadPageController,
                                               videoBuilder: (controller) {
                                                 videoControllers[i] = controller;
-                                                if(!initialStoryViewed && i == 0) {
-                                                  // after initialization mark post as seen
-                                                  context.read<FeedsCubit>().viewPost(postId: feed.id, action: "seen");
-                                                }
+                                                if(i == 0)  { firstPostInitialized(); }
                                               },
                                               imageBuilder: (controller) {
                                                 imageControllers[i] = controller;
-                                                if(!initialStoryViewed && i == 0) {
-                                                  // after initialization mark post as seen
-                                                  context.read<FeedsCubit>().viewPost(postId: feed.id, action: "seen");
-                                                }
+                                                if(i == 0)  { firstPostInitialized(); }
                                               },
                                               onItemTapped: () {
-                                                activeStoryPlaying ? pauseActiveStory() : resumeActiveStory();
-                                                showPauseIcon.value = activeStoryPlaying ? false : true;
+                                                if(i == activeFeedIndex) {
+                                                  if((videoControllers[i]?.isPlaying() ?? false) || (imageControllers[i]?.playing ?? false)) {
+                                                    pauseActiveStory();
+                                                    showPlayIcon.value = true;
+                                                  }else {
+                                                    playActiveStory();
+                                                  }
+                                                }
                                               },
                                               onPageChanged: (bool onPageChanged) {
                                                 // if(onPageChanged) {
@@ -706,7 +729,8 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                                                 // }
                                               },
                                               feed: feed,
-                                              autoPlay: !initialStoryViewed && i == 0,
+                                              // autoPlay: !initialStoryViewed && i == 0,
+                                              autoPlay: false,
                                               hls: true,
                                               useCache: false,
                                               onProgress: (progress) {
@@ -760,14 +784,23 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                                     );
                                   }),
 
-                                  ValueListenableBuilder<bool>(valueListenable: showPauseIcon, builder: (_, show, ch) {
+                                  ValueListenableBuilder<bool>(valueListenable: showPlayIcon, builder: (_, show, ch) {
                                     if(show) {
                                       return ch!;
                                     }
                                     return const SizedBox.shrink();
-                                  }, child: const Align(
+                                  }, child:  Align(
                                     alignment: Alignment.center,
-                                    child: CustomPlayPauseIconWidget(eventType: BetterPlayerEventType.pause,),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        if((videoControllers[i]?.isPlaying() ?? false) || (imageControllers[i]?.playing ?? false)) {
+                                          pauseActiveStory();
+                                          showPlayIcon.value = true;
+                                        }else {
+                                          playActiveStory();
+                                        }
+                                      }, behavior: HitTestBehavior.opaque,
+                                        child: const CustomPlayPauseIconWidget(eventType: BetterPlayerEventType.pause,)),
                                   ),)
 
                                 ],
@@ -787,20 +820,13 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                               activeFeedIndex = position;
                               percentageOfTimeSpentOnActiveFeed = 0;
                               canMarkActiveFeedAsWatched = true;
-                              if(initialStoryViewed == false) {
-                                initialStoryViewed = true;
-                              }
+                              // if(initialStoryViewed == false) {
+                              //   initialStoryViewed = true;
+                              // }
 
                               ///! active index is now current position
 
-                              // mark post as seen
-                              if((feeds[position].id ?? -1) > -1) {
-                                context.read<FeedsCubit>().viewPost(postId: feeds[position].id, action: "seen");
-                                // context.read<ChatConnectionsCubit>().fetchSuggestedChatUsers();
-                              }
-
-
-                              playActiveStory(feed: feeds[position]);
+                              playActiveStory();
 
 
                               // any time we reach the second (last) video then we fetch more
@@ -819,6 +845,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                             },
                             pageSnapping: true,
                             preloadPagesCount: feeds.length,
+                            // preloadPagesCount: 3,
                             // pageSnapping: false,
                             // physics: const BouncingScrollPhysics(),
                             physics: const CustomFastPageScrollPhysics(),
@@ -828,6 +855,56 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
                         },
                       )
 
+                  ),
+
+
+                  BlocBuilder<AuthFeedsCubit, FeedState>(
+                    builder: (context, state) {
+                      final isPostInProgress = state.feeds.where((element) => element.status == "loading").isNotEmpty;
+                      if(!isPostInProgress) {
+                        return const SizedBox.shrink();
+                      }
+                      return FadeInUp(child: Container(
+                        decoration: const BoxDecoration(
+                          color: AppColors.navyBlue,
+                        ),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            // context.read<NavCubit>().requestTabChange(NavPosition.profile);
+                            context.read<NavCubit>().requestTabChange(NavPosition.profile, data: {"focusOnYourPosts":true});
+                            // context.go(AppRoutes.authProfile, extra: {"focusOnYourPosts":true});
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            child: Row(
+                              children: [
+                                LoadingAnimationWidget.fourRotatingDots(
+                                  color: Colors.amber,
+                                  // color: AppColors.buttonBlue,
+                                  size: 20,
+                                ),
+                                // ClipRRect(
+                                //   borderRadius: BorderRadius.circular(15),
+                                //   child: SizedBox(width: 25, height: 25,
+                                //     child: Container(
+                                //       decoration: const BoxDecoration(
+                                //           color: Colors.green
+                                //       ),
+                                //       child: const Icon(Icons.check, color: Colors.white, size: 17,),
+                                //     ),
+                                //   ),
+                                // ),
+                                const SizedBox(width: 10,),
+                                const Text("Your post is processing ...", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),),
+                                const Spacer(),
+                                const Icon(Icons.keyboard_arrow_right_outlined, color: Colors.white, size: 24,),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ));
+                    },
                   ),
 
                   /// Loading
@@ -846,6 +923,7 @@ class _StoriesFeedsPageState extends State<StoriesFeedsPage> with FileManagerMix
     );
   }
 }
+
 
 
 

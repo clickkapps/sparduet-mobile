@@ -55,20 +55,26 @@ class _PreferencesPageState extends State<PreferencesPage> with LaunchExternalAp
   }
 
   void  showCreateFeedbackHandler(BuildContext context) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: FeedbackPage(controller: controller)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: FeedbackPage(controller: controller)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
       // context.read<ThemeCubit>().setSystemUIOverlaysToDark();
@@ -76,20 +82,26 @@ class _PreferencesPageState extends State<PreferencesPage> with LaunchExternalAp
   }
 
   void  showDisplaySettingsHandler(BuildContext context) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: DisplaySettingsPage(controller: controller)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: DisplaySettingsPage(controller: controller)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
       // context.read<ThemeCubit>().setSystemUIOverlaysToDark();
@@ -97,20 +109,26 @@ class _PreferencesPageState extends State<PreferencesPage> with LaunchExternalAp
   }
 
   void  showNotificationSettingsHandler(BuildContext context) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: NotificationsSettingsPage(controller: controller)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: NotificationsSettingsPage(controller: controller)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false).then((value) {
       // context.read<ThemeCubit>().setSystemUIOverlaysToDark();

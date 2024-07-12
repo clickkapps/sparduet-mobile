@@ -171,7 +171,7 @@ class AuthCubit extends Cubit<AuthState> {
   void updateAuthUserProfilePhoto({required File file}) async {
 
     emit(state.copyWith(status: AuthStatus.updateAuthUserProfilePhotoInProgress));
-    final uploadResponse = await fileRepository.uploadFilesToServer(files: <File>[file]);
+    final uploadResponse = await fileRepository.uploadFileToCloudinary(file: file);
 
     if(uploadResponse.isLeft()){
       final l = uploadResponse.asLeft();
@@ -179,8 +179,7 @@ class AuthCubit extends Cubit<AuthState> {
       return;
     }
 
-    final uploads = uploadResponse.asRight();
-    final filePath = uploads.first;
+    final filePath = uploadResponse.asRight();
 
     final updated = await updateAuthUserProfile(payload: {"profilePhoto": filePath});
     if(updated.$1 != null) {

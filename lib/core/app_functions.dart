@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -264,4 +265,19 @@ String? convertObjectToString(Object? object) {
   } else {
     return object.toString();
   }
+}
+
+Future<bool> isRunningOnEmulator() async {
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  bool isEmulator = false;
+
+  if (Platform.isAndroid) {
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    isEmulator = !androidInfo.isPhysicalDevice;
+  } else if (Platform.isIOS) {
+    IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    isEmulator = !iosInfo.isPhysicalDevice;
+  }
+
+  return isEmulator;
 }

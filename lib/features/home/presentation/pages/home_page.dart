@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:background_fetch/background_fetch.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:feather_icons/feather_icons.dart';
@@ -8,14 +7,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:open_store/open_store.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/app/routing/routes.dart';
 import 'package:sparkduet/core/app_audio_service.dart';
+import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
 import 'package:sparkduet/core/app_extensions.dart';
@@ -74,6 +72,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
   late UserCubit userCubit;
   StreamSubscription? navCubitStreamSubscription;
   StreamSubscription? authFeedsCubitStreamSubscription;
+  StreamSubscription? userCubitStreamSubscription;
+  StreamSubscription? authCubitStreamSubscription;
   StreamSubscription? cubeChatConnectionStateStream;
   AppLifecycleState? appState;
   final newVersion = NewVersionPlus();
@@ -86,10 +86,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     authCubit = context.read<AuthCubit>();
     authFeedsCubit = context.read<AuthFeedsCubit>();
     userCubit = context.read<UserCubit>();
-    navCubit.stream.listen((event) {
+    navCubitStreamSubscription = navCubit.stream.listen((event) {
         if(event.status == NavStatus.onTabChangeRequested) {
           if(event.requestedTabIndex != null) {
             if(event.requestedTabIndex == NavPosition.profile) {
+              onItemTapped(event.requestedTabIndex!, data: event.data);
+              return;
+            }
+            if(event.requestedTabIndex == NavPosition.home) {
               onItemTapped(event.requestedTabIndex!, data: event.data);
               return;
             }
@@ -99,10 +103,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
         }
     });
 
-    userCubit.stream.listen((event) {
+    userCubitStreamSubscription = userCubit.stream.listen((event) {
       if(event.status == UserStatus.getDisciplinaryRecordSuccessful) {
 
-        EasyDebounce.debounce('disciplinary-action', const Duration(milliseconds: 5000), () {
+        EasyDebounce.debounce('disciplinary-action', const Duration(milliseconds: 1000), () {
           if(event.disciplinaryRecord != null && mounted) {
             if(event.disciplinaryRecord?.disciplinaryAction == "banned") {
               showUserAccountBannedPage(context, event.disciplinaryRecord!);
@@ -120,15 +124,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
       }
     });
 
-    authCubit.stream.listen((event) {
+    authCubitStreamSubscription = authCubit.stream.listen((event) {
       if(event.status == AuthStatus.setAuthUserInfoCompleted) {
           if((event.authUser?.info?.preferredNationalities ?? "").isEmpty){
             if(mounted) {
               logout(context);
             }
-
           }
       }
+
     });
 
     authFeedsCubitStreamSubscription = authFeedsCubit.stream.listen((event) async {
@@ -139,17 +143,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
       }
 
       if(event.status == FeedStatus.postFeedProcessFileCompleted) {
-        final data = event.data as Map<String, dynamic>;
+        // final data = event.data as Map<String, dynamic>;
         // Post has just been created by he user
 
-        //! if the purpose of the video is introduction, fetch the updated user detail.
-        if(data.containsKey("feed")) {
-          final feed = data["feed"] as FeedModel;
+        final feed = event.data as FeedModel;
+        if(mounted) {
+          //! if the purpose of the video is introduction, and there's an existing video
+          // change the data source
           if(feed.purpose == "introduction") {
-            if(mounted) {
-              context.read<AuthCubit>().fetchAuthUserInfo();
-            }
+            context.read<AuthCubit>().fetchAuthUserInfo();
           }
+        }
+
+        //! if the purpose of the video is introduction, fetch the updated user detail.
+
+        if(mounted)  {
+          context.showSnackBar("Your post is ready", onTap: () {
+            context.read<NavCubit>().requestTabChange(NavPosition.profile, data: {"focusOnYourPosts":true});
+          }, appearance: NotificationAppearance.success);
         }
 
       }
@@ -162,10 +173,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     });
 
     // fetch and update user profile info
-    attemptInitializations();
-    establishConnection();
     appState = WidgetsBinding.instance.lifecycleState;
     WidgetsBinding.instance.addObserver(this);
+    onWidgetBindingComplete(onComplete: () {
+      attemptInitializations();
+      establishConnection();
+    });
     super.initState();
   }
 
@@ -174,6 +187,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     navCubitStreamSubscription?.cancel();
     authFeedsCubitStreamSubscription?.cancel();
     cubeChatConnectionStateStream?.cancel();
+    userCubitStreamSubscription?.cancel();
+    authCubitStreamSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     homePageRouteObserver.unsubscribe(this);
     super.dispose();
@@ -214,8 +229,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
   // this is called when app initializes and as well as when there a change in network connection
   void attemptInitializations() async {
     if(await isNetworkConnected() && mounted) {
+
+      appInitialized = true;
+
       context.read<AuthCubit>().fetchAuthUserInfo();
-      AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
+      // AppAudioService.loadAllAudioFiles(AppConstants.audioLinks);
       context.read<CountriesCubit>().fetchAllCountries();
       context.read<SearchCubit>().fetchPopularSearchTerms();
       context.read<SearchCubit>().fetchRecentSearchTerms();
@@ -240,9 +258,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
       });
       context.read<SubscriptionCubit>().initializeSubscription(authUser?.publicKey ?? "").then((value) {
         context.read<SubscriptionCubit>().getSubscriptionStatus(); // set subscription status
-      });
-      Future.delayed(const Duration(seconds: 2) , () {
-        appInitialized = true;
       });
     }
 
@@ -686,7 +701,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
     // an existing active index has been tapped again
     context.read<NavCubit>().onTabChange(newIndex);
 
-    if(newIndex == activeIndex) {
+    bool emitOnActiveIndexTapped = true;
+
+    if(data != null && data is Map<String, dynamic> && data.containsKey("emitOnActiveIndexTapped")) {
+      emitOnActiveIndexTapped = (data['emitOnActiveIndexTapped'] as bool);
+    }
+
+    if(newIndex == activeIndex && emitOnActiveIndexTapped) {
       context.read<NavCubit>().onActiveIndexTapped(newIndex);
       return;
     }
@@ -738,6 +759,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, AuthMi
                    return const SizedBox.shrink();
                  },
                ),
+
                BottomNavigationBar(
                  type: BottomNavigationBarType.fixed,
                  showSelectedLabels: true,

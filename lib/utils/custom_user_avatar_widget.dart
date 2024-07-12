@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:avatars/avatars.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +22,7 @@ class CustomUserAvatarWidget extends StatelessWidget {
   final BoxFit fit;
   final double borderRadius;
   final File? placeHolderFile;
+  final String? placeHolderName;
   const CustomUserAvatarWidget({
   this.size = 35,
   this.color,
@@ -30,10 +32,13 @@ class CustomUserAvatarWidget extends StatelessWidget {
   this.borderRadius = 1000,
   this.userId,
   this.placeHolderFile,
+  this.placeHolderName,
   this.borderWidth = 3,
   super.key});
 
-  Widget get  avatarPlaceholder => placeHolderFile != null ? Image.file(placeHolderFile!, width: size, fit: BoxFit.cover, height: size,) : Image.asset(AppAssets.avatar, width: size, fit: BoxFit.cover, height: size,);
+  Widget get  avatarPlaceholder => placeHolderFile != null ? Image.file(placeHolderFile!, width: size, fit: BoxFit.cover, height: size,)
+      :(placeHolderName != null ? SizedBox(width: size, height: size, child: Avatar(name: placeHolderName.capitalize(), textStyle: TextStyle(fontSize: size * 0.4, color: Colors.white), ),) : Image.asset(AppAssets.avatar, width: size, fit: BoxFit.cover, height: size,) );
+      // : ;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +57,7 @@ class CustomUserAvatarWidget extends StatelessWidget {
         final showBorderEvaluated = online ? true : showBorder;
         return Container(
             decoration: BoxDecoration(
-                border: showBorderEvaluated ? Border.all(color: online ? Colors.green : color ?? theme.colorScheme.onBackground, width: borderWidth) : null,
+                border: showBorderEvaluated ? Border.all(color: online ? AppColors.onlineGreen : color ?? theme.colorScheme.onBackground, width: borderWidth) : null,
                 borderRadius: BorderRadius.circular(borderRadius),
                 color: theme.colorScheme.outline.withOpacity(0.3)
             ),

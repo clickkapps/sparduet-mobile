@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sparkduet/core/app_storage.dart';
@@ -439,6 +440,23 @@ class AuthRepository {
 
   }
 
+  Future<bool> requestLocationPermission() async {
+    var status = await Permission.location.status;
+    if (status.isDenied) {
+      if (await Permission.location.request().isGranted) {
+        // Permission granted, you can now access the location.
+        return true;
+      } else {
+        // Permission denied.
+        return false;
+      }
+    } else if (status.isGranted) {
+      // Permission already granted.
+      return true;
+    }
+    return false;
+  }
+
 
   /// Determine the current position of the device.
   ///
@@ -446,6 +464,11 @@ class AuthRepository {
   /// are denied the `Future` will return an error.
   /// (String, Position?) is countryCode and cordinates
   Future<Either<String? , AuthUserModel>> determinePosition() async {
+    final permissionRequestGranted = await requestLocationPermission();
+    if(!permissionRequestGranted) {
+      return const Left('Location services are disabled.');
+    }
+
     bool serviceEnabled;
     LocationPermission permission;
 

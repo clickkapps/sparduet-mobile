@@ -159,10 +159,10 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
               loadingWidget: widget.placeholder ?? const CustomAdaptiveCircularIndicator(),
 
           )),
-
       betterPlayerDataSource: betterPlayerDataSource,
 
     );
+
 
   }
 
@@ -175,12 +175,16 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         _aspectRatio = aspectRatio;
         _betterPlayerController.setOverriddenAspectRatio(aspectRatio);
       }
-      widget.builder?.call(_betterPlayerController);
+
       // if(widget.fit != null){
       //   _betterPlayerController.setOverriddenFit(widget.fit!);
       // }
       videoSourceStatus.value = VideoSrcStatus.ready;
       videoPlayerInitialized.value = true;
+
+      onWidgetBindingComplete(onComplete: () {
+        widget.builder?.call(_betterPlayerController);
+      });
 
     }
     if (event.betterPlayerEventType == BetterPlayerEventType.exception) {

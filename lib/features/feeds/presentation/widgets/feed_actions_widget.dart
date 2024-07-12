@@ -1,5 +1,6 @@
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -28,21 +29,27 @@ class FeedActionsWidget extends StatelessWidget {
 
 
   void filterPostsHandler(BuildContext context) async {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          shouldCloseOnMinExtent: true,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: FilterFeedsPage(scrollController: controller,)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            shouldCloseOnMinExtent: true,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: FilterFeedsPage(scrollController: controller,)
+              );
+            }
+        ),
+      ],
     );
     onChangePage?.call(true);
     await context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
@@ -50,20 +57,26 @@ class FeedActionsWidget extends StatelessWidget {
   }
 
   void reportPostHandler(BuildContext context) async {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: ReportFeedPage(controller: controller, feed: feed,)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: ReportFeedPage(controller: controller, feed: feed,)
+              );
+            }
+        ),
+      ],
     );
     onChangePage?.call(true);
     await context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
@@ -95,6 +108,7 @@ class FeedActionsWidget extends StatelessWidget {
               context.read<FeedsCubit>().togglePostLikeAction(feed: feed, action: "add");
               onActionTapped?.call("liked");
             }
+            HapticFeedback.lightImpact();
           },
           behavior: HitTestBehavior.opaque,
           child: SeparatedColumn(
@@ -125,6 +139,8 @@ class FeedActionsWidget extends StatelessWidget {
               ),
               if((feed.totalLikes ?? 0) > 0) ... {
                 Text("${feed.totalLikes}", style: TextStyle(color:  (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white, fontSize: 12),),
+              }else ... {
+                Text("0", style: TextStyle(color:  (feed.hasLiked ?? 0) > 0 ? Colors.red : Colors.white, fontSize: 12),),
               }
             ],
           ),
@@ -176,6 +192,7 @@ class FeedActionsWidget extends StatelessWidget {
             return GestureDetector(
               onTap: () {
                 context.read<FeedsCubit>().togglePostBookmarkAction(feed: feed);
+                HapticFeedback.lightImpact();
               },
               behavior: HitTestBehavior.opaque,
               child:  SeparatedColumn(
@@ -205,6 +222,8 @@ class FeedActionsWidget extends StatelessWidget {
                   ),
                   if((feed.totalBookmarks ?? 0) > 0) ... {
                     Text("${feed.totalBookmarks ?? 0}", style: const TextStyle(color: Colors.white, fontSize:11),),
+                  }else ... {
+                    const Text("0", style: TextStyle(color: Colors.white, fontSize:11),),
                   }
                 ],
               ),

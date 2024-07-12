@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:sparkduet/app/routing/routes.dart';
+import 'package:sparkduet/core/app_classes.dart';
 import 'package:sparkduet/core/app_colors.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
@@ -30,10 +32,9 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
   final Map<int, AudioPlayer?> imageControllers = {};
   late StoriesPreviewsCubit storiesPreviewsCubit;
   late PreloadPageController preloadPageController;
-  bool activeStoryPlaying = true;
-  bool storyPageActive = true;
-  bool storyPlayingBeforeLeavingPage = true; // This records the state before user navigates from the page
   final ValueNotifier<bool> showPauseIcon = ValueNotifier(false);
+  final CurrentPageIsActiveNotifier currentPageIsActiveNotifier = CurrentPageIsActiveNotifier();
+  final ValueNotifier<bool> showPlayIcon = ValueNotifier(false);
 
   @override
   void initState() {
@@ -42,18 +43,46 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
     storiesPreviewsCubit = context.read<StoriesPreviewsCubit>();
     storiesPreviewsCubit.setFeeds(widget.feeds);
     WidgetsBinding.instance.addObserver(this);
+    currentPageIsActiveNotifier.addListener(currentPageIsActiveListener);
     super.initState();
+  }
+
+  void currentPageIsActiveListener() {
+    final pageIsActive = currentPageIsActiveNotifier.value;
+    if(pageIsActive) {
+      if(
+      (videoControllers.containsKey(activeFeedIndex) && videoControllers[activeFeedIndex] != null)
+          || (imageControllers.containsKey(activeFeedIndex) && imageControllers[activeFeedIndex] != null)
+      ) {
+        playActiveStory();
+      }
+
+    }else{
+      pauseActiveStory();
+    }
+  }
+
+  void firstPostInitialized() {
+    // activeIndex is expected to be 0 here.
+    if(currentPageIsActiveNotifier.value) {
+      playActiveStory();
+    }else {
+      pauseActiveStory();
+    }
   }
 
   @override
   void dispose() {
     pauseActiveStory();
-    activeStoryPlaying = false;
-    storyPageActive = false;
     preloadPageController.dispose();
+    currentPageIsActiveNotifier.dispose();
     storiesPreviewPageRouteObserver.unsubscribe(this);
+    resetControllers();
+
     super.dispose();
   }
+
+
 
   @override
   void didChangeDependencies() {
@@ -65,18 +94,8 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
-      // App is in background
-      //  requestPostFeedAudioControllers[activeFeedIndex]?.;
-      if(storyPageActive){
-        setPlayingStateBeforeLeavingAndPauseStory();
-      }
 
     } else if (state == AppLifecycleState.resumed) {
-      // App is in foreground
-      // playRequestFeedVideo(position)
-      if(storyPageActive) {
-        resumePlayingIfItWasPlaying();
-      }
 
     }
   }
@@ -85,42 +104,27 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
   void didPush() {
     // This route was pushed onto the navigator and is now topmost.
     debugPrint('HomePage: didPush');
-    storyPageActive = true;
+    currentPageIsActiveNotifier.value = true;
   }
 
   @override
   void didPopNext() {
     // This route is again the top route.
-    storyPageActive = true;
-    resumePlayingIfItWasPlaying();
-    debugPrint('HomePage: didPopNext');
+    currentPageIsActiveNotifier.value = true;
   }
 
   @override
   void didPop() {
     // This route was popped off the navigator.
-    storyPageActive = false;
-    setPlayingStateBeforeLeavingAndPauseStory();
+    currentPageIsActiveNotifier.value = false;
     debugPrint('HomePage: didPop');
   }
 
   @override
   void didPushNext() {
     // Another route has been pushed above this one.
-    setPlayingStateBeforeLeavingAndPauseStory();
-    storyPageActive = false;
+    currentPageIsActiveNotifier.value = false;
     debugPrint('HomePage: didPushNext');
-  }
-
-  void setPlayingStateBeforeLeavingAndPauseStory() {
-    storyPlayingBeforeLeavingPage = activeStoryPlaying;
-    pauseActiveStory();
-  }
-
-  void resumePlayingIfItWasPlaying() {
-    if(storyPlayingBeforeLeavingPage) {
-      resumeActiveStory();
-    }
   }
   
 
@@ -128,7 +132,6 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
     // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
     videoControllers[activeFeedIndex]?.pause();
     imageControllers[activeFeedIndex]?.pause();
-    activeStoryPlaying = false;
   }
 
   Future<void> resetActiveStory() async {
@@ -136,18 +139,21 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
     imageControllers[activeFeedIndex]?.seek(Duration.zero);
   }
 
-  void resumeActiveStory() async {
-    // videoControllers[activeFeedIndex]?.videoPlayerController?.refresh();
-    videoControllers[activeFeedIndex]?.play();
-    imageControllers[activeFeedIndex]?.play();
-    activeStoryPlaying = true;
-  }
-
   void playActiveStory() async {
     // The actual post video
     videoControllers[activeFeedIndex]?.play();
     imageControllers[activeFeedIndex]?.play();
-    activeStoryPlaying = true;
+  }
+
+  Future<void> resetControllers() async {
+    videoControllers.forEach((key, value) {
+      videoControllers[key]?.dispose();
+    });
+    imageControllers.forEach((key, value) {
+      imageControllers[key]?.dispose();
+    });
+    videoControllers.clear();
+    imageControllers.clear();
   }
 
 
@@ -168,6 +174,7 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
           SizedBox(width: 18,)
         ],
       ),
+      bottomNavigationBar: Container(height: kToolbarHeight, color: AppColors.darkColorScheme.surface,),
       extendBodyBehindAppBar: true,
       body: BlocListener<StoriesPreviewsCubit, FeedState>(
         listener: feedsPreviewsCubitListener,
@@ -203,13 +210,27 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
                                 preloadPageController: preloadPageController,
                                 videoBuilder: (controller) {
                                   videoControllers[i] = controller;
-                                  playActiveStory();
+                                  if(widget.initialFeedIndex == i)  {
+                                    firstPostInitialized();
+                                  }
                                 },
                                 imageBuilder: (controller) {
                                   imageControllers[i] = controller;
-                                  playActiveStory();
+                                  if(widget.initialFeedIndex == i)  {
+                                    firstPostInitialized();
+                                  }
                                 },
-                                onItemTapped: () => activeStoryPlaying ? pauseActiveStory() : resumeActiveStory(),
+                                onItemTapped: () {
+                                  if(i == activeFeedIndex) {
+                                    if((videoControllers[i]?.isPlaying() ?? false) || (imageControllers[i]?.playing ?? false)) {
+                                      pauseActiveStory();
+                                      showPlayIcon.value = true;
+                                    }else {
+                                      playActiveStory();
+                                      showPlayIcon.value = false;
+                                    }
+                                  }
+                                },
                                 onPageChanged: (bool onPageChanged) {
                                   // if(onPageChanged) {
                                   //   setPlayingStateBeforeLeavingAndPauseStory();
@@ -218,14 +239,17 @@ class _StoriesPreviewsPageState extends State<StoriesPreviewsPage> with WidgetsB
                                   // }
                                 },
                                 feed: feed, hls: true,),
-                              ValueListenableBuilder<bool>(valueListenable: showPauseIcon, builder: (_, show, ch) {
+                              ValueListenableBuilder<bool>(valueListenable: showPlayIcon, builder: (_, show, ch) {
                                 if(show) {
                                   return ch!;
                                 }
                                 return const SizedBox.shrink();
-                              }, child: const Align(
-                                alignment: Alignment.center,
-                                child: CustomPlayPauseIconWidget(eventType: BetterPlayerEventType.pause,),
+                              }, child: const IgnorePointer(
+                                ignoring: true,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: CustomPlayPauseIconWidget(eventType: BetterPlayerEventType.pause,),
+                                ),
                               ),)
                             ],
                           );

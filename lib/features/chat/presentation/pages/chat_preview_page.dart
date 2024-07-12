@@ -211,21 +211,27 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
   }
 
   void showFirstImpressionExplanationModal(BuildContext context) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.9,
-          shouldCloseOnMinExtent: true,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: FirstImpressionExplanationPage(controller: controller,)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.9,
+            shouldCloseOnMinExtent: true,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: FirstImpressionExplanationPage(controller: controller,)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(
         child: ch,
@@ -234,21 +240,27 @@ class _ChatPreviewPageState extends State<ChatPreviewPage> with SubscriptionPage
   }
 
   void showMatchedConversationExplanationModal(BuildContext context) {
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.9,
-          shouldCloseOnMinExtent: true,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: MatchedConversationExplanationPage(controller: controller,)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.9,
+            shouldCloseOnMinExtent: true,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: MatchedConversationExplanationPage(controller: controller,)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(
         child: ch,

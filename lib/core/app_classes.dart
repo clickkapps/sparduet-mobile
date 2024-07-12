@@ -8,3 +8,15 @@ class ListItem {
 
   const ListItem({required this.id, required this.title, this.subTitle, this.icon});
 }
+
+class CurrentPageIsActiveNotifier extends ChangeNotifier {
+  bool _value = true;
+  bool get value => _value;
+
+  set value(bool newValue) {
+    if (_value != newValue) {
+      _value = newValue;
+      notifyListeners();
+    }
+  }
+}

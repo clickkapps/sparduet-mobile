@@ -60,23 +60,19 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   }
 
   void showSuccessPage() {
-    final ch = GestureDetector(
-      // behavior: HitTestBehavior.opaque,
-      // onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.9,
-          shouldCloseOnMinExtent: true,
-          builder: (_ , controller) {
-            return  ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: SubSuccessPage(onTap: () {
-                  context.popScreen();
-                },)
-            );
-          }
-      ),
+    final ch = DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.9,
+        minChildSize: 0.9,
+        shouldCloseOnMinExtent: true,
+        builder: (_ , controller) {
+          return  ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+              child: SubSuccessPage(onTap: () {
+                context.popScreen();
+              },)
+          );
+        }
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }

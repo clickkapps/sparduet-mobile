@@ -11,24 +11,30 @@ import 'package:sparkduet/features/users/data/models/user_info_model.dart';
 
 mixin AuthUIMixin {
     Future<void> showAuthProfileUpdateModal(BuildContext context, {bool showName = false, bool showBio = false, bool showAge = false, bool showGender = false, bool showRace = false, String? title}) {
-      final ch = GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => Navigator.pop(context),
-        child: DraggableScrollableSheet(
-            initialChildSize: 0.9,
-            maxChildSize: 1.0,
-            minChildSize: 0.9,
-            builder: (_ , controller) {
-              return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: UpdateAuthProfileFormWidget(showName: showName, showBio: showBio, showAge: showAge, showGender: showGender,
-                  showRace: showRace,
-                  title: title,
-                  scrollController: controller,
-                  onComplete: () => context.popScreen(),),
-              );
-            }
-        ),
+      final ch = Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(color: Colors.transparent), // Transparent container to detect taps
+          ),
+          DraggableScrollableSheet(
+              initialChildSize: 0.9,
+              maxChildSize: 1.0,
+              minChildSize: 0.9,
+              builder: (_ , controller) {
+                return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: UpdateAuthProfileFormWidget(showName: showName, showBio: showBio, showAge: showAge, showGender: showGender,
+                    showRace: showRace,
+                    title: title,
+                    scrollController: controller,
+                    onComplete: () => context.popScreen(),),
+                );
+              }
+          ),
+        ],
       );
 
       return context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
@@ -63,22 +69,28 @@ mixin AuthUIMixin {
 
     void showLocationSelectorPage(BuildContext context) {
 
-      final ch = GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => Navigator.pop(context),
-        child: DraggableScrollableSheet(
-            initialChildSize: 0.9,
-            maxChildSize: 1.0,
-            minChildSize: 0.9,
-            builder: (_ , controller) {
-              return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: AuthUserLocationPage(controller: controller,
-                  automaticallyImplyLeading: true,
-                  onComplete: () => context.popScreen(),)
-              );
-            }
-        ),
+      final ch = Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(color: Colors.transparent), // Transparent container to detect taps
+          ),
+          DraggableScrollableSheet(
+              initialChildSize: 0.9,
+              maxChildSize: 1.0,
+              minChildSize: 0.9,
+              builder: (_ , controller) {
+                return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: AuthUserLocationPage(controller: controller,
+                    automaticallyImplyLeading: true,
+                    onComplete: () => context.popScreen(),)
+                );
+              }
+          ),
+        ],
       );
 
       context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);

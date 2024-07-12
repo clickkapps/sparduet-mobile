@@ -20,6 +20,9 @@ class FeedBroadcastRepository {
   void deleteFeed({required FeedModel feed}) {
     _feedBroadcastController.sink.add(FeedBroadCastEvent(action: FeedBroadcastAction.delete, feed: feed));
   }
+  void deleteTempFeed({required FeedModel feed}) {
+    _feedBroadcastController.sink.add(FeedBroadCastEvent(action: FeedBroadcastAction.deleteTempPost, feed: feed));
+  }
 
   void updateFeedCensorship({required int? feedId, String? disAction}) {
     _feedBroadcastController.sink.add(FeedBroadCastEvent(action: FeedBroadcastAction.censorUpdated, data: {'id': feedId, 'action': disAction}));

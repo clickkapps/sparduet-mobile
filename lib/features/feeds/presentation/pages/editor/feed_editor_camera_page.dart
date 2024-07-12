@@ -4,11 +4,10 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:separated_column/separated_column.dart';
 import 'package:separated_row/separated_row.dart';
-import 'package:sparkduet/app/routing/app_routes.dart';
 import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_enums.dart';
@@ -348,7 +347,26 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   void stopAndPreviewRecording() async {
     stopVideoRecording(onSuccess: (file) async {
       if(mounted) {
-        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme, feedPurpose: widget.purpose, frontCameraVideo: description.value == 1,));
+        Map<Permission, PermissionStatus> statuses = await [
+          Permission.storage,
+          Permission.photos,
+          Permission.videos,
+          Permission.mediaLibrary
+        ].request();
+
+        if(mounted) {
+          // bool showFeedEditorPreview = true;
+          // if(Platform.isAndroid && statuses[Permission.videos] != PermissionStatus.granted) {
+          //   showFeedEditorPreview = false;
+          // }
+          // if(showFeedEditorPreview) {
+          //  context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme, feedPurpose: widget.purpose, frontCameraVideo: description.value == 1,));
+          // }
+          context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.video, appTheme: appTheme, feedPurpose: widget.purpose, frontCameraVideo: description.value == 1,));
+        }
+
+
+
       }
     });
   }
@@ -373,12 +391,28 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
   }
 
   void takePhotoAndPreview() async {
-    capturePhoto(onSuccess: (file) {
+    capturePhoto(onSuccess: (file) async {
       if(description.value == 1) { // if its front camera user used fix, front camera flipped issue
         file = flipImage(file.path);
       }
       if(mounted) {
-        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme, feedPurpose: widget.purpose,));
+        Map<Permission, PermissionStatus> statuses = await [
+          Permission.storage,
+          Permission.photos,
+          Permission.videos,
+          Permission.mediaLibrary
+        ].request();
+        if(mounted) {
+          // bool showFeedEditorPreview = true;
+          // if(Platform.isAndroid && statuses[Permission.storage] != PermissionStatus.granted) {
+          //   showFeedEditorPreview = false;
+          // }
+          // if(showFeedEditorPreview) {
+          //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme, feedPurpose: widget.purpose,));
+          // }
+          context.pushScreen(FeedEditorPreviewPage(file: file, fileType: FileType.image, appTheme: appTheme, feedPurpose: widget.purpose,));
+        }
+
       }
     });
 
@@ -387,35 +421,53 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
 
 
   /// For displaying first gallery item on the camera
-  void pickFirstAssetFromGallery (RequestType requestType) async {
-    final PermissionState ps = await PhotoManager.requestPermissionExtend();
-    if (ps.isAuth || ps.hasAccess) {
-      // Granted
-      // You can to get assets here.
-      final albums = await PhotoManager.getAssetPathList(
-          type: requestType
-      );
-      if(albums.isNotEmpty) {
-        final selectedAlbum = albums[0];
-        // Now that we got the album, fetch all the assets it contains
-        final recentAssets = await selectedAlbum.getAssetListRange(
-          start: 0, // start at index 0
-          end: 1, // we need only one asset
-        );
-        if(recentAssets.isNotEmpty) {
-            setState(() {
-              firstGalleryItem = recentAssets.first;
-            });
-        }
-      }
+  void pickFirstAssetFromGallery(RequestType requestType) async {
+    return;
+    // final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    // if (ps.isAuth || ps.hasAccess) {
+    //   // Granted
+    //   // You can to get assets here.
+    //   final albums = await PhotoManager.getAssetPathList(
+    //       type: requestType
+    //   );
+    //   if(albums.isNotEmpty) {
+    //     final selectedAlbum = albums[0];
+    //     // Now that we got the album, fetch all the assets it contains
+    //     final recentAssets = await selectedAlbum.getAssetListRange(
+    //       start: 0, // start at index 0
+    //       end: 1, // we need only one asset
+    //     );
+    //     if(recentAssets.isNotEmpty) {
+    //         setState(() {
+    //           firstGalleryItem = recentAssets.first;
+    //         });
+    //     }
+    //   }
       // Update the state and notify UI
       // albumName.value = selectedAlbum.name;
-    }
+    // }
   }
 
   /// When file is selected from the gallery
   void onFileSelectedFromGalleryHandler(BuildContext context, {required File file, required FileType fileType}) async {
-      context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType, feedPurpose: widget.purpose, appTheme: appTheme,));
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.storage,
+        Permission.photos,
+        Permission.videos,
+        Permission.mediaLibrary
+      ].request();
+      if(context.mounted) {
+        // bool showFeedEditorPreview = true;
+        // if(Platform.isAndroid && statuses[Permission.storage] != PermissionStatus.granted) {
+        //   showFeedEditorPreview = false;
+        // }
+        // if(showFeedEditorPreview) {
+        //   context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType, feedPurpose: widget.purpose, appTheme: appTheme,));
+        // }
+        context.pushScreen(FeedEditorPreviewPage(file: file, fileType: fileType, feedPurpose: widget.purpose, appTheme: appTheme,));
+      }
+
+
   }
 
   /// Build camera UI
@@ -455,15 +507,18 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
                            mainAxisAlignment: MainAxisAlignment.center,
                            crossAxisAlignment: CrossAxisAlignment.center,
                            separatorBuilder: (BuildContext context, int index) {
-                             return  const SizedBox(width: 10,);
+                             return  const SizedBox(width: 0,);
                            },
                            children: [
 
                              /// Switch between photo and video buttons
 
                              if(widget.purpose == null || widget.purpose?.expectedFile == ExpectedFiles.photo || widget.purpose?.expectedFile == ExpectedFiles.any) ... {
-                               cameraType == RequestType.image ? Chip(label: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
-                                 backgroundColor: AppColors.darkColorScheme.background,
+                               cameraType == RequestType.image ? Padding(
+                                 padding: const EdgeInsets.symmetric(horizontal: 5),
+                                 child: Chip(label: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                   backgroundColor: AppColors.darkColorScheme.background,
+                                 ),
                                ) : GestureDetector(onTap: () {
                                  setState(() {
                                    cameraType = RequestType.image;
@@ -471,12 +526,20 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
                                    preRecordingTimerRemaining.value = preRecordingTimerDurationStartValue.value;
                                    pickFirstAssetFromGallery(RequestType.image);
                                  });
-                               }, child: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
+                               },
+                                   behavior: HitTestBehavior.opaque,
+                                   child: Padding(
+                                     padding: const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 5),
+                                     child: Text("Photo", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                   )),
                              },
 
                              if(widget.purpose == null || widget.purpose?.expectedFile == ExpectedFiles.video || widget.purpose?.expectedFile == ExpectedFiles.any) ... {
-                               cameraType == RequestType.video ? Chip(label: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
-                                 backgroundColor: AppColors.darkColorScheme.background,
+                               cameraType == RequestType.video ? Padding(
+                                 padding: const EdgeInsets.symmetric(horizontal: 5),
+                                 child: Chip(label: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                   backgroundColor: AppColors.darkColorScheme.background,
+                                 ),
                                ) : GestureDetector(onTap: () {
                                  setState(() {
                                    cameraType = RequestType.video;
@@ -484,7 +547,12 @@ class _FeedEditorCameraPageState extends State<FeedEditorCameraPage> with FileMa
                                    // preRecordingTimerRemaining.value = preRecordingTimerDurationStartValue.value;
                                    pickFirstAssetFromGallery(RequestType.video);
                                  });
-                               }, child: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),)),
+                               },
+                                   behavior: HitTestBehavior.opaque,
+                                   child: Padding(
+                                     padding: const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 5),
+                                     child: Text("Video", style: TextStyle(color: AppColors.darkColorScheme.onBackground, fontWeight: FontWeight.bold),),
+                                   )),
 
                              }
 

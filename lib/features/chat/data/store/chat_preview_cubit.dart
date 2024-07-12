@@ -308,7 +308,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
     ///! Image section
     if(attachedImageFile != null) {
 
-      final imageFilesResponse = await fileRepository.uploadFilesToServer(files: <File>[attachedImageFile]);
+      final imageFilesResponse = await fileRepository.uploadFileToCloudinary(file: attachedImageFile);
 
       if(imageFilesResponse.isLeft()){
         final l = imageFilesResponse.asLeft();
@@ -317,7 +317,7 @@ class ChatPreviewCubit extends Cubit<ChatPreviewState> {
         emit(state.copyWith(status: ChatPreviewStatus.sendMessageFailed, message: l));
       }
 
-      imagePath = imageFilesResponse.asRight().first;
+      imagePath = imageFilesResponse.asRight();
     }
 
     final either = await chatRepository.sendMessage(chatConnectionId: connection?.id, message: clientMessage, attachmentPath: imagePath);

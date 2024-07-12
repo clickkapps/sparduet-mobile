@@ -71,6 +71,18 @@ class FeedsCubit extends Cubit<FeedState> {
 
       }
 
+      if(event.action == FeedBroadcastAction.deleteTempPost){
+        final feedIndex = copiedFeeds.indexWhere((element) => element.tempId == event.feed!.tempId);
+        if(feedIndex > -1){
+          // copiedFeeds[feedIndex] = copiedFeeds[feedIndex].copyWith(
+          //   deleteAt: DateTime.now()
+          // );
+          copiedFeeds.removeAt(feedIndex);
+          emit(state.copyWith( feeds: copiedFeeds, status: FeedStatus.deleteFeedCompleted));
+          refreshList(updatedFeeds: copiedFeeds);
+        }
+      }
+
     });
   }
 
@@ -137,18 +149,22 @@ class FeedsCubit extends Cubit<FeedState> {
           id: postId,
           // status: null
         );
+        refreshList(updatedFeeds: existingFeeds);
+        emit(state.copyWith(status: FeedStatus.postFeedSuccessful, data: {"feed": existingFeeds[existingTempFeedIndex]}));
       }
-      refreshList(updatedFeeds: existingFeeds);
-      emit(state.copyWith(status: FeedStatus.postFeedSuccessful, data: {"feed": existingFeeds[existingTempFeedIndex]}));
+
     }
 
     ///! function to set post as failed
     void setError(String error) {
       final existingFeeds = <FeedModel>[...state.feeds];
       final postIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
-      existingFeeds[postIndex] = existingFeeds[postIndex].copyWith(status: "failed");
-      refreshList(updatedFeeds: existingFeeds);
-      emit(state.copyWith(status: FeedStatus.postFeedFailed, message: error));
+      if(postIndex > -1) {
+        existingFeeds[postIndex] = existingFeeds[postIndex].copyWith(status: "failed");
+        refreshList(updatedFeeds: existingFeeds);
+        emit(state.copyWith(status: FeedStatus.postFeedFailed, message: error));
+      }
+
     }
 
     ///! set Post as successful
@@ -157,9 +173,15 @@ class FeedsCubit extends Cubit<FeedState> {
       final postIndex = existingFeeds.indexWhere((element) => element.tempId == postTempId);
       if(postIndex > -1) {
         existingFeeds[postIndex] = feed;
+        refreshList(updatedFeeds: existingFeeds);
+        emit(state.copyWith(status: FeedStatus.postFeedProcessFileCompleted, data: feed));
+      }else {
+        // meaning post has been removed locally
+        deleteTempPost(post: feed.copyWith(
+          tempId: postTempId
+        ));
       }
-      refreshList(updatedFeeds: existingFeeds);
-      emit(state.copyWith(status: FeedStatus.postFeedProcessFileCompleted, data: feed));
+
     }
 
     //! update ui as loading image
@@ -182,7 +204,6 @@ class FeedsCubit extends Cubit<FeedState> {
     updatePostId(initialPostId);
 
 
-
     emit(state.copyWith(status: FeedStatus.postFeedProcessFileInProgress));
 
     MediaModel? mediaFile;
@@ -190,7 +211,7 @@ class FeedsCubit extends Cubit<FeedState> {
     if(mediaType == FileType.image) {
       ///! Image section
 
-      final imageFilesResponse = await fileRepository.uploadFilesToServer(files: <File>[file]);
+      final imageFilesResponse = await fileRepository.uploadFileToCloudinary(file: file);
 
       if(imageFilesResponse.isLeft()){
         final l = imageFilesResponse.asLeft();
@@ -198,7 +219,7 @@ class FeedsCubit extends Cubit<FeedState> {
         return;
       }
 
-      final imagePath = imageFilesResponse.asRight().first;
+      final imagePath = imageFilesResponse.asRight();
       mediaFile =  MediaModel(path: imagePath, type:  mediaType, assetId: imagePath);
 
 
@@ -241,6 +262,8 @@ class FeedsCubit extends Cubit<FeedState> {
     }
 
     final completedPost = attachMediaResponse.asRight();
+    // check if post has been removed and delete from server
+
     setCompleted(completedPost);
 
 
@@ -251,7 +274,7 @@ class FeedsCubit extends Cubit<FeedState> {
   Future<(String?, List<FeedModel>?)> fetchFeeds({required String path, required int pageKey, Map<String, dynamic>? queryParams, bool returnExistingFeedsForFirstPage = false}) async {
 
 
-    final uncompletedFeeds = state.feeds.where((element) => element.id == null).toList();
+    final uncompletedFeeds = state.feeds.where((element) => element.status == "loading").toList();
     // if(uncompletedFeeds.isNotEmpty && pageKey == 1) {
     //   emit(state.copyWith(status: FeedStatus.fetchFeedsInProgress));
     //   emit(state.copyWith(status: FeedStatus.unCompletedPostsWithFeeds, feeds: state.feeds));
@@ -294,7 +317,7 @@ class FeedsCubit extends Cubit<FeedState> {
         data: { "pageKey": pageKey }
     ));
 
-    return (null, newItems);
+    return (null, newItems.where((element) => element.deleteAt == null).toList());
   }
 
 
@@ -466,9 +489,46 @@ class FeedsCubit extends Cubit<FeedState> {
 
   }
 
+  void deleteTempPost({required FeedModel post}) async {
+
+    failed(String message) {
+      emit(state.copyWith(status: FeedStatus.deleteTempPostFailed, message: message));
+    }
+
+    emit(state.copyWith(status: FeedStatus.deleteTempPostInProgress));
+
+    // once user is connected to the network, just assume post is successful
+    if(!(await isNetworkConnected())) {
+      failed("You're not connected to the internet");
+      return;
+    }
+
+    // final feeds = <FeedModel>[...state.feeds];
+    // final indexOfFeed = feeds.indexWhere((element) => element.id == postId);
+    // if(indexOfFeed > -1) {
+    //   // feeds[indexOfFeed] = feeds[indexOfFeed].
+    //   feeds.removeAt(indexOfFeed);
+    // }
+    //
+    // refreshList(updatedFeeds: feeds);
+    feedBroadcastRepository.deleteTempFeed(feed: post);
+    emit(state.copyWith(status: FeedStatus.deleteTempPostSuccessful,));
+
+    if(post.id != null) {
+      final either = await feedsRepository.deletePost(postId: post.id);
+      if(either.isLeft()){
+        final l = either.asLeft();
+        failed(l);
+        return;
+      }
+    }
+
+
+  }
+
   void refreshList({List<FeedModel>? updatedFeeds}) {
     emit(state.copyWith(status: FeedStatus.refreshListInProgress));
-    emit(state.copyWith(status: FeedStatus.refreshListCompleted, feeds: updatedFeeds ?? state.feeds));
+    emit(state.copyWith(status: FeedStatus.refreshListCompleted, feeds: (updatedFeeds ?? state.feeds).where((element) => element.deleteAt == null).toList()));
   }
 
 

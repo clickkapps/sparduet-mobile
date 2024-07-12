@@ -45,7 +45,7 @@ mixin FileManagerMixin {
   //     }
   //
   //     if(item.id == "gallery") {
-  //       context.pickFilesFromGallery(requestType: RequestType.video, onSuccess: (files) => onSuccess?.call((files??[]).first), onError: onError);
+  //       context.pickFileFromGallery( onSuccess: (files) => onSuccess?.call((files??[]).first), onError: onError, fileType: FileType.);
   //       return;
   //     }
   //   });

@@ -15,7 +15,8 @@ class UncompletedUserPostItem extends StatelessWidget {
 
   final FeedModel post;
   final Function()? onTap;
-  const UncompletedUserPostItem({super.key, required this.post, this.onTap});
+  final Function()? onLongPress;
+  const UncompletedUserPostItem({super.key, required this.post, this.onTap, this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +24,7 @@ class UncompletedUserPostItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: GestureDetector(
         onTap: onTap,
+        onLongPress: onLongPress,
         behavior: HitTestBehavior.opaque,
         child: IgnorePointer(
           ignoring: true,

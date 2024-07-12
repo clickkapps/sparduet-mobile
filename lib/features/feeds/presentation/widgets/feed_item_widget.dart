@@ -3,7 +3,6 @@ import 'dart:math';
 // import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:better_player/better_player.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -43,7 +42,8 @@ class FeedItemWidget extends StatefulWidget {
   final PreloadPageController? preloadPageController;
   const FeedItemWidget({super.key,
     this.videoBuilder, this.onItemTapped,
-    required this.feed, this.autoPlay = false,
+    required this.feed,
+    this.autoPlay = false,
     required this.index,
     this.hls = false,
     this.useCache = false,
@@ -150,7 +150,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
 
                       //
 
-                      if(kDebugMode) {
+                      if(AppConstants.deviceIsEmulator) {
                         return const Center(
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 15.0),
@@ -222,6 +222,7 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                       height: mediaQuery.size.height,
                       child: CustomImagePlayerWidget(
                         imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.mediaPath ?? ""),
+                        // imageUrl: "",
                         audioUrl: audioPath ?? '',
                         imageSource: ImageSource.network,
                         builder: widget.imageBuilder,
@@ -234,14 +235,14 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                 },)
               },
               //
-              // IgnorePointer(
-              //   ignoring: true,
-              //   child: Container(
-              //     width: double.maxFinite,
-              //     height: double.maxFinite,
-              //     color: AppColors.black.withOpacity(0.3),
-              //   ),
-              // ),
+              IgnorePointer(
+                ignoring: true,
+                child: Container(
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                  color: AppColors.black.withOpacity(0.1),
+                ),
+              ),
 
 
               Align(
@@ -299,7 +300,8 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                                 behavior: HitTestBehavior.opaque,
                                 child: Row(
                                   children: [
-                                    CustomUserAvatarWidget(imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.user?.info?.profilePicPath ?? ""), userId: widget.feed.user?.id, showBorder: false, borderWidth: 2, size: 50,),
+                                    CustomUserAvatarWidget(imageUrl: AppConstants.imageMediaPath(mediaId: widget.feed.user?.info?.profilePicPath ?? ""),
+                                      userId: widget.feed.user?.id, showBorder: false, borderWidth: 2, size: 50, placeHolderName: widget.feed.user?.name ?? widget.feed.user?.username,),
                                     const SizedBox(width: 10,),
                                     Flexible(child: Text(widget.feed.user?.name ?? "", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),)),
                                     const SizedBox(width: 10,),
@@ -314,12 +316,12 @@ class _FeedItemWidgetState extends State<FeedItemWidget>{
                                   widget.feed.description ?? (widget.feed.user?.info?.bio ?? ''),
                                   trimMode: TrimMode.Line,
                                   trimLines: 2,
-                                  colorClickableText: Colors.blue,
+                                  colorClickableText: AppColors.buttonBlue,
                                   trimCollapsedText: ' Show more',
                                   trimExpandedText: ' Show less',
-                                  style: const TextStyle(color: Colors.white, fontSize: 20),
-                                  moreStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
-                                  lessStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                                  style: const TextStyle(color: Colors.white, fontSize: 17),
+                                  moreStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.buttonBlue),
+                                  lessStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.buttonBlue),
                                 )
                               },
 

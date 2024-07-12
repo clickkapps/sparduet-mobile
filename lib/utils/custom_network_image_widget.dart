@@ -29,7 +29,7 @@ class CustomNetworkImageWidget extends StatelessWidget {
       fadeInCurve: Curves.easeIn,
       cacheKey: imageUrl,
       maxWidthDiskCache: maxWidthDiskCache,
-      memCacheWidth: 500,
+      memCacheWidth: maxWidthDiskCache,
       width: width,
       height: height,
       progressIndicatorBuilder: (context, url, downloadProgress) => progressChild ??

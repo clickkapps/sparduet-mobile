@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
-import 'package:better_player/better_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,6 +28,7 @@ import 'package:sparkduet/features/countries/data/store/countries_state.dart';
 import 'package:sparkduet/features/countries/data/store/enums.dart';
 import 'package:sparkduet/features/feeds/data/models/feed_model.dart';
 import 'package:sparkduet/features/feeds/data/store/enums.dart';
+import 'package:sparkduet/features/feeds/data/store/feed_state.dart';
 import 'package:sparkduet/features/feeds/data/store/feeds_cubit.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/editor/feed_editor_camera_page.dart';
 import 'package:sparkduet/features/feeds/presentation/pages/stories_previews_page.dart';
@@ -106,7 +106,7 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
         }
         if(event.status == FeedStatus.postFeedSuccessful) {
           // userPostsPagingController?.itemList = event.feeds;
-          context.showSnackBar("Post created", appearance: NotificationAppearance.info);
+          // context.showSnackBar("Post created", appearance: NotificationAppearance.info);
         }
         if(event.status == FeedStatus.postFeedProcessFileCompleted) {
           // userPostsPagingController?.itemList = event.feeds;
@@ -141,6 +141,22 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
         if(tabIndex == 3) {
           autoScrollController.animateTo(0.00, duration: const Duration(milliseconds: 275), curve: Curves.linear);
         }
+      }
+
+      if(event.status == NavStatus.onTabChangeRequested) {
+        if(event.requestedTabIndex == NavPosition.profile) {
+          if(event.data is Map<String, dynamic>) {
+            final data = event.data as Map<String, dynamic>;
+            final focusOnPosts = data["focusOnYourPosts"] as bool?;
+            if(focusOnPosts ?? false) {
+              autoScrollController.scrollToIndex(aboutYouIndex, preferPosition: AutoScrollPosition.begin, duration: const Duration(milliseconds: 500));
+            }
+          }
+        }
+        // final tabIndex = event.data as int;
+        // if(tabIndex == 3) {
+        //   autoScrollController.animateTo(0.00, duration: const Duration(milliseconds: 275), curve: Curves.linear);
+        // }
       }
 
 
@@ -181,12 +197,25 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
   }
 
   void changePhotoHandler(BuildContext context) {
-    context.pickFileFromGallery(fileType: FileType.image, onSuccess: (file) {
-      setState(() { profilePhoto = file; });
-      context.read<AuthCubit>().updateAuthUserProfilePhoto(file: file);
+    context.pickFileFromGallery(fileType: FileType.image, onSuccess: (file) async {
+
+      if(context.mounted) {
+        setState(() { profilePhoto = file; });
+        context.read<AuthCubit>().updateAuthUserProfilePhoto(file: file);
+      }
+
     }, onError: (error) {
 
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+  @override
+  void didUpdateWidget(covariant AuthProfilePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
   }
 
   void changeIntroductionVideoHandler(BuildContext context) {
@@ -201,20 +230,26 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
       return;
     }
 
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: UnreadViewersPage(controller: controller)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: UnreadViewersPage(controller: controller)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
@@ -373,12 +408,12 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                                   ClipRRect(
                                                     borderRadius: BorderRadius.circular(100),
                                                     child: CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover,
-                                                      imageUrl: AppConstants.imageMediaPath(mediaId: profilePhoto),
+                                                      imageUrl: AppConstants.imageMediaPath(mediaId: profilePhoto), placeHolderName: authUser?.name ?? authUser?.username
                                                     ),
                                                   )
 
                                                 }else ... {
-                                                  CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover)
+                                                  CustomUserAvatarWidget(size: 70, showBorder: theme.brightness == Brightness.dark ? true : false, fit: BoxFit.cover, placeHolderName: authUser?.name ?? authUser?.username,)
                                                 }
                                               ],
                                             ),
@@ -709,22 +744,30 @@ class _AuthProfilePageState extends State<AuthProfilePage> with TickerProviderSt
                                   return const SizedBox(width: 0,);
                                 },
                                 children: [
-                                  CustomChipWidget(labelWidget: Row(
-                                     children: [
-                                       Text("Your Posts", style: TextStyle(color: val == 0 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,),),
-                                       if(val == 0) ... {
-                                         const SizedBox(width: 5,)
-,                                         Icon(Icons.refresh, size: 16, color: val == 0 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,)
-                                       }
-                                     ],
-                                  ), active: val == 0, onTap: () {
-                                    if(activeTab.value == 0) {
-                                      userPostsPagingController?.refresh();
-                                      return;
-                                    }
-                                    activeTab.value = 0;
-                                    tabController.animateToPage(0, duration: const Duration(milliseconds: 357), curve: Curves.linear);
-                                  },),
+                                  BlocBuilder<AuthFeedsCubit, FeedState>(
+                                    builder: (context, authState) {
+                                      final isPostInProgress = authState.feeds.where((element) => element.status == "loading").isNotEmpty;
+                                      return CustomChipWidget(labelWidget: Row(
+                                        children: [
+                                          Text("Your Posts", style: TextStyle(color: val == 0 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,),),
+                                          if(val == 0 && !isPostInProgress) ... {
+                                            const SizedBox(width: 5,),
+                                            Icon(Icons.refresh, size: 16, color: val == 0 ? AppColors.darkColorScheme.onBackground : theme.colorScheme.onBackground,)
+                                          }
+                                        ],
+                                      ), active: (val == 0), onTap: () {
+                                        if(activeTab.value == 0) {
+                                          if(isPostInProgress) { return; }
+                                          userPostsPagingController?.refresh();
+                                          return;
+                                        }
+                                        activeTab.value = 0;
+                                        tabController.animateToPage(0, duration: const Duration(milliseconds: 357), curve: Curves.linear);
+                                      },);
+                                    },
+                                  )
+                                  ,
+
                                   CustomChipWidget(
                                     // label: "Bookmarked posts",
                                     labelWidget: Row(

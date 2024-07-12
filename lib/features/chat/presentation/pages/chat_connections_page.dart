@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:sparkduet/app/routing/app_routes.dart';
+import 'package:sparkduet/core/app_colors.dart';
 import 'package:sparkduet/core/app_constants.dart';
 import 'package:sparkduet/core/app_extensions.dart';
 import 'package:sparkduet/core/app_functions.dart';
@@ -74,20 +75,26 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
 
   void usersOnlineHandler(BuildContext context) {
 
-    final ch = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context),
-      child: DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          maxChildSize: 0.9,
-          minChildSize: 0.7,
-          builder: (_ , controller) {
-            return ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                child: UsersOnlinePage(controller: controller)
-            );
-          }
-      ),
+    final ch = Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(color: Colors.transparent), // Transparent container to detect taps
+        ),
+        DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.9,
+            minChildSize: 0.7,
+            builder: (_ , controller) {
+              return ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                  child: UsersOnlinePage(controller: controller)
+              );
+            }
+        ),
+      ],
     );
     context.showCustomBottomSheet(child: ch, borderRadius: const BorderRadius.vertical(top: Radius.circular(15)), backgroundColor: Colors.transparent, enableBottomPadding: false);
   }
@@ -126,8 +133,8 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
                     behavior: HitTestBehavior.opaque,
                     child: Row(
                       children: [
-                        const Icon(Icons.person, size: 16, color: Colors.green,),
-                        Text("${convertToCompactFigure(onlineUsersCount.toInt())} online", style: theme.textTheme.bodyMedium?.copyWith(color: Colors.green, fontWeight: FontWeight.bold),)
+                        Icon(Icons.person, size: 16, color:theme.brightness == Brightness.dark ? AppColors.onlineGreen : Colors.green,),
+                        Text("${convertToCompactFigure(onlineUsersCount.toInt())} online", style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.onlineGreen, fontWeight: FontWeight.bold),)
                       ],
                     ),
                   );
@@ -180,6 +187,7 @@ class _ChatConnectionsPageState extends State<ChatConnectionsPage> {
                           children: [
                             UnconstrainedBox(child: CustomUserAvatarWidget(size: 70, userId: user.id, showBorder: false,
                               imageUrl: AppConstants.imageMediaPath(mediaId: user.info?.profilePicPath ?? ''),
+                              placeHolderName: user.name ?? user.username,
                             ),),
                             Text(user.name ?? (user.username ?? ""), maxLines: 1, overflow: TextOverflow.ellipsis,)
                           ],

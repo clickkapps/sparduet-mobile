@@ -72,6 +72,9 @@ extension ContextExtension on BuildContext {
         else if (appearance == NotificationAppearance.info ) {
           backgColor = AppColors.buttonBlue;
         }
+        else if (appearance == NotificationAppearance.success ) {
+          backgColor = Colors.green;
+        }
 
         await Flushbar(
           titleColor: msgColor,
@@ -349,6 +352,7 @@ extension ContextExtension on BuildContext {
     /// Check if user has granted the permissions to gallery
     await Permission.storage.request();
     await Permission.photos.request();
+    await Permission.videos.request();
 
     bool photosPermissionStatus = false;
     if(Platform.isIOS) {
@@ -358,7 +362,8 @@ extension ContextExtension on BuildContext {
       // android
       PermissionStatus storageStatus = (await Permission.storage.status);
       PermissionStatus photosStatus = (await Permission.photos.status);
-      photosPermissionStatus = photosStatus.isGranted || storageStatus.isGranted;
+      PermissionStatus videosStatus = (await Permission.videos.status);
+      photosPermissionStatus = photosStatus.isGranted || storageStatus.isGranted || videosStatus.isGranted;
     }
 
     if (!photosPermissionStatus) {
@@ -388,18 +393,39 @@ extension ContextExtension on BuildContext {
       return;
     }
 
+    /// For web_assets ... use this
     // final List<AssetEntity>? result = await AssetPicker.pickAssets(
     //   this,
     //   pickerConfig: AssetPickerConfig(
     //     // themeColor: luckyPointBlue,
-    //     requestType: requestType,
-    //     maxAssets: maxAssets ?? (requestType == RequestType.video ? 1 : 10),
+    //     requestType: fileType == FileType.image ? RequestType.image : RequestType.video,
+    //     // maxAssets: maxAssets ?? (requestType == RequestType.video ? 1 : 10),
+    //     maxAssets: 1,
     //
     //   ),
     // );
+    //
+    // if(result == null) {
+    //   onError?.call("Oops!. Sorry try again");
+    //   return;
+    // }
+    //
+    // final file = await result.first.file;
+    // if(file == null) {
+    //   onError?.call("Oops!. Sorry try again");
+    //   return;
+    // }
+    //
+    // onSuccess?.call(file);
+
+    /// for image picker ... use this
+
+
     if(fileType == FileType.image) {
-      // upload images / videos
+      
       final ImagePicker picker = ImagePicker();
+      // upload images / videos
+
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
       if(pickedFile == null) {
         onError?.call("Oops!. Sorry try again");
@@ -408,11 +434,25 @@ extension ContextExtension on BuildContext {
       File file = File(pickedFile.path);
       onSuccess?.call(file);
       return;
-    }
 
+    }
+    // else if (fileType == FileType.video ) {
+    //
+    //   final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
+    //   if(pickedFile == null) {
+    //     onError?.call("Oops!. Sorry try again");
+    //     return;
+    //   }
+    //   File file = File(pickedFile.path);
+    //   onSuccess?.call(file);
+    //   return;
+    //
+    // }
+
+    /// for platform picker use this......
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: fileType,
-      allowCompression: false,
+      allowCompression: true,
     );
 
     if(result == null) {

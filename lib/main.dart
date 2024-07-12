@@ -1,12 +1,14 @@
 // import 'package:background_fetch/background_fetch.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sparkduet/app/app.dart';
 import 'package:sparkduet/core/app_constants.dart';
+import 'package:sparkduet/core/app_functions.dart';
 import 'package:sparkduet/features/chat/data/models/chat_connection_model.dart';
 import 'package:sparkduet/features/chat/data/models/chat_message_model.dart';
 import 'package:sparkduet/features/users/data/models/user_info_model.dart';
@@ -68,6 +70,10 @@ void main() async {
   );
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   FirebaseAnalyticsObserver(analytics: analytics,);
+
+  if(kDebugMode) {
+    AppConstants.deviceIsEmulator = await isRunningOnEmulator();
+  }
 
   await Hive.initFlutter();
   Hive.registerAdapter(ChatConnectionModelAdapter());
